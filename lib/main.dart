@@ -55,9 +55,9 @@ class SleepAIDApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //todo 상태바 숨기기 기능(추후 UI에 따라서 수정)
-    SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+    // //todo 상태바 숨기기 기능(추후 UI에 따라서 수정)
+    // SystemChrome.setSystemUIOverlayStyle(
+    //     const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
 
     return MaterialApp(
       // 디버그모드 알림 배너 숨김

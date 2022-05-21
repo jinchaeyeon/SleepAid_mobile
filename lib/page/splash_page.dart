@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
+import 'package:sleepaid/data/auth_data.dart';
+import 'package:provider/provider.dart';
+import 'package:sleepaid/provider/auth_provider.dart';
 
 /**
  * 앱 시작시 사용되는 SPLASH PAGE
@@ -29,13 +32,21 @@ class SplashState extends State<SplashPage>
 
   @override
   Widget build(BuildContext context){
+    bool isAutoLogin = await context.select((AuthData authData) => authData.isLoggedIn);
+    No
     return Scaffold(
         extendBody: true,
         body: SafeArea(
           child: Container(
             width: double.maxFinite,
             height: double.maxFinite,
-            child: const Text("SPLASH")
+            alignment: Alignment.center,
+            child: InkWell(
+              child:Text("SPLASH ${isAutoLogin})"),
+              onTap:(){
+                context.read<AuthProvider>().setTempToggleLoggedIn();
+                }
+              )
           )
         )
     );
