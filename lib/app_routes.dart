@@ -2,11 +2,22 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sleepaid/page/home_page.dart';
+import 'package:sleepaid/page/login_page.dart';
 import 'package:sleepaid/page/splash_page.dart';
 
+class Routes {
+  static const splash = SplashPage.ROUTE;
+  static const login = LoginPage.ROUTE;
+  static const home = HomePage.ROUTE;
+  // static const signup = SignupPage.ROUTE;
+}
 Map<String, WidgetBuilder> routes() => {
-      SplashPage.ROUTE: (context) => SplashPage(),
-   };
+  SplashPage.ROUTE: (context) => const SplashPage(),
+  HomePage.ROUTE: (context) => const HomePage(),
+  LoginPage.ROUTE: (context) => const LoginPage(),
+ };
+
 
 Route<dynamic> onGenerateRoute(RouteSettings s) {
   WidgetBuilder? widgetBuilder;

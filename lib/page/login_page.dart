@@ -5,29 +5,20 @@ import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/util/app_styles.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:provider/provider.dart';
 
 
-/**
- * 앱 시작시 사용되는 SPLASH PAGE
- * 기본 데이터를 호출하여 로컬 상태 저장
- * 1. 인증 정보
- * 2. 기기 연결 상태
- * 3. 서버에서 갱신 된 데이터
- * 4. 신규 알림
- */
-class SplashPage extends BaseStatefulWidget {
-  static const ROUTE = "splash";
+class LoginPage extends BaseStatefulWidget {
+  static const ROUTE = "Login";
 
-  const SplashPage({Key? key}) : super(key: key);
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
-  SplashState createState() => SplashState();
+  LoginState createState() => LoginState();
 }
 
-class SplashState extends State<SplashPage>
+class LoginState extends State<LoginPage>
     with SingleTickerProviderStateMixin{
 
   @override
@@ -69,20 +60,13 @@ class SplashState extends State<SplashPage>
     );
   }
 
-  Future<void> checkLoginState() async{
-    Future.delayed(const Duration(milliseconds: 1000), () async {
-      await checkNetworkState().then((connected){
-        if(connected){
-          if(context.read<AuthProvider>().isLoginState()){
-            Navigator.pushReplacementNamed(context, Routes.home);
-          }else{
-            Navigator.pushReplacementNamed(context, Routes.login);
-          }
-        }else{
-          // showToast();
-          Navigator.of(context).pop(true);
-        }
-      });
+  void checkLoginState() {
+    Future.delayed(const Duration(milliseconds: 1000), (){
+      if(context.read<AuthProvider>().isLoginState()){
+
+      }else{
+        Navigator.pushReplacementNamed(context, Routes.login);
+      }
     });
   }
 }

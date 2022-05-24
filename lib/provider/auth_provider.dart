@@ -8,5 +8,10 @@ class AuthProvider with ChangeNotifier{
     authData.isLoggedIn = !authData.isLoggedIn;
     notifyListeners();
   }
+
+  // 1번 로그인 상태 확인
+  bool isLoginState() {
+    return false;
+  }
 }
 

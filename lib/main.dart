@@ -5,6 +5,8 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/splash_page.dart';
+import 'package:sleepaid/provider/bluetooth_provider.dart';
+import 'package:sleepaid/util/app_colors.dart';
 import 'app_config.dart';
 import 'provider/auth_provider.dart';
 
@@ -38,6 +40,7 @@ void mainInit() {
       MultiProvider(
         providers: [
           ChangeNotifierProvider(create: (_) => AuthProvider()),
+          ChangeNotifierProvider(create: (_) => BluetoothProvider()),
         ],
         child: Phoenix(child: SleepAIDApp()),
       )
@@ -73,7 +76,7 @@ class SleepAIDApp extends StatelessWidget {
       builder: (context, child) {
         return MediaQuery(
           data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-          child: child!,
+            child: child!
         );
       },
     );
