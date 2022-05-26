@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
@@ -33,7 +34,7 @@ class SplashState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
-    checkLoginState();
+    checkState();
   }
 
   @override
@@ -69,20 +70,32 @@ class SplashState extends State<SplashPage>
     );
   }
 
+  Future<void> checkState() async{
+    await checkAppVersion();
+  }
   Future<void> checkLoginState() async{
-    Future.delayed(const Duration(milliseconds: 1000), () async {
-      await checkNetworkState().then((connected){
-        if(connected){
-          if(context.read<AuthProvider>().isLoginState()){
-            Navigator.pushReplacementNamed(context, Routes.home);
-          }else{
-            Navigator.pushReplacementNamed(context, Routes.login);
-          }
-        }else{
-          // showToast();
-          Navigator.of(context).pop(true);
-        }
-      });
-    });
+    Navigator.pushReplacementNamed(context, Routes.home);
+    // Future.delayed(const Duration(milliseconds: 1000), () async {
+    //   await checkNetworkState().then((connected){
+    //     if(connected){
+    //       if(context.read<AuthProvider>().isLoginState()){
+    //         Navigator.pushReplacementNamed(context, Routes.home);
+    //       }else{
+    //         Navigator.pushReplacementNamed(context, Routes.login);
+    //       }
+    //     }else{
+    //       // showToast();
+    //       Navigator.of(context).pop(true);
+    //     }
+    //   });
+    // });
+  }
+
+  Future<void> checkAppVersion() async{
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    String appName = packageInfo.appName;
+    String packageName = packageInfo.packageName;
+    String version = packageInfo.version;
+    String buildNumber = packageInfo.buildNumber;
   }
 }

@@ -1,10 +1,30 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
+import 'package:sleepaid/data/ble_device.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:sleepaid/util/util.dart';
 
+/// 항시 연결상태 체크
+/// 항시 데이터 서버 전송
+/// 네트워크/서버 연결 실패하면 로컬에 담아서 보관
+/// 네트워크/서버 연결 되면 로컬 데이터 서버 전송하고 삭제
 class BluetoothProvider with ChangeNotifier{
-  
+  BleManager bleManager = BleManager();
+  List<BleDevice> deviceList = [];
+  bool isDataScanning = false;
+
+  ///기기가 연결되어 있으면 데이터 수집/비수집 전환한다
+  Future<void> toggleDataCollecting() async{
+    if(isDataScanning){
+      isDataScanning = false;
+    }else{
+      isDataScanning = true;
+    }
+    notifyListeners();
+  }
+
+
   // Future<void> getBluetoothConnection(address) async {
   //   //Bluetooth 주소값을 이용한 연결
   //   try {

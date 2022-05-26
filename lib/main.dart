@@ -1,12 +1,15 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
+import 'package:sleepaid/util/statics.dart';
 import 'app_config.dart';
 import 'provider/auth_provider.dart';
 
@@ -66,18 +69,14 @@ class SleepAIDApp extends StatelessWidget {
       // 디버그모드 알림 배너 숨김
       debugShowCheckedModeBanner: false,
       //기본 테마
-      theme: ThemeData(
-          primarySwatch: Colors.cyan),
+      theme: Statics.baseTheme,
       initialRoute: SplashPage.ROUTE,
+      color: Colors.transparent,
       navigatorObservers: [
         routeObserver
       ],
-      onGenerateRoute: onGenerateRoute,
-      builder: (context, child) {
-        return MediaQuery(
-          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
-            child: child!
-        );
+      onGenerateRoute: (RouteSettings settings){
+        return Routes.generateRoute(settings,context);
       },
     );
   }

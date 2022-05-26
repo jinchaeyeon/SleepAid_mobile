@@ -24,7 +24,7 @@ class LoginState extends State<LoginPage>
   @override
   void initState() {
     super.initState();
-    checkLoginState();
+
   }
 
   @override
@@ -52,7 +52,26 @@ class LoginState extends State<LoginPage>
                                 ))
                         )
                     ),
-                    const Expanded(flex: 2, child: SizedBox.shrink()),
+                    Expanded(
+                        flex: 2,
+                        child: Container(
+                          padding: const EdgeInsets.only(bottom:30),
+                          child: Column(
+                            children: [
+                              OutlinedButton(
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: Colors.black, //<-- SEE HERE
+                                ),
+                                onPressed: () {},
+                                child: const Text(
+                                  'Outlined Button',
+                                  style: TextStyle(fontSize: 40),
+                                ),
+                              ),
+                            ],
+                          )
+                        )
+                    ),
                   ],
                 )
             )
@@ -60,13 +79,5 @@ class LoginState extends State<LoginPage>
     );
   }
 
-  void checkLoginState() {
-    Future.delayed(const Duration(milliseconds: 1000), (){
-      if(context.read<AuthProvider>().isLoginState()){
 
-      }else{
-        Navigator.pushReplacementNamed(context, Routes.login);
-      }
-    });
-  }
 }
