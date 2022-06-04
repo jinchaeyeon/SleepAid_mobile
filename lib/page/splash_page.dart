@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/src/widgets/framework.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sleepaid/app_routes.dart';
+import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
-import 'package:sleepaid/util/app_strings.dart';
-import 'package:sleepaid/util/app_styles.dart';
+import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:provider/provider.dart';
@@ -44,27 +42,11 @@ class SplashState extends State<SplashPage>
         extendBody: true,
         body: SafeArea(
             child: Container(
-                color: AppColors.baseGreen,
+                color: AppColors.COLOR_BG_SPASH,
                 width: double.maxFinite,
                 height: double.maxFinite,
                 alignment: Alignment.center,
-                child: Column(
-                  children: [
-                    const Expanded(flex: 1, child: SizedBox.shrink()),
-                    Expanded(
-                        flex: 1,
-                        child: Center(
-                            child: Text(
-                                AppStrings.app_logo,
-                                style: AppStyles.textStyle(
-                                    size: AppDimens.textSizeLogo,
-                                    color: AppColors.white
-                                ))
-                        )
-                    ),
-                    const Expanded(flex: 2, child: SizedBox.shrink()),
-                  ],
-                )
+                child: Image.asset(AppImages.IMAGE_BG_SPLASH, fit: BoxFit.contain,)
             )
         )
     );
@@ -72,30 +54,42 @@ class SplashState extends State<SplashPage>
 
   Future<void> checkState() async{
     await checkAppVersion();
-  }
-  Future<void> checkLoginState() async{
-    Navigator.pushReplacementNamed(context, Routes.home);
-    // Future.delayed(const Duration(milliseconds: 1000), () async {
-    //   await checkNetworkState().then((connected){
-    //     if(connected){
-    //       if(context.read<AuthProvider>().isLoginState()){
-    //         Navigator.pushReplacementNamed(context, Routes.home);
-    //       }else{
-    //         Navigator.pushReplacementNamed(context, Routes.login);
-    //       }
-    //     }else{
-    //       // showToast();
-    //       Navigator.of(context).pop(true);
-    //     }
-    //   });
-    // });
+    await checkLoginState();
   }
 
+  /// 로그인 했는지 서버와 통신
+  /// 로그인 상태면 바로 메인홈으로 이동
+  /// 비로그인 상태면 로그인 페이지로 이동
+  Future<void> checkLoginState() async{
+    Future.delayed(const Duration(milliseconds: 2000), () async {
+      await checkNetworkState().then((connected){
+        if(connected){
+          if(AppDAO.debugData.hasDummyUserInfo){
+            Navigator.pushReplacementNamed(context, Routes.home);
+            return;
+          }
+          if(AppDAO.authData.isLoggedIn){
+            Navigator.pushReplacementNamed(context, Routes.home);
+          }else{
+            Navigator.pushReplacementNamed(context, Routes.login);
+          }
+          return;
+        }else{
+          Navigator.of(context).pop(true);
+        }
+      });
+    });
+  }
+
+  /**
+   * 버전정보 체크
+   */
   Future<void> checkAppVersion() async{
-    PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    String appName = packageInfo.appName;
-    String packageName = packageInfo.packageName;
-    String version = packageInfo.version;
-    String buildNumber = packageInfo.buildNumber;
+    //todo PackageInfoPlus 쓸까 했는데, 업데이트가 있게 되면 적용하고 굳이 무겁게 넣을 필요는 없을듯
+    // PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    // String appName = packageInfo.appName;
+    // String packageName = packageInfo.packageName;
+    // String version = packageInfo.version;
+    // String buildNumber = packageInfo.buildNumber;
   }
 }

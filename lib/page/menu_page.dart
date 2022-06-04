@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
@@ -92,21 +91,31 @@ class MenuState extends State<MenuPage>
         onTap:(){
 
         },
-        child: Container(
-          height: 50,
-          width: double.maxFinite,
-          child: Row(
-            children: [
-              Text(title),
-              const Expanded(child: SizedBox.shrink()),
-              subWidget
-            ]
+        child: InkWell(
+          onTap: () => onClickListener(title),
+          child: Container(
+              height: 50,
+              width: double.maxFinite,
+              child: Row(
+                  children: [
+                    Text(title),
+                    const Expanded(child: SizedBox.shrink()),
+                    subWidget
+                  ]
+              )
           )
         )
       );
+      buttons.add(button);
     });
 
     return buttons;
+  }
+
+  onClickListener(String title) {
+    if(title == AppStrings.menu_bluetooth_connect){
+      Navigator.pushNamed(context,Routes.bluetoothConnect);
+    }
   }
 
 

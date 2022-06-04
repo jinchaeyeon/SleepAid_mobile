@@ -1,6 +1,10 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sleepaid/page/signup/agreement_term_page.dart';
+import 'package:sleepaid/page/bluetooth_connect_page.dart';
+import 'package:sleepaid/page/signup/email_signup_page.dart';
 import 'package:sleepaid/page/home_page.dart';
+import 'package:sleepaid/page/signup/license_key_page.dart';
 import 'package:sleepaid/page/login_page.dart';
 import 'package:sleepaid/page/menu_page.dart';
 import 'package:sleepaid/page/splash_page.dart';
@@ -10,7 +14,11 @@ class Routes{
   static const home = HomePage.ROUTE;
   static const login = LoginPage.ROUTE;
   static const menu = MenuPage.ROUTE;
+  static const bluetoothConnect = BluetoothConnectPage.ROUTE;
 
+  static const licenseKey = LicenseKeyPage.ROUTE;
+  static const signupWithEmail = EmailSignUpPage.ROUTE;
+  static const agreementTerm = AgreementTermPage.ROUTE;
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
       {int duration = 100}) {
@@ -35,6 +43,14 @@ class Routes{
           return const LoginPage();
         case Routes.menu:
           return const MenuPage();
+        case Routes.licenseKey:
+          return const LicenseKeyPage();
+        case Routes.signupWithEmail:
+          return const EmailSignUpPage();
+        case Routes.agreementTerm:
+          return const AgreementTermPage();
+        case Routes.bluetoothConnect:
+          return const BluetoothConnectPage();
         default:
           return const SplashPage();
       }

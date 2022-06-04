@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
@@ -24,104 +27,115 @@ class HomeState extends State<HomePage>
   @override
   void initState() {
     super.initState();
+    checkBluetoothPermission();
   }
 
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-        extendBody: true,
-        body: SafeArea(
-          child: Container(
-            width: double.maxFinite,
-            height: double.maxFinite,
-            alignment: Alignment.center,
-            child: Column(
-              children: [
-                const Expanded(flex: 1, child: SizedBox.shrink()),
-                Expanded(
-                  flex: 2,
-                  child: Container(
-                    height: 50,
-                    width: double.maxFinite,
-                    child: Row(
-                      children: [
-                        Text(AppStrings.app_logo, style: const TextStyle(fontWeight: FontWeight.bold)),
-                        Expanded(child:const SizedBox.shrink()),
-                        InkWell(
-                          onTap:(){
-                            openMenu();
-                          },
-                          child: Image.asset(AppImages.ic_menu, width: 50, height: 50)
-                        )
-                      ],
-                    )
-                  )
-                ),
-                Expanded(
-                  child: Container(
-                    child: Column(
-                      children: [
-                        Container(),
-                      ]
-                    )
-                  ),
-                ),
-                Expanded(
-                    flex: 3,
-                    child: Container(
-                        height: 50,
-                        width: double.maxFinite,
-                        child: Stack(
-                          children: [
-                            Positioned(
-                              left: 50, right: 50, top: 0, bottom: 100,
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: AppColors.grey,
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                child: Column(
-                                  children: [
-                                    Text("2021년 01월 01일"),
-                                    Text("수면 컨디션 작성"),
-                                    Text.rich(
-                                      TextSpan(
-                                        text: '09 ',
-                                        style: Theme.of(context).textTheme.headline2,
-                                        children: const <TextSpan>[
-                                          TextSpan(text: '/', style: TextStyle(fontWeight: FontWeight.bold)),
-                                          TextSpan(text: ' 09'),
-                                        ],
-                                      ),
-                                    )
-                                  ]
-                                )
-                              )
-                            ),
-                            Positioned(
-                              left: 50, right: 50, top: 0, bottom: 50,
-                              child: Container(
-                                  alignment:Alignment.bottomCenter,
-                                  child: AnimatedRotation(
-                                    turns: context.watch<BluetoothProvider>().isDataScanning?0.125:0,
-                                    duration: const Duration(milliseconds: 100),
-                                    child: InkWell(
-                                      onTap:() async {
-                                        await toggleCollectingData();
+    return WillPopScope(
+      onWillPop: () async{
+        if (Platform.isIOS) {
+          exit(0);
+        } else {
+          SystemNavigator.pop();
+        }
+        return false;
+      },
+      child: Scaffold(
+          extendBody: true,
+          body: SafeArea(
+              child: Container(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  alignment: Alignment.center,
+                  child: Column(
+                    children: [
+                      const Expanded(flex: 1, child: SizedBox.shrink()),
+                      Expanded(
+                          flex: 2,
+                          child: Container(
+                              height: 50,
+                              width: double.maxFinite,
+                              child: Row(
+                                children: [
+                                  Text(AppStrings.app_logo, style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  Expanded(child:const SizedBox.shrink()),
+                                  InkWell(
+                                      onTap:(){
+                                        openMenu();
                                       },
-                                      child: Image.asset(AppImages.ic_x),
-                                    )
+                                      child: Image.asset(AppImages.ic_menu, width: 50, height: 50)
                                   )
-                                )
+                                ],
+                              )
+                          )
+                      ),
+                      Expanded(
+                        child: Container(
+                            child: Column(
+                                children: [
+                                  Container(),
+                                ]
                             )
-                          ],
-                        )
-                    )
-                ),
-              ],
-            )
+                        ),
+                      ),
+                      Expanded(
+                          flex: 3,
+                          child: Container(
+                              height: 50,
+                              width: double.maxFinite,
+                              child: Stack(
+                                children: [
+                                  Positioned(
+                                      left: 50, right: 50, top: 0, bottom: 100,
+                                      child: Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColors.grey,
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
+                                          child: Column(
+                                              children: [
+                                                Text("2021년 01월 01일"),
+                                                Text("수면 컨디션 작성"),
+                                                Text.rich(
+                                                  TextSpan(
+                                                    text: '09 ',
+                                                    style: Theme.of(context).textTheme.headline2,
+                                                    children: const <TextSpan>[
+                                                      TextSpan(text: '/', style: TextStyle(fontWeight: FontWeight.bold)),
+                                                      TextSpan(text: ' 09'),
+                                                    ],
+                                                  ),
+                                                )
+                                              ]
+                                          )
+                                      )
+                                  ),
+                                  Positioned(
+                                      left: 50, right: 50, top: 0, bottom: 50,
+                                      child: Container(
+                                          alignment:Alignment.bottomCenter,
+                                          child: AnimatedRotation(
+                                              turns: context.watch<BluetoothProvider>().isDataScanning?0.125:0,
+                                              duration: const Duration(milliseconds: 100),
+                                              child: InkWell(
+                                                onTap:() async {
+                                                  await toggleCollectingData();
+                                                },
+                                                child: Image.asset(AppImages.ic_x),
+                                              )
+                                          )
+                                      )
+                                  )
+                                ],
+                              )
+                          )
+                      ),
+                    ],
+                  )
+              )
           )
-        )
+      )
     );
   }
 
@@ -133,6 +147,10 @@ class HomeState extends State<HomePage>
   // 데이터 수집/비수집 변환
   Future<void> toggleCollectingData() async{
     await context.read<BluetoothProvider>().toggleDataCollecting();
+  }
+
+  void checkBluetoothPermission() {
+    context.read<BluetoothProvider>().checkBluetoothPermission();
   }
 
 }

@@ -9,8 +9,10 @@ import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
+import 'package:sleepaid/util/app_themes.dart';
 import 'package:sleepaid/util/statics.dart';
-import 'app_config.dart';
+import 'data/local/app_dao.dart';
+import 'util/app_config.dart';
 import 'provider/auth_provider.dart';
 
 
@@ -57,6 +59,12 @@ class SleepAIDApp extends StatelessWidget {
   //페이지를 Router를 통하여 관리하기 위한 기본 RouteObserver
   final routeObserver = RouteObserver<PageRoute>();
 
+  ThemeData _theme = AppThemes.lightTheme;
+
+  void isDarkMode() {
+    _theme = AppDAO.isDarkMode?AppThemes.darkTheme:AppThemes.lightTheme;
+  }
+
   SleepAIDApp({Key? key}) : super(key: key);
 
   @override
@@ -64,14 +72,15 @@ class SleepAIDApp extends StatelessWidget {
     // //todo 상태바 숨기기 기능(추후 UI에 따라서 수정)
     // SystemChrome.setSystemUIOverlayStyle(
     //     const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
+    isDarkMode();
 
     return MaterialApp(
       // 디버그모드 알림 배너 숨김
       debugShowCheckedModeBanner: false,
       //기본 테마
-      theme: Statics.baseTheme,
+      theme: _theme,
       initialRoute: SplashPage.ROUTE,
-      color: Colors.transparent,
+      // color: Colors.transparent,
       navigatorObservers: [
         routeObserver
       ],

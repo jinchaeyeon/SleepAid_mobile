@@ -1,5 +1,9 @@
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:sleepaid/data/ble_device.dart';
+import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'dart:convert';
 import 'dart:typed_data';
@@ -10,8 +14,13 @@ import 'package:sleepaid/util/util.dart';
 /// 네트워크/서버 연결 실패하면 로컬에 담아서 보관
 /// 네트워크/서버 연결 되면 로컬 데이터 서버 전송하고 삭제
 class BluetoothProvider with ChangeNotifier{
+  static const List<String> SERVICE_UUID_LIST = ['6e400001-b5a3-f393-e0a9-e50e24dcca9e'];
+
   BleManager bleManager = BleManager();
-  List<BleDevice> deviceList = [];
+  List<BleDevice> deviceList = []; //전체 검색되는 장치목록
+  BleDevice? connectedDeviceForNeck; //목 연결 장치
+  BleDevice? connectedDeviceForForehead; //이마 연결장치
+
   bool isDataScanning = false;
 
   ///기기가 연결되어 있으면 데이터 수집/비수집 전환한다
@@ -21,6 +30,85 @@ class BluetoothProvider with ChangeNotifier{
     }else{
       isDataScanning = true;
     }
+    notifyListeners();
+  }
+
+  ///블루투스 장치 스캔(회사목록만)
+  Future<void> startDeviceScanning() async {
+    print("startDeviceScanning");
+    deviceList.clear();
+
+    await bleManager.createClient(
+      restoreStateIdentifier: "restore-id",
+      restoreStateAction: (peripherals) {
+        for (var peripherals in peripherals) {
+          print("Restored peripheral: ${peripherals.name}");
+        }
+      });
+
+    bleManager.startPeripheralScan(
+      uuids: SERVICE_UUID_LIST,
+    ).listen((scanResult) {
+      //실시간 스캔
+      //같은 id를 가졌으면 추가하지 않는다
+      bool isAleadyExist = false;
+      for (var device in deviceList) {
+        if(device.peripheral.identifier == scanResult.peripheral.identifier){
+          isAleadyExist = true;
+          //중복이면 업데이트
+          device.peripheral = scanResult.peripheral;
+          device.advertisementData = scanResult.advertisementData;
+          notifyListeners();
+        }
+      }
+      if(!isAleadyExist){
+        //중복 아니면 추가
+        var name = scanResult.peripheral.name ?? scanResult.advertisementData.localName ?? "Unknown";
+        deviceList.add(BleDevice(name,scanResult.rssi, scanResult.peripheral, scanResult.advertisementData));
+        notifyListeners();
+      }
+
+    });
+  }
+
+  ///스캔 끝나면 꼭 stop처리
+  Future<void> stopDeviceScanning() async {
+    print("stopDeviceScanning");
+    deviceList.clear();
+    bleManager.stopPeripheralScan();
+    await bleManager.destroyClient();
+  }
+
+  /// AOS 12대응
+  /// 12 이상에서는
+  /// if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+  // 	requestMultiplePermissions.launch(arrayOf(
+  //     	Manifest.permission.BLUETOOTH_SCAN,
+  //         Manifest.permission.BLUETOOTH_CONNECT))
+  //     }
+  //     else{
+  //     	val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
+  //         requestBluetooth.launch(enableBtIntent)
+  // }
+  ///12 이하에서는 LOCATION 도 필요
+  ///IOS 는 별도로
+  Future<void> checkBluetoothPermission() async {
+
+    Map<Permission, PermissionStatus> statuses =
+    await [Permission.location, Permission.bluetooth].request();
+  }
+
+  /// 신체 연결 다이얼로그 노출 및 선택 시 해당 파트 기기 연결 처리
+  /// 기 연결 기기가 있음면 연결 취소 처리
+  Future<void> choiceBodyPosition(BODY_TYPE type,BleDevice device) async {
+    if(type == BODY_TYPE.NECK){
+      if(connectedDeviceForNeck != null){
+
+      }
+    }else if(type == BODY_TYPE.FOREHEAD){
+
+    }
+
     notifyListeners();
   }
 
