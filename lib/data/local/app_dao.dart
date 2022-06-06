@@ -4,6 +4,7 @@ class DebugData{
   bool hasDummyUserInfo = true; // 더미 유저정보를 가지고 시작
   bool passCheckingLicenseKey = true;  // 라이센스키 값이 올바른지 확인하는지
   bool passCheckingSignupAPI = true; // 회원가입 API 확인 안하고 넘어가도록 처리
+  bool cancelBlockRotationDevice = false; // 화면 기울임 회전 막아둔 기능 풀기
 }
 
 class AppDAO{

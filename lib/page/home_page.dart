@@ -12,6 +12,7 @@ import 'package:provider/provider.dart';
 
 import '../app_routes.dart';
 
+///연결중인 장치 있을때와 없을때 구분
 class HomePage extends BaseStatefulWidget {
   static const ROUTE = "Home";
 
@@ -47,91 +48,25 @@ class HomeState extends State<HomePage>
               child: Container(
                   width: double.maxFinite,
                   height: double.maxFinite,
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      const Expanded(flex: 1, child: SizedBox.shrink()),
-                      Expanded(
-                          flex: 2,
-                          child: Container(
-                              height: 50,
-                              width: double.maxFinite,
-                              child: Row(
-                                children: [
-                                  Text(AppStrings.app_logo, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  Expanded(child:const SizedBox.shrink()),
-                                  InkWell(
-                                      onTap:(){
-                                        openMenu();
-                                      },
-                                      child: Image.asset(AppImages.ic_menu, width: 50, height: 50)
-                                  )
-                                ],
-                              )
-                          )
-                      ),
-                      Expanded(
+                  alignment: Alignment.topCenter,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: <Color>[Theme.of(context).colorScheme.primaryVariant, Theme.of(context).colorScheme.secondaryVariant],
+                    ),
+                  ),                  child: AspectRatio(
+                    aspectRatio: getAspectRatio(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal:20),
+                      child: SingleChildScrollView(
                         child: Container(
-                            child: Column(
-                                children: [
-                                  Container(),
-                                ]
-                            )
-                        ),
-                      ),
-                      Expanded(
-                          flex: 3,
-                          child: Container(
-                              height: 50,
-                              width: double.maxFinite,
-                              child: Stack(
-                                children: [
-                                  Positioned(
-                                      left: 50, right: 50, top: 0, bottom: 100,
-                                      child: Container(
-                                          decoration: BoxDecoration(
-                                            color: AppColors.grey,
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                          child: Column(
-                                              children: [
-                                                Text("2021년 01월 01일"),
-                                                Text("수면 컨디션 작성"),
-                                                Text.rich(
-                                                  TextSpan(
-                                                    text: '09 ',
-                                                    style: Theme.of(context).textTheme.headline2,
-                                                    children: const <TextSpan>[
-                                                      TextSpan(text: '/', style: TextStyle(fontWeight: FontWeight.bold)),
-                                                      TextSpan(text: ' 09'),
-                                                    ],
-                                                  ),
-                                                )
-                                              ]
-                                          )
-                                      )
-                                  ),
-                                  Positioned(
-                                      left: 50, right: 50, top: 0, bottom: 50,
-                                      child: Container(
-                                          alignment:Alignment.bottomCenter,
-                                          child: AnimatedRotation(
-                                              turns: context.watch<BluetoothProvider>().isDataScanning?0.125:0,
-                                              duration: const Duration(milliseconds: 100),
-                                              child: InkWell(
-                                                onTap:() async {
-                                                  await toggleCollectingData();
-                                                },
-                                                child: Image.asset(AppImages.ic_x),
-                                              )
-                                          )
-                                      )
-                                  )
-                                ],
-                              )
-                          )
-                      ),
-                    ],
+                          width: double.maxFinite,
+                          height: geteDeviceHeight(context) - 30,
+                          child: homeContent()
+                        )
+                      )
+                    )
                   )
               )
           )
@@ -153,4 +88,363 @@ class HomeState extends State<HomePage>
     context.read<BluetoothProvider>().checkBluetoothPermission();
   }
 
+  Widget homeContent2(){
+    return Column(
+      children: [
+        const Expanded(flex: 1, child: SizedBox.shrink()),
+        Expanded(
+            flex: 2,
+            child: SizedBox(
+                height: 50,
+                width: double.maxFinite,
+                child: Row(
+                  children: [
+                    Text(AppStrings.app_logo, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const Expanded(child:SizedBox.shrink()),
+                    InkWell(
+                        onTap:(){
+                          openMenu();
+                        },
+                        child: Image.asset(AppImages.ic_menu, width: 50, height: 50)
+                    )
+                  ],
+                )
+            )
+        ),
+        Expanded(
+          child: Container(
+              child: Column(
+                  children: [
+                    Container(),
+                  ]
+              )
+          ),
+        ),
+        Expanded(
+            flex: 3,
+            child: Container(
+                height: 50,
+                width: double.maxFinite,
+                child: Stack(
+                  children: [
+                    Positioned(
+                        left: 50, right: 50, top: 0, bottom: 100,
+                        child: Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.grey,
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                                children: [
+                                  Text("2021년 01월 01일"),
+                                  Text("수면 컨디션 작성"),
+                                  Text.rich(
+                                    TextSpan(
+                                      text: '09 ',
+                                      style: Theme.of(context).textTheme.headline2,
+                                      children: const <TextSpan>[
+                                        TextSpan(text: '/', style: TextStyle(fontWeight: FontWeight.bold)),
+                                        TextSpan(text: ' 09'),
+                                      ],
+                                    ),
+                                  )
+                                ]
+                            )
+                        )
+                    ),
+                    Positioned(
+                        left: 50, right: 50, top: 0, bottom: 50,
+                        child: Container(
+                            alignment:Alignment.bottomCenter,
+                            child: AnimatedRotation(
+                                turns: context.watch<BluetoothProvider>().isDataScanning?0.125:0,
+                                duration: const Duration(milliseconds: 100),
+                                child: InkWell(
+                                  onTap:() async {
+                                    await toggleCollectingData();
+                                  },
+                                  child: Image.asset(AppImages.ic_x),
+                                )
+                            )
+                        )
+                    )
+                  ],
+                )
+            )
+        ),
+      ],
+    );
+  }
+
+  Widget homeContent() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Expanded(child: SizedBox.shrink(),),
+        Container(
+          height: 70,
+          width: double.maxFinite,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                height: 70,
+                padding: const EdgeInsets.only(left:20, right:20),
+                alignment: Alignment.center,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Sleep Aid',
+                      style: TextStyle(
+                        color: AppColors.mainBlue,
+                        fontSize: 30,
+                        // // fontFamily: Util.roboto,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.pushNamed(context, Routes.menu);
+                      },
+                      child: SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Image.asset(AppImages.menu, fit: BoxFit.contain),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            ],
+          )
+        ),
+        const Expanded(child: SizedBox.shrink(),),
+        SizedBox(
+          width: double.maxFinite,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  //todo
+                  // Navigator.pushNamed(context, routeBioSignal);
+                },
+                child: contentButton(AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', ''),
+              ),
+              GestureDetector(
+                onTap: () {
+                  //todo
+                  // Navigator.pushNamed(context, routeElectricStimulation);
+                },
+                child: contentButton(AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', ''),
+              ),
+            ],
+          ),
+        ),
+        const Expanded(child: SizedBox.shrink(),),
+        SizedBox(
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              GestureDetector(
+                onTap: () {
+                  //todo
+                  // Navigator.pushNamed(context, routeBinauralBeat);
+                },
+                child: contentButton(AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', ''),
+              ),
+              GestureDetector(
+                onTap: () {
+                  //todo
+                  // Navigator.pushNamed(context, routeSleepAnalysis);
+                },
+                child: contentButton(AppImages.sleepAnalysis, '수면분석', false, '새로운 수면 정보 확인', ''),
+              ),
+            ],
+          ),
+        ),
+        const Expanded(child: SizedBox.shrink(),),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                //todo
+                // Navigator.pushNamed(context, routeSleepAnalysis);
+              },
+              child: contentButton(AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 100%', ''),
+            ),
+            GestureDetector(
+                onTap: () {
+                  //todo
+                  // Navigator.pushNamed(context, routeSleepAnalysis);
+                },
+                child: contentButton(AppImages.bluetoothDisconnect, '기기 연결 (이마)', false, '배터리 잔량 -', '')
+            ),
+          ],
+        ),
+        const Expanded(child: SizedBox.shrink(),),
+        Container(
+          height: 150,
+          padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
+          child: Stack(
+            children: [
+              Container(
+                width: double.maxFinite,
+                height: 120,
+                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 22),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).cardColor,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      "dateTime값",
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    Text(
+                      '수면컨디션을 작성해주세요.',
+                      style: Theme.of(context).textTheme.bodyText1,
+                    ),
+                    RichText(
+                      text: TextSpan(
+                        style: const TextStyle(
+                          fontSize: 14,
+                          // fontFamily: Util.notoSans,
+                          fontWeight: FontWeight.w400,
+                        ),
+                        children: [
+                          TextSpan(
+                            text: '09',
+                            style: TextStyle(color: AppColors.subTextBlack),
+                          ),
+                          TextSpan(
+                            text: ' / 09',
+                            style: TextStyle(color: AppColors.textGrey),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Positioned(
+                bottom: 0,
+                left: (getDeviceWidth(context) / 2) - (52/2) -35,
+                child: GestureDetector(
+                  onTap: () async {
+                    //todo
+                    await toggleCollectingData();
+                    // Navigator.pushNamed(context, routeSleepCondition);
+                  },
+                  child: SizedBox(
+                    width: 52,
+                    height: 52,
+                    child: AnimatedRotation(
+                        turns: context.watch<BluetoothProvider>().isDataScanning?0:0.125,
+                        duration: const Duration(milliseconds: 100),
+                        child: InkWell(
+                          onTap:() async {
+                            await toggleCollectingData();
+                          },
+                          child: Image.asset(AppImages.add),
+                        )
+                    ),
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget contentButton(String image, String title, bool isOn, String state, String route) {
+    return Expanded(
+      flex: 1,
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 10),
+        width: 160,
+        height: 160,
+        padding: const EdgeInsets.symmetric(horizontal: 15),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          borderRadius: BorderRadius.circular(26),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              width: 38,
+              height: 38,
+              child: Image.asset(image, fit: BoxFit.contain),
+            ),
+            Text(
+              title,
+              style: TextStyle(
+                color: Theme.of(context).textSelectionTheme.selectionColor,
+                fontSize: 14,
+                // fontFamily: Util.notoSans,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+            stateContainer(state, isOn),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget stateContainer(String state, bool isOn) {
+    return Container(
+      margin: const EdgeInsets.only(top: 10),
+      height: 22,
+      decoration: BoxDecoration(
+        color: isOn ? AppColors.mainYellow : Colors.transparent,
+        borderRadius: BorderRadius.circular(11),
+        border: Border.all(width: 1.5, color: AppColors.mainYellow),
+      ),
+      child: Center(
+        child: Text(
+          state,
+          style: TextStyle(
+            color: isOn ? Colors.white : AppColors.mainYellow,
+            fontSize: 10,
+            // fontFamily: Util.notoSans,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
+    );
+  }
+
+  double getDeviceWidth(BuildContext context) {
+    return MediaQuery.of(context).size.width;
+  }
+
+  getAspectRatio(BuildContext context) {
+    var portrait = MediaQuery.of(context).orientation;
+    if(portrait == Orientation.portrait){
+      return 280/560;
+    }
+    return 560/280;
+
+  }
+
+  double geteDeviceHeight(BuildContext context) {
+    var portrait = MediaQuery.of(context).orientation;
+    if(portrait == Orientation.portrait){
+      return MediaQuery.of(context).size.height;
+    }
+    return MediaQuery.of(context).size.height * 2;
+  }
 }

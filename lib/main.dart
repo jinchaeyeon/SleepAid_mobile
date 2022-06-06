@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
@@ -8,9 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
-import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_themes.dart';
-import 'package:sleepaid/util/statics.dart';
 import 'data/local/app_dao.dart';
 import 'util/app_config.dart';
 import 'provider/auth_provider.dart';
@@ -37,8 +34,10 @@ void mainInit() {
   WidgetsFlutterBinding.ensureInitialized();
 
   //화면 회전 막는 기능
-  SystemChrome.setPreferredOrientations(
-      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  if(!AppDAO.debugData.cancelBlockRotationDevice){
+    SystemChrome.setPreferredOrientations(
+        [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  }
 
   //Pheonix - 예상치 못한 오류 발생시 앱 새로 실행하는 패키지 적용
   runApp(
