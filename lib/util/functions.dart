@@ -1,5 +1,16 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+
+Future<void> completedExit() async {
+  if (Platform.isIOS) {
+    exit(0);
+  } else {
+    await SystemNavigator.pop();
+  }
+}
 
 Future<bool> checkNetworkState() async{
   ///todo 네트워크 연결 상태 체크하는 코드

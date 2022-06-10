@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
@@ -85,11 +86,11 @@ class SplashState extends State<SplashPage>
    * 버전정보 체크
    */
   Future<void> checkAppVersion() async{
-    //todo PackageInfoPlus 쓸까 했는데, 업데이트가 있게 되면 적용하고 굳이 무겁게 넣을 필요는 없을듯
-    // PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
     // String appName = packageInfo.appName;
     // String packageName = packageInfo.packageName;
-    // String version = packageInfo.version;
+    String version = packageInfo.version;
+    await AppDAO.setAppVersion(version);
     // String buildNumber = packageInfo.buildNumber;
   }
 }

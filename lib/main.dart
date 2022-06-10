@@ -54,17 +54,26 @@ void mainInit() {
 /**
  * 기본 앱
  */
-class SleepAIDApp extends StatelessWidget {
+class SleepAIDApp extends StatefulWidget {
+  SleepAIDApp({Key? key}) : super(key: key);
+  static _SleepAIDApp? of(BuildContext context) => context.findAncestorStateOfType<_SleepAIDApp>();
+  State<StatefulWidget> createState() => _SleepAIDApp();
+}
+
+class _SleepAIDApp extends State<SleepAIDApp> {
   //페이지를 Router를 통하여 관리하기 위한 기본 RouteObserver
   final routeObserver = RouteObserver<PageRoute>();
 
   ThemeData _theme = AppThemes.lightTheme;
 
+  void changeTheme(ThemeData themeData) {
+    _theme = themeData;
+    setState(() {});
+  }
+
   void isDarkMode() {
     _theme = AppDAO.isDarkMode?AppThemes.darkTheme:AppThemes.lightTheme;
   }
-
-  SleepAIDApp({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

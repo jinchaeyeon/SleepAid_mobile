@@ -11,6 +11,7 @@ class AppDAO{
   static DebugData debugData = DebugData();
   static bool isDarkMode = false;
   static AuthData authData = AuthData();
+  static var appVersion = '1.0.0';
 
   static String get baseUrl {
     /// 테스트버전 생기면 여기서 분기처리
@@ -33,6 +34,20 @@ class AppDAO{
     }
     // return await _get(key: 'accessToken') as String?;
     return USER_TYPE.NO_USER;
+  }
+
+  static setAppVersion(String version) {
+    appVersion = version;
+  }
+
+  ///테마 변경
+  static setDarkMode(bool isDarkMode) {
+    AppDAO.isDarkMode = isDarkMode;
+  }
+
+  ///전체 데이터 초기화
+  static clearAllData() {
+
   }
 
 
