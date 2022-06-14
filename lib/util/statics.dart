@@ -7,6 +7,17 @@ class Statics{
 
 }
 
+Gradient sliderGradient = LinearGradient(
+  begin: Alignment.centerLeft,
+  end: Alignment.centerRight,
+  colors: <Color>[AppColors.graphStart, AppColors.graphMiddle, AppColors.graphEnd],
+);
+
+String format(String value) {
+  String formatValue = value.toString().substring(0, value.toString().length - 2);
+  return formatValue;
+}
+
 
 PreferredSize appBar(BuildContext context, String title, {bool isRound = true}) {
   return PreferredSize(

@@ -23,17 +23,6 @@ class ConditionReviewPage extends BaseStatefulWidget {
 class ConditionReviewState extends State<ConditionReviewPage>
     with SingleTickerProviderStateMixin{
 
-  Gradient sliderGradient = LinearGradient(
-    begin: Alignment.centerLeft,
-    end: Alignment.centerRight,
-    colors: <Color>[AppColors.graphStart, AppColors.graphMiddle, AppColors.graphEnd],
-  );
-
-  String format(String value) {
-    String formatValue = value.toString().substring(0, value.toString().length - 2);
-    return formatValue;
-  }
-
   @override
   void initState() {
     super.initState();

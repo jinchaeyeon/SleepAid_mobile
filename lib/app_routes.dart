@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sleepaid/page/binaural_beat_page.dart';
 import 'package:sleepaid/page/condition_review_page.dart';
 import 'package:sleepaid/page/realtime_signal_page.dart';
 import 'package:sleepaid/page/setting_recipe_page.dart';
@@ -21,6 +22,7 @@ class Routes{
   static const conditionReview = ConditionReviewPage.ROUTE;
   static const bodySignal = RealtimeSignalPage.ROUTE;
   static const settingRecipe = SettingRecipePage.ROUTE;
+  static const binauralBeat = BinauralBeatPage.ROUTE;
   static const licenseKey = LicenseKeyPage.ROUTE;
   static const signupWithEmail = EmailSignUpPage.ROUTE;
   static const agreementTerm = AgreementTermPage.ROUTE;
@@ -60,6 +62,8 @@ class Routes{
           return const ConditionReviewPage();
         case Routes.bodySignal:
           return const RealtimeSignalPage();
+        case Routes.binauralBeat:
+          return const BinauralBeatPage();
         case Routes.settingRecipe:
           return const SettingRecipePage();
         default:

@@ -10,16 +10,16 @@ import 'package:provider/provider.dart';
 
 import '../app_routes.dart';
 
-class RealtimeSignalPage extends BaseStatefulWidget {
-  static const ROUTE = "RealtimeSignal";
+class BinauralBeatPage extends BaseStatefulWidget {
+  static const ROUTE = "BinauralBeat";
 
-  const RealtimeSignalPage({Key? key}) : super(key: key);
+  const BinauralBeatPage({Key? key}) : super(key: key);
 
   @override
-  RealtimeSignalState createState() => RealtimeSignalState();
+  BinauralBeatState createState() => BinauralBeatState();
 }
 
-class RealtimeSignalState extends State<RealtimeSignalPage>
+class BinauralBeatState extends State<BinauralBeatPage>
     with SingleTickerProviderStateMixin{
 
   @override
@@ -30,7 +30,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: appBar(context, '실시간 생체신호', isRound: false,),
+      appBar: appBar(context, 'Binaural Beat 관리', isRound: true,),
         extendBody: true,
         body: SafeArea(
             child: Container(
@@ -39,81 +39,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                 alignment: Alignment.topCenter,
                 child: Column(
                   children: [
-                    Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: <Color>[Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(0),
-                            bottomRight: Radius.circular(0),
-                          ),
-                        ),
-                        width: double.maxFinite,
-                        height: 50,
-                        child: Row(
-                            children:[
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 50,
-                                          alignment: Alignment.center,
-                                          child: Text("목", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
-                                      ))),
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 50,
-                                          alignment: Alignment.center,
-                                          child: Text("이마", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
-                                      ))),
-                            ]
-                        )
-                    ),
-                    Container(
-                        width: double.maxFinite,
-                        height: 3,
-                        child: Row(
-                            children:[
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 3,
-                                          color: AppColors.borderGrey,
-                                          alignment: Alignment.center,
-                                          child: SizedBox.shrink()
-                                      ))),
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 3,
-                                          color: Theme.of(context).colorScheme.secondary,
-                                          alignment: Alignment.center,
-                                          child: SizedBox.shrink()
-                                      ))),
-                            ]
-                        )
-                    ),
-                    // context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
-                    context.watch<BluetoothProvider>().connectedDeviceForNeck != null?
+                    context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
                     Expanded(
                       child: getRecommandConnectWidget()
                     ):
@@ -161,24 +87,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                 Expanded(child: SizedBox.shrink()),
                 showParameterUI?InkWell(
                     onTap:(){
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.black.withOpacity(0.3),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(20)),
-                        ),
-                        builder: (context) => SingleChildScrollView(
-                          child: Container(
-                            padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                            child: Wrap(
-                              children: [
-                                parameterBottomSheet()
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
+
                     },
                     child: Container(
                       width: 103,
@@ -232,6 +141,39 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
         ),
         child: Stack(
           children: [
+            Positioned(
+              left: 0, right: 0, bottom: 0, top: 50,
+              child: Container(
+                  width: double.maxFinite,
+                  height: 50,
+                  alignment: Alignment.center,
+                  child: Container(
+                    width: double.maxFinite,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: 16,
+                          height: 14,
+                          margin: const EdgeInsets.only(right: 2),
+                          child: Image.asset(AppImages.sound, fit: BoxFit.fill),
+                        ),
+                        const Center(
+                          child: Text(
+                            '이어폰을 착용해주세요.',
+                            style: TextStyle(
+                              color: AppColors.mainYellow,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.left,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+              )
+            ),
             Positioned(
               left: 0, right: 0, bottom: 0, top: 0,
               child: Container(
@@ -327,7 +269,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
       ),
     );
   }
-
+  
   Widget infoBottomSheet() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
@@ -343,7 +285,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'PPG (Photoplethysmograp)',
+                'Binaural Beat?',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textBlack,
@@ -353,7 +295,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               ),
               SizedBox(height: 8),
               Text(
-                '말초 혈류량 변화에 따른 조직에서의 광흡수도 변화를 측정. 심장 박동 주기에 따라 혈류량이 변하며, 이로 인해 신호의 크기가 변하게 됨',
+                '특정 주파수의 소리를 이용하여 뇌의 뇌파를 조절하는 소리를 뜻합니다.',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textBlack,
@@ -363,7 +305,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               ),
               SizedBox(height: 12),
               Text(
-                'HRV (Heart rate variability)',
+                'Binaural Beat 설정 시 확인사항',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textBlack,
@@ -373,7 +315,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               ),
               SizedBox(height: 8),
               Text(
-                '심박 변이도',
+                'Tone frequency는 1000Hz 미만까지 설정 가능하며, 두 주파수의 값 차이는 30Hz를 초과할 수 없습니다.',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textBlack,
@@ -382,130 +324,6 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                 ),
               ),
               SizedBox(height: 12),
-              Text(
-                'Actigraphy',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              SizedBox(height: 8),
-              Text(
-                'monitoring human rest/activity cycles',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w400,
-                ),
-              ),
-              SizedBox(height: 12),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget parameterBottomSheet() {
-    return Container(
-      padding: EdgeInsets.only(top: 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Column(
-            children: [
-              Text(
-                '파라미터 선택',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  color: AppColors.textBlack,
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              SizedBox(height: 14),
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      YellowButton(buttonText: 'NNI'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'NN50'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'LF/HF'),
-                    ],
-                  ),
-                  const SizedBox(height: 22),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      YellowButton(buttonText: 'parameter1'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'parameter2'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'parameter3'),
-                    ],
-                  ),
-                ],
-              ),
-              SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: double.maxFinite,
-                        height: 80,
-                        color: AppColors.buttonGrey,
-                        child: Center(
-                          child: Text(
-                            '취소',
-                            style: TextStyle(
-                              color: AppColors.textBlack,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      )
-                    ),
-                  ),
-                  Expanded(
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: double.maxFinite,
-                        height: 80,
-                        color: AppColors.buttonBlue,
-                        child: const Center(
-                          child: Text(
-                            '적용',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      )
-                    ),
-                  ),
-                ],
-              )
             ],
           ),
         ],
@@ -521,7 +339,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children:[
-          Text("기기를 연결해 주세요",style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color:AppColors.subTextBlack)),
+          const Text("기기를 연결해 주세요", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color:AppColors.subTextBlack)),
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: () async {

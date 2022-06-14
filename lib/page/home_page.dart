@@ -144,7 +144,7 @@ class HomeState extends State<HomePage>
               GestureDetector(
                 onTap: () {
                   //todo
-                  // Navigator.pushNamed(context, routeElectricStimulation);
+                  Navigator.pushNamed(context, Routes.settingRecipe);
                 },
                 child: contentButton(AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', ''),
               ),
@@ -158,8 +158,7 @@ class HomeState extends State<HomePage>
             children: [
               GestureDetector(
                 onTap: () {
-                  //todo
-                  // Navigator.pushNamed(context, routeBinauralBeat);
+                  Navigator.pushNamed(context, Routes.binauralBeat);
                 },
                 child: contentButton(AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', ''),
               ),
