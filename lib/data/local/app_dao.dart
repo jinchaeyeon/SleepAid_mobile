@@ -1,4 +1,5 @@
 import 'package:sleepaid/data/auth_data.dart';
+import 'package:sleepaid/data/network/sleep_condition_response.dart';
 
 class DebugData{
   bool hasDummyUserInfo = true; // 더미 유저정보를 가지고 시작
@@ -12,6 +13,7 @@ class AppDAO{
   static bool isDarkMode = false;
   static AuthData authData = AuthData();
   static var appVersion = '1.0.0';
+
 
   static String get baseUrl {
     /// 테스트버전 생기면 여기서 분기처리

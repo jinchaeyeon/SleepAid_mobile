@@ -7,6 +7,7 @@ import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/util/app_themes.dart';
 import 'package:sleepaid/util/functions.dart';
+import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/custom_switch_button.dart';
 
@@ -58,7 +59,7 @@ class MenuState extends State<MenuPage>
   Widget build(BuildContext context){
 
     return Scaffold(
-      appBar: appBar(),
+        appBar: appBar(context, '설정'),
         extendBody: true,
         body: SafeArea(
             child: Container(
@@ -128,77 +129,4 @@ class MenuState extends State<MenuPage>
       Navigator.pushNamed(context,Routes.bluetoothConnect);
     }
   }
-
-  PreferredSize appBar() {
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(123),
-      child: AppBar(
-        toolbarHeight: 116,
-        elevation: 0,
-        centerTitle: true,
-        title: Text(
-          '설정',
-          style: Theme.of(context).primaryTextTheme.headline5,
-        ),
-        automaticallyImplyLeading: false,
-        // brightness: Brightness.light,
-        backgroundColor: Colors.transparent,
-        flexibleSpace: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: <Color>[Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-            ),
-            borderRadius: const BorderRadius.only(
-              bottomLeft: Radius.circular(25),
-              bottomRight: Radius.circular(25),
-            ),
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 123,
-                padding: const EdgeInsets.only(
-                  top: 20,
-                  left: 10,
-                  right: 36,
-                ),
-                decoration: const BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(20),
-                    bottomRight: Radius.circular(20),
-                  ),
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        alignment: Alignment.center,
-                        child: Image.asset(
-                          AppImages.back, color: Theme.of(context).primaryIconTheme.color,
-                          fit: BoxFit.contain, width: 12, height: 21,
-
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-  
 }

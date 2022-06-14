@@ -1,5 +1,8 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sleepaid/page/condition_review_page.dart';
+import 'package:sleepaid/page/realtime_signal_page.dart';
+import 'package:sleepaid/page/setting_recipe_page.dart';
 import 'package:sleepaid/page/signup/agreement_term_page.dart';
 import 'package:sleepaid/page/bluetooth_connect_page.dart';
 import 'package:sleepaid/page/signup/email_signup_page.dart';
@@ -15,7 +18,9 @@ class Routes{
   static const login = LoginPage.ROUTE;
   static const menu = MenuPage.ROUTE;
   static const bluetoothConnect = BluetoothConnectPage.ROUTE;
-
+  static const conditionReview = ConditionReviewPage.ROUTE;
+  static const bodySignal = RealtimeSignalPage.ROUTE;
+  static const settingRecipe = SettingRecipePage.ROUTE;
   static const licenseKey = LicenseKeyPage.ROUTE;
   static const signupWithEmail = EmailSignUpPage.ROUTE;
   static const agreementTerm = AgreementTermPage.ROUTE;
@@ -51,6 +56,12 @@ class Routes{
           return const AgreementTermPage();
         case Routes.bluetoothConnect:
           return const BluetoothConnectPage();
+        case Routes.conditionReview:
+          return const ConditionReviewPage();
+        case Routes.bodySignal:
+          return const RealtimeSignalPage();
+        case Routes.settingRecipe:
+          return const SettingRecipePage();
         default:
           return const SplashPage();
       }

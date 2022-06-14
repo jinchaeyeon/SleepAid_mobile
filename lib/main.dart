@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_themes.dart';
 import 'data/local/app_dao.dart';
 import 'util/app_config.dart';
@@ -45,6 +46,7 @@ void mainInit() {
         providers: [
           ChangeNotifierProvider(create: (_) => AuthProvider()),
           ChangeNotifierProvider(create: (_) => BluetoothProvider()),
+          ChangeNotifierProvider(create: (_) => DataProvider()),
         ],
         child: Phoenix(child: SleepAIDApp()),
       )

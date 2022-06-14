@@ -59,7 +59,11 @@ class SplashState extends State<SplashPage>
   }
 
   /// 로그인 했는지 서버와 통신
-  /// 로그인 상태면 바로 메인홈으로 이동
+  /// 로그인 상태면
+  ///   필수 데이터 서버에서 갱신
+  ///     1. 수면컨디션 목록 정보
+  ///     2. 기기 파라미터 추가 정보
+  ///   이후 바로 메인홈으로 이동
   /// 비로그인 상태면 로그인 페이지로 이동
   Future<void> checkLoginState() async{
     Future.delayed(const Duration(milliseconds: 2000), () async {

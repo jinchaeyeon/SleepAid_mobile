@@ -1,16 +1,12 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
-import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:provider/provider.dart';
-
 import '../app_routes.dart';
 
 ///연결중인 장치 있을때와 없을때 구분
@@ -25,6 +21,7 @@ class HomePage extends BaseStatefulWidget {
 
 class HomeState extends State<HomePage>
     with SingleTickerProviderStateMixin{
+  Size? size;
 
   @override
   void initState() {
@@ -34,6 +31,8 @@ class HomeState extends State<HomePage>
 
   @override
   Widget build(BuildContext context){
+    size ??= MediaQuery.of(context).size;
+    checkNextDay(context);
     return WillPopScope(
       onWillPop: () async{
         await completedExit();
@@ -138,8 +137,7 @@ class HomeState extends State<HomePage>
             children: [
               GestureDetector(
                 onTap: () {
-                  //todo
-                  // Navigator.pushNamed(context, routeBioSignal);
+                  Navigator.pushNamed(context, Routes.bodySignal);
                 },
                 child: contentButton(AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', ''),
               ),
@@ -196,81 +194,86 @@ class HomeState extends State<HomePage>
           ],
         ),
         const Expanded(child: SizedBox.shrink(),),
-        Container(
-          height: 150,
-          padding: EdgeInsets.only(left: 15, right: 15, bottom: 15),
-          child: Stack(
-            children: [
-              Container(
-                width: double.maxFinite,
-                height: 120,
-                padding: EdgeInsets.symmetric(vertical: 14, horizontal: 22),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).cardColor,
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "dateTime값",
-                      style: Theme.of(context).textTheme.bodyText1,
-                    ),
-                    Text(
-                      '수면컨디션을 작성해주세요.',
-                      style: Theme.of(context).textTheme.bodyText1,
-                    ),
-                    RichText(
-                      text: TextSpan(
-                        style: const TextStyle(
-                          fontSize: 14,
-                          // fontFamily: Util.notoSans,
-                          fontWeight: FontWeight.w400,
-                        ),
-                        children: [
-                          TextSpan(
-                            text: '09',
-                            style: TextStyle(color: AppColors.subTextBlack),
-                          ),
-                          TextSpan(
-                            text: ' / 09',
-                            style: TextStyle(color: AppColors.textGrey),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Positioned(
-                bottom: 0,
-                left: (getDeviceWidth(context) / 2) - (52/2) -35,
-                child: GestureDetector(
-                  onTap: () async {
-                    //todo
-                    await toggleCollectingData();
-                    // Navigator.pushNamed(context, routeSleepCondition);
-                  },
-                  child: SizedBox(
-                    width: 52,
-                    height: 52,
-                    child: AnimatedRotation(
-                        turns: context.watch<BluetoothProvider>().isDataScanning?0:0.125,
-                        duration: const Duration(milliseconds: 100),
-                        child: InkWell(
-                          onTap:() async {
-                            await toggleCollectingData();
-                          },
-                          child: Image.asset(AppImages.add),
-                        )
-                    ),
-                  ),
-                ),
-              )
-            ],
-          ),
-        ),
+       InkWell(
+         onTap: () {
+           Navigator.pushNamed(context, Routes.conditionReview);
+         },
+         child:  Container(
+           height: 150,
+           padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
+           child: Stack(
+             children: [
+               Container(
+                 width: double.maxFinite,
+                 height: 120,
+                 padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
+                 decoration: BoxDecoration(
+                   color: Theme.of(context).cardColor,
+                   borderRadius: BorderRadius.circular(14),
+                 ),
+                 child: Column(
+                   crossAxisAlignment: CrossAxisAlignment.start,
+                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: [
+                     Text(
+                       context.read<DataProvider>().getYesterdayDateTime(),
+                       style: Theme.of(context).textTheme.bodyText1,
+                     ),
+                     Text(
+                       '수면컨디션을 작성해주세요.',
+                       style: Theme.of(context).textTheme.bodyText1,
+                     ),
+                     RichText(
+                       text: TextSpan(
+                         style: const TextStyle(
+                           fontSize: 14,
+                           // fontFamily: Util.notoSans,
+                           fontWeight: FontWeight.w400,
+                         ),
+                         children: [
+                           TextSpan(
+                             text: '09',
+                             style: TextStyle(color: AppColors.subTextBlack),
+                           ),
+                           TextSpan(
+                             text: ' / 09',
+                             style: TextStyle(color: AppColors.textGrey),
+                           )
+                         ],
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+               Positioned(
+                 bottom: 0,
+                 left: (getDeviceWidth(context) / 2) - (52/2) -35,
+                 child: GestureDetector(
+                   onTap: () async {
+                     //todo
+                     await toggleCollectingData();
+                     // Navigator.pushNamed(context, routeSleepCondition);
+                   },
+                   child: SizedBox(
+                     width: 52,
+                     height: 52,
+                     child: AnimatedRotation(
+                         turns: context.watch<BluetoothProvider>().isDataScanning?0:0.125,
+                         duration: const Duration(milliseconds: 100),
+                         child: InkWell(
+                           onTap:() async {
+                             await toggleCollectingData();
+                           },
+                           child: Image.asset(AppImages.add),
+                         )
+                     ),
+                   ),
+                 ),
+               )
+             ],
+           ),
+         )
+       ),
       ],
     );
   }
@@ -280,8 +283,8 @@ class HomeState extends State<HomePage>
       flex: 1,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 10),
-        width: 160,
-        height: 160,
+        width: _getItemWidth(context),
+        height: _getItemHeight(context),
         padding: const EdgeInsets.symmetric(horizontal: 15),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
@@ -356,4 +359,22 @@ class HomeState extends State<HomePage>
     }
     return MediaQuery.of(context).size.height * 2;
   }
+
+  ///화면이 불려왔을 때 날짜가 변경되면 데이터 갱신 요청
+  void checkNextDay(BuildContext context) {
+
+  }
+
+  double _getItemWidth(BuildContext context) {
+    if(size==null) return 130;
+    if(size!.width > 300) return (size!.width / 2) - 60;
+    return 130;
+  }
+
+  double _getItemHeight(BuildContext context) {
+    if(size==null) return 130;
+    if(size!.height/ 4 > 130) return (size!.height/ 4) - 60;
+    return 130;
+  }
 }
+

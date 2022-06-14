@@ -1,5 +1,4 @@
 import 'package:flutter/widgets.dart';
-import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/data/network/license_response.dart';
 import 'package:sleepaid/network/license_service.dart';
@@ -10,7 +9,7 @@ class AuthProvider with ChangeNotifier{
   /// 가입 시작하는 이메일 가입자라면 이메일 가입 처리 진행 시작
   Future<int> checkLicense(String text) async{
     var params = {'licenseKey': text};
-    var response = PostLicenseValuableService(body:params).start();
+    var response = await PostLicenseValuableService(body:params).start();
     if(response is LicenseResponse){
       //응답체크
       return BaseResponse.STATE_CORRECT;
@@ -24,7 +23,7 @@ class AuthProvider with ChangeNotifier{
 
   Future<int> signup(String email, String encPW) async{
     var params = {'email': email, 'password':encPW};
-    var response = PostSignUpService(body:params).start();
+    var response = await PostSignUpService(body:params).start();
     if(response is LicenseResponse){
       //응답체크
       return BaseResponse.STATE_CORRECT;
