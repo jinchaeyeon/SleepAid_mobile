@@ -164,8 +164,7 @@ class HomeState extends State<HomePage>
               ),
               GestureDetector(
                 onTap: () {
-                  //todo
-                  // Navigator.pushNamed(context, routeSleepAnalysis);
+                  Navigator.pushNamed(context, Routes.calendar);
                 },
                 child: contentButton(AppImages.sleepAnalysis, '수면분석', false, '새로운 수면 정보 확인', ''),
               ),
