@@ -18,6 +18,11 @@ String format(String value) {
   return formatValue;
 }
 
+String formatHz(String value) {
+  String formatValue = value.toString().substring(0, value.toString().length - 2);
+  return "$formatValue Hz";
+}
+
 
 PreferredSize appBar(BuildContext context, String title, {bool isRound = true}) {
   return PreferredSize(

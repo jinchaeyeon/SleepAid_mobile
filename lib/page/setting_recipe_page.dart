@@ -571,7 +571,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                       ),
                       SizedBox(width: 6),
                       Text(
-                        '${recipe.interval}',
+                        '${recipe.interval.toInt()}',
                         style: Theme
                             .of(context)
                             .textTheme
@@ -593,7 +593,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                       ),
                       SizedBox(width: 6),
                       Text(
-                        '${recipe.intensity}',
+                        '${recipe.intensity.toInt()}',
                         style: Theme
                             .of(context)
                             .textTheme
@@ -615,7 +615,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                       ),
                       SizedBox(width: 6),
                       Text(
-                        '${recipe.elevation}',
+                        '${recipe.elevation.toInt()}',
                         style: Theme
                             .of(context)
                             .textTheme

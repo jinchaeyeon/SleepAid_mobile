@@ -28,6 +28,7 @@ dependencies:
   package_info_plus: 1.2.0
   another_xlider: 1.0.0
   syncfusion_officechart: ^20.1.60-beta
+  surround_sound: ^0.3.2
 
 dev_dependencies:
   flutter_test:
