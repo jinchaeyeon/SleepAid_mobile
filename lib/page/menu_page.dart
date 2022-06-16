@@ -45,7 +45,7 @@ class MenuState extends State<MenuPage>
     },  
     AppStrings.menu_logout: (context) async {
       await AppDAO.clearAllData();
-      Navigator.pushReplacementNamed(context, Routes.login);
+      Navigator.pushReplacementNamed(context, Routes.loginList);
     },
   };
 

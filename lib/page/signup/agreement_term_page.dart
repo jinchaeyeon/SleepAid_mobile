@@ -214,12 +214,13 @@ class _AgreementTermPage extends State<AgreementTermPage> {
   /// 만약에 SNS 가입자라면 바로 메인으로
   /// SNS 가입자가 아니라면 email 가입 페이지로 이동
   Future<void> next() async {
-    if(await AppDAO.userType == USER_TYPE.NO_USER){
+    if(await AppDAO.authData.userType() == null){
       //이메일 회원가입 시작
       Navigator.pushReplacementNamed(
           context, Routes.signupWithEmail);
       return;
-    }else {
+    }else{
+      //todo 동의처리필요
       //바로 메인화면 이동(SNS유저)
       Navigator.pushReplacementNamed(context, Routes.home);
       return;

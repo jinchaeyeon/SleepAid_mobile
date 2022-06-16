@@ -217,7 +217,7 @@ Future<bool> showLogoutDialog(BuildContext context) async {
                                       ),
                                   ),
                                   onPressed: () async {
-                                    Navigator.pushReplacementNamed(context, Routes.login);
+                                    Navigator.pushReplacementNamed(context, Routes.loginList);
                                   },
                                 ),
                               ),

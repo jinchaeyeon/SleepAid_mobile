@@ -141,7 +141,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
               child: Column(
                 children: [
                   Container(
-                      child: Text("기기부 부위선택")
+                      child: Text("기기부착 부위선택")
                   ),
                   Container(
                       child: Text("~~~~~~")

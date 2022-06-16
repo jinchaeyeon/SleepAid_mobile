@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,7 @@ import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/util/util.dart';
 
-const MAX_RETRY_COUNT = 3;
+const MAX_RETRY_COUNT = 1;
 
 abstract class BaseService<T> {
   int _retryCount = 0;
@@ -31,10 +32,9 @@ abstract class BaseService<T> {
   }
 
   dynamic _extraHeaders() async {
-    String? accessToken = await AppDAO.accessToken;
-    // Log.d("accessToken", "accessToken:${accessToken}, with:${withAccessToken}");
+    String? token = await AppDAO.userToken;
     return withAccessToken
-        ? {'Authorization': 'Bearer $accessToken', 'serviceType': 'sleepaid'}
+        ? {'Authorization': 'Bearer Token $token', 'serviceType': 'sleepaid'}
         : {'serviceType': 'sleepaid'};
   }
 
@@ -78,6 +78,8 @@ abstract class BaseService<T> {
     try {
       if (response.bodyBytes.isEmpty) {
       } else {
+        log("response: ${response.body}");
+        log("response: ${response.headers}");
         body = json.decode(
             const Utf8Decoder(allowMalformed: false).convert(response.bodyBytes));
       }
@@ -120,6 +122,9 @@ abstract class BaseService<T> {
     dynamic body,
     Encoding? encoding,
   }) async {
+    if(_headers["Content-Type"] == "application/json"){
+      body = jsonEncode(body);
+    }
     debugPrint('request url : $url');
     debugPrint('request body : $body');
     debugPrint('request header : $_headers');
@@ -130,10 +135,12 @@ abstract class BaseService<T> {
   Future<http.Response> fetchPost({
     dynamic body,
   }) async {
+    if(_headers["Content-Type"] == "application/json"){
+      body = jsonEncode(body);
+    }
     debugPrint('request url : $url');
     debugPrint('request body : $body');
     debugPrint('request header : $_headers');
-
     return await http.post(Uri.parse(url!), headers: _headers, body: body);
   }
 

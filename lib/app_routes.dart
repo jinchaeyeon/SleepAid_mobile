@@ -4,21 +4,27 @@ import 'package:sleepaid/page/binaural_beat_page.dart';
 import 'package:sleepaid/page/calendar_detail_page.dart';
 import 'package:sleepaid/page/calendar_page.dart';
 import 'package:sleepaid/page/condition_review_page.dart';
+import 'package:sleepaid/page/email_login_page.dart';
 import 'package:sleepaid/page/realtime_signal_page.dart';
 import 'package:sleepaid/page/setting_recipe_page.dart';
 import 'package:sleepaid/page/signup/agreement_term_page.dart';
 import 'package:sleepaid/page/bluetooth_connect_page.dart';
+import 'package:sleepaid/page/signup/change_password_page.dart';
 import 'package:sleepaid/page/signup/email_signup_page.dart';
 import 'package:sleepaid/page/home_page.dart';
+import 'package:sleepaid/page/signup/find_password_page.dart';
 import 'package:sleepaid/page/signup/license_key_page.dart';
-import 'package:sleepaid/page/login_page.dart';
+import 'package:sleepaid/page/login_list_page.dart';
 import 'package:sleepaid/page/menu_page.dart';
 import 'package:sleepaid/page/splash_page.dart';
 
 class Routes{
   static const splash = SplashPage.ROUTE;
   static const home = HomePage.ROUTE;
-  static const login = LoginPage.ROUTE;
+  static const loginList = LoginListPage.ROUTE;
+  static const emailLogin = EmailLoginPage.ROUTE;
+  static const findPassword = FindPasswordPage.ROUTE;
+  static const changePassword = ChangePasswordPage.ROUTE;
   static const menu = MenuPage.ROUTE;
   static const bluetoothConnect = BluetoothConnectPage.ROUTE;
   static const conditionReview = ConditionReviewPage.ROUTE;
@@ -50,8 +56,14 @@ class Routes{
           return const SplashPage();
         case Routes.home:
           return const HomePage();
-        case Routes.login:
-          return const LoginPage();
+        case Routes.loginList:
+          return const LoginListPage();
+        case Routes.emailLogin:
+          return const EmailLoginPage();
+        case Routes.findPassword:
+          return const FindPasswordPage();
+        case Routes.changePassword:
+          return const ChangePasswordPage();
         case Routes.menu:
           return const MenuPage();
         case Routes.licenseKey:

@@ -67,16 +67,16 @@ class SplashState extends State<SplashPage>
   /// 비로그인 상태면 로그인 페이지로 이동
   Future<void> checkLoginState() async{
     Future.delayed(const Duration(milliseconds: 2000), () async {
-      await checkNetworkState().then((connected){
+      await checkNetworkState().then((connected) async {
         if(connected){
           if(AppDAO.debugData.hasDummyUserInfo){
             Navigator.pushReplacementNamed(context, Routes.home);
             return;
           }
-          if(AppDAO.authData.isLoggedIn){
+          if(await AppDAO.authData.isLoggedIn){
             Navigator.pushReplacementNamed(context, Routes.home);
           }else{
-            Navigator.pushReplacementNamed(context, Routes.login);
+            Navigator.pushReplacementNamed(context, Routes.loginList);
           }
           return;
         }else{

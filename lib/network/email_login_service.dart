@@ -5,10 +5,10 @@ import 'package:sleepaid/data/network/signup_response.dart';
 import 'package:sleepaid/network/base_service.dart';
 import 'package:http/http.dart' as http;
 
-class PostSignUpService extends BaseService<LoginResponse> {
+class PostEmailLoginService extends BaseService<LoginResponse> {
   Map<String, String> body;
 
-  PostSignUpService({required this.body});
+  PostEmailLoginService({required this.body});
 
   @override
   Future<http.Response?> request() async {

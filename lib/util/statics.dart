@@ -1,11 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 
 import 'app_colors.dart';
 import 'app_images.dart';
-
-class Statics{
-
-}
 
 Gradient sliderGradient = LinearGradient(
   begin: Alignment.centerLeft,

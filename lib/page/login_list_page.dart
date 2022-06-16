@@ -2,26 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
-import 'package:sleepaid/util/app_strings.dart';
-import 'package:sleepaid/util/app_styles.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
-import 'package:provider/provider.dart';
 import 'package:sleepaid/widget/sign_in_up_button.dart';
 
 
-class LoginPage extends BaseStatefulWidget {
+class LoginListPage extends BaseStatefulWidget {
   static const ROUTE = "Login";
 
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginListPage({Key? key}) : super(key: key);
 
   @override
   LoginState createState() => LoginState();
 }
 
-class LoginState extends State<LoginPage>
+class LoginState extends State<LoginListPage>
     with SingleTickerProviderStateMixin{
 
   @override
@@ -79,7 +75,7 @@ class LoginState extends State<LoginPage>
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    Navigator.pushNamed(context, Routes.login);
+                                    Navigator.pushNamed(context, Routes.emailLogin);
                                   },
                                   child: SignInUpButton(
                                     buttonText: '기존 아이디로 로그인',
