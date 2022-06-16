@@ -5,6 +5,7 @@ import 'package:intl/locale.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
+import 'package:sleepaid/widget/calendar/my_weekly_calendar_widget.dart';
 
 class CalendarDetailPage extends BaseStatefulWidget {
   static const ROUTE = "CalendarDetail";
@@ -17,6 +18,8 @@ class CalendarDetailPage extends BaseStatefulWidget {
 
 class CalendarDetailState extends State<CalendarDetailPage>
     with SingleTickerProviderStateMixin{
+  DateTime selectedDay = DateTime.now();
+
 
   @override
   void initState() {
@@ -26,20 +29,22 @@ class CalendarDetailState extends State<CalendarDetailPage>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: CalendarAppBar(
-          locale: "ko",
-          onDateChanged: (value) => print(value),
-          firstDate: DateTime.now().subtract(Duration(days: 140)),
-          lastDate: DateTime.now(),
-        ),
         extendBody: true,
         body: SafeArea(
             child: Container(
                 width: double.maxFinite,
                 height: double.maxFinite,
+                color: AppColors.backgroundGrey,
                 alignment: Alignment.topCenter,
                 child: Stack(
                   children: [
+                    Positioned(
+                        left: 0, right:0 ,top:80,
+                        child: Container(
+                            width:double.maxFinite,
+                            height: 92,
+                            color: AppColors.backgroundGrey)
+                    ),
                     Positioned(left: 10, top:10,
                       child: GestureDetector(
                         onTap: () {
@@ -66,29 +71,41 @@ class CalendarDetailState extends State<CalendarDetailPage>
                           width: 200,
                           height: 60,
                           alignment: Alignment.centerLeft,
-                          child: Text("2022년", style: TextStyle(height: 1, fontSize: 22,color: AppColors.textBlack, fontWeight: FontWeight.bold)
+                          child: Text("2월", style: TextStyle(height: 1, fontSize: 22,color: AppColors.textBlack, fontWeight: FontWeight.bold)
 
                           ),
                         ),
                       ),
                     ),
                     Positioned(
-                        left: 0, right:0 ,top:80,
-                        child: Container(width:double.maxFinite, height: 1, color: AppColors.backgroundGrey)
-                    ),
-                    Positioned(
-                        left: 0,right: 0,top: 81,bottom: 0,
+                        left: 0,right: 0,top: 81,
                         child: Container(
                           width:double.maxFinite,
-                          height: double.maxFinite,
-
+                          child: MyWeeklyCalendarWidget()
                         )
+                    ),
+                    Positioned(
+                      left: 0,right: 0,top:172,bottom:0,
+                      child: Container(
+                        width:double.maxFinite,
+                        height:double.maxFinite,
+                        color: AppColors.white,
+                        child: getDayDetailView()
+                      )
                     )
                   ],
                 )
             )
         )
     );
+  }
+
+  /// 선택일 데이터가 없으면 데이터 로딩 보여주고 로드, 데이터가 있으면 데이터 노출
+  Widget getDayDetailView() {
+   // return selectedDay;
+   return Container(
+
+   );
   }
 }
 

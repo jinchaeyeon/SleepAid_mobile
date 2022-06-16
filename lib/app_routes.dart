@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/widgets.dart';
 import 'package:sleepaid/page/binaural_beat_page.dart';
+import 'package:sleepaid/page/calendar_detail_page.dart';
 import 'package:sleepaid/page/calendar_page.dart';
 import 'package:sleepaid/page/condition_review_page.dart';
 import 'package:sleepaid/page/realtime_signal_page.dart';
@@ -28,6 +29,7 @@ class Routes{
   static const signupWithEmail = EmailSignUpPage.ROUTE;
   static const agreementTerm = AgreementTermPage.ROUTE;
   static const calendar = CalendarPage.ROUTE;
+  static const calendarDetail = CalendarDetailPage.ROUTE;
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
       {int duration = 100}) {
@@ -70,6 +72,8 @@ class Routes{
           return const SettingRecipePage();
         case Routes.calendar:
           return const CalendarPage();
+        case Routes.calendarDetail:
+          return const CalendarDetailPage();
         default:
           return const SplashPage();
       }

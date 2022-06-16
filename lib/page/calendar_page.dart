@@ -1,6 +1,6 @@
-import 'package:calendar_appbar/calendar_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
@@ -17,6 +17,11 @@ class CalendarPage extends BaseStatefulWidget {
 
 class CalendarState extends State<CalendarPage>
     with SingleTickerProviderStateMixin{
+
+  void onTapCallback(DateTime datetime) {
+    print(datetime.toIso8601String());
+    Navigator.pushNamed(context, Routes.calendarDetail);
+  }
 
   @override
   void initState() {
@@ -73,11 +78,13 @@ class CalendarState extends State<CalendarPage>
                     Positioned(
                         left: 0,right: 0,top: 81,bottom: 0,
                         child: Container(
-                          color:Colors.blue,
+                          color:Colors.white,
                           width:double.maxFinite,
                           height: double.maxFinite,
-                          child: const MyCalendarWidget()
-
+                          padding: const EdgeInsets.all(15),
+                          child: MyCalendarWidget(
+                              onTapCallback: onTapCallback
+                          )
                         )
                     )
                   ],
