@@ -42,114 +42,119 @@ class _FindPasswordPage extends State<FindPasswordPage> {
     return Scaffold(
         extendBody: true,
         body: SafeArea(
-            child: Stack(
-                children: [
-                  Positioned(
-                      left:0, right: 0, top:0, bottom: 0,
-                      child: SizedBox(
-                          width: double.maxFinite,
-                          height: double.maxFinite,
-                          child: SingleChildScrollView(
-                              child: Container(
-                                  width: double.maxFinite,
-                                  height: 600,
-                                  alignment: Alignment.topCenter,
-                                  child: Column(
-                                    children: [
-                                      Container(
-                                        alignment: Alignment.centerLeft,
-                                        margin:const EdgeInsets.only(left:10, top: 10),
-                                        child: GestureDetector(
-                                          onTap: () {
-                                            Navigator.pop(context);
-                                          },
-                                          child: Container(
-                                            width: 60,
-                                            height: 60,
-                                            alignment: Alignment.center,
-                                            child: Image.asset(
-                                              AppImages.back, color: Theme.of(context).primaryIconTheme.color,
-                                              fit: BoxFit.contain, width: 12, height: 21,
-
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                          margin: const EdgeInsets.only(left: 30, top:10),
-                                          alignment: Alignment.centerLeft,
-                                          child: const Text("아이디를 입력해주세요.", style: TextStyle(fontSize: 20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
-                                      ),
-                                      Container(
-                                        padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30, top:80),
-                                        child: SignInUpInput(
-                                          controller: _emailController,
-                                          firstNode: _emailNode,
-                                          textInputAction: TextInputAction.done,
-                                          textInputType: TextInputType.emailAddress,
-                                          hintText: '이메일 아이디',
-                                          isEmail: true,
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                              )
-                          )
-                      )
-                  ),
-                  Positioned(
-                      bottom: 0, left: 0, right: 0,
-                      child: SizedBox(
-                        height: 70.0,
-                        child: Container(
-                          width: double.maxFinite,
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.rectangle,
-                          ),
-                          child: OutlinedButton(
-                            onPressed: () async {
-                              if(_emailController.text.isEmpty) {
-                                Fluttertoast.showToast(msg:"이메일을 입력해주세요.");
-                                return ;
-                              }
-                              bool isValidEmail = checkEmailPattern(_emailController.text);
-                              if(!isValidEmail){
-                                Fluttertoast.showToast(msg:"이메일 형식이 아닙니다.");
-                                return ;
-                              }
-
-                              bool isSignedEmail = await checkValidEmail(_emailController.text);
-                              if(isSignedEmail){
-                                /// 비밀번호 변경으로 이동
-                              }else{
-                                showSignupBottomSheetDialog(context);
-                              }
-                            },
-                            style: OutlinedButton.styleFrom(
-                                backgroundColor: AppColors.buttonBlue,
-                                shape: const RoundedRectangleBorder(
-
-                                )
-                            ),
-                            // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
-                            child: const Text(
-                              '비밀번호 찾기',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 15.0,
-                              ),
-                            ),
-                          ),
-                        ),
-                      )
-                  )
-
-                ]
-            )
+            child: getBaseWillScope(context, mainContent())
         )
     );
   }
 
+  Widget mainContent(){
+    return Stack(
+        children: [
+          Positioned(
+              left:0, right: 0, top:0, bottom: 0,
+              child: SizedBox(
+                  width: double.maxFinite,
+                  height: double.maxFinite,
+                  child: SingleChildScrollView(
+                      child: Container(
+                          width: double.maxFinite,
+                          height: 600,
+                          alignment: Alignment.topCenter,
+                          child: Column(
+                            children: [
+                              Container(
+                                alignment: Alignment.centerLeft,
+                                margin:const EdgeInsets.only(left:10, top: 10),
+                                child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    width: 60,
+                                    height: 60,
+                                    alignment: Alignment.center,
+                                    child: Image.asset(
+                                      AppImages.back, color: Theme.of(context).primaryIconTheme.color,
+                                      fit: BoxFit.contain, width: 12, height: 21,
+
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Container(
+                                  margin: const EdgeInsets.only(left: 30, top:10),
+                                  alignment: Alignment.centerLeft,
+                                  child: const Text("아이디를 입력해주세요.", style: TextStyle(fontSize: 20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                              ),
+                              Container(
+                                padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30, top:80),
+                                child: SignInUpInput(
+                                  controller: _emailController,
+                                  firstNode: _emailNode,
+                                  textInputAction: TextInputAction.done,
+                                  textInputType: TextInputType.emailAddress,
+                                  hintText: '이메일 아이디',
+                                  isEmail: true,
+                                ),
+                              ),
+                            ],
+                          )
+                      )
+                  )
+              )
+          ),
+          Positioned(
+              bottom: 0, left: 0, right: 0,
+              child: SizedBox(
+                height: 70.0,
+                child: Container(
+                  width: double.maxFinite,
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.rectangle,
+                  ),
+                  child: OutlinedButton(
+                    onPressed: () async {
+                      if(_emailController.text.isEmpty) {
+                        Fluttertoast.showToast(msg:"이메일을 입력해주세요.");
+                        return ;
+                      }
+                      bool isValidEmail = checkEmailPattern(_emailController.text);
+                      if(!isValidEmail){
+                        Fluttertoast.showToast(msg:"이메일 형식이 아닙니다.");
+                        return ;
+                      }
+                      bool isSendingEmail = await sendResetEmail(_emailController.text);
+                      if(isSendingEmail){
+                        /// 비밀번호 변경 메일 알림
+                        Fluttertoast.showToast(msg: "${_emailController.text}로\n비밀번호 변경 메일이 발송되었습니다");
+                      }else{
+                        Fluttertoast.showToast(msg: "연결오류. 다시 시도해주세요.");
+                      }
+                    },
+                    style: OutlinedButton.styleFrom(
+                        backgroundColor: AppColors.buttonBlue,
+                        shape: const RoundedRectangleBorder(
+
+                        )
+                    ),
+                    // shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(30))),
+                    child: const Text(
+                      '비밀번호 찾기',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 15.0,
+                      ),
+                    ),
+                  ),
+                ),
+              )
+          )
+
+        ]
+    );
+  }
+
+  ///로직 변경으로 사용 X
   Future<void> showSignupBottomSheetDialog(BuildContext context)  async{
     showModalBottomSheet(
       context: context,
@@ -215,7 +220,10 @@ class _FindPasswordPage extends State<FindPasswordPage> {
     );
   }
 
-  Future<bool> checkValidEmail(String email) async{
-    return !await context.read<DataProvider>().checkValidEmail(email);
+  Future<bool> sendResetEmail(String email) async{
+    await context.read<DataProvider>().setLoading(true);
+    bool isSuccess = !await context.read<DataProvider>().sendResetPasswordLinkToEmail(email);
+    await context.read<DataProvider>().setLoading(false);
+    return isSuccess;
   }
 }

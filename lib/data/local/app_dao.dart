@@ -7,7 +7,12 @@ class DebugData{
   bool passCheckingLicenseKey = false;  // 라이센스키 값이 올바른지 확인하는지
   bool passCheckingSignupAPI = false; // 회원가입 API 확인 안하고 넘어가도록 처리
   bool cancelBlockRotationDevice = false; // 화면 기울임 회전 막아둔 기능 풀기
+
   bool inputTestInputData = true; // 테스트와 관련된 입력값 미리 넣어두기
+  String licenseKey = "3xvzak5g";
+
+  String signupEmail = "redlunak89@gmail.com";
+  String signupPW = "qwer1234@@";
 }
 
 class AppDAO{
@@ -31,9 +36,9 @@ class AppDAO{
   }
 
   static DebugData debugData = DebugData();
-  static bool isDarkMode = false;
   static AuthData authData = AuthData();
   static var appVersion = '1.0.0';
+  static bool isDarkMode = false;
 
   static String HOST_PRODUCT = "https://neurotx.lhy.kr/api/";
   static String DEBUG_PRODUCT = "https://neurotx-dev.lhy.kr/api/";
@@ -48,14 +53,11 @@ class AppDAO{
     appVersion = version;
   }
 
-  ///테마 변경
-  static setDarkMode(bool isDarkMode) {
-    AppDAO.isDarkMode = isDarkMode;
-  }
-
   ///전체 데이터 초기화
-  static clearAllData() {
-
+  static Future clearAllData() async{
+    await setUserToken(null);
+    await setUserType(null);
+    await setDarkMode(null);
   }
 
   static Future setUserToken(String? token) async{
@@ -78,6 +80,19 @@ class AppDAO{
   static Future<String?> get userType async {
     String? userToken = await _get(key: 'user_type') as String?;
     return userToken;
+  }
+
+  static Future setDarkMode(bool? _isDarkMode) async{
+    _isDarkMode != null
+        ? await _put(key: 'is_dark_mode', value: _isDarkMode)
+        : await _delete(key: 'is_dark_mode');
+    isDarkMode = _isDarkMode??=false;
+  }
+
+  static Future<bool> get checkDarkMode async {
+    bool? _isDarkMode = await _get(key: 'is_dark_mode') as bool?;
+    isDarkMode = _isDarkMode??=false;
+    return isDarkMode;
   }
 }
 

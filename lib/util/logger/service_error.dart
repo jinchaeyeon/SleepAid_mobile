@@ -4,8 +4,11 @@ import 'dart:developer';
 import 'package:sleepaid/util/util.dart';
 
 class ServiceError {
-  static const String NON_FIELD_ERRORS = 'non_field_errors';
   static const String UNKNOWN_ERROR = 'unknown_error';
+  static const String NON_FIELD_ERRORS = 'non_field_errors';
+  static const String EMAIL_ERROR = 'email_error';
+  static const String LICENSE_KEY_ERROR = 'license_key_error';
+
   String? code;
   String? message;
   final String? spec;
@@ -36,6 +39,15 @@ class ServiceError {
       ret.message = body['non_field_errors'][0]['message'];
     }
 
+    if(body['email'] != null){
+      ret.code = EMAIL_ERROR;
+      ret.message = body['email'][0]['message'];
+    }
+
+    if(body['license_key'] != null){
+      ret.code = LICENSE_KEY_ERROR;
+      ret.message = body['license_key'][0]['message'];
+    }
 
     Util.log('error $ret');
     return ret;

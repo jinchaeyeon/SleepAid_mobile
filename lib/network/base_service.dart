@@ -90,7 +90,7 @@ abstract class BaseService<T> {
     Util.log('BaseService status code : ${response.statusCode}');
     Util.log('BaseService body : ${body.toString()}');
 
-    if (response.statusCode == 200 || response.statusCode == 204) {
+    if (response.statusCode == 200 || response.statusCode == 201 || response.statusCode == 204) {
       return success(body);
     } else {
       /// update token

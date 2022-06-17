@@ -25,11 +25,11 @@ class EmailLoginState extends State<EmailLoginPage>
     with SingleTickerProviderStateMixin{
 
   final TextEditingController _emailController = TextEditingController(
-    text:AppDAO.debugData.inputTestInputData?"test0001@test.com": ""
+    text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.signupEmail: ""
   );
   final FocusNode _emailNode = FocusNode();
   final TextEditingController _passwordController = TextEditingController(
-      text:AppDAO.debugData.inputTestInputData?"test0001": ""
+      text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.signupPW: ""
   );
   final FocusNode _passwordNode = FocusNode();
   bool isAutoLogin = false;
@@ -130,13 +130,18 @@ class EmailLoginState extends State<EmailLoginPage>
                                       onTap: () {
                                         Navigator.pushNamed(context, Routes.findPassword);
                                       },
-                                      child: Text(
-                                        '비밀번호 찾기',
-                                        style: TextStyle(
-                                          color: Theme.of(context).hintColor,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w400,
-                                        ),
+                                      child: Container(
+                                        alignment: Alignment.centerRight,
+                                        width:100,
+                                        height: 50,
+                                        child: Text(
+                                          '비밀번호 찾기',
+                                          style: TextStyle(
+                                            color: Theme.of(context).hintColor,
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w400,
+                                          ),
+                                        )
                                       ),
                                     ),
                                   ],

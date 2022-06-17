@@ -33,6 +33,7 @@ class HomeState extends State<HomePage>
   Widget build(BuildContext context){
     size ??= MediaQuery.of(context).size;
     checkNextDay(context);
+
     return WillPopScope(
       onWillPop: () async{
         await completedExit();
@@ -68,11 +69,6 @@ class HomeState extends State<HomePage>
           )
       )
     );
-  }
-
-  /// 메뉴 열기
-  openMenu() {
-    Navigator.pushNamed(context, Routes.menu);
   }
 
   // 데이터 수집/비수집 변환
@@ -118,8 +114,9 @@ class HomeState extends State<HomePage>
                         Navigator.pushNamed(context, Routes.menu);
                       },
                       child: Container(
-                        width:50, height: 50,
-                        padding: const EdgeInsets.all(15),
+                        width:60, height: 60,
+                        // color: Colors.red,
+                        padding: const EdgeInsets.only(left:30, right:10, top: 20, bottom: 20),
                         child: Image.asset(AppImages.menu, fit: BoxFit.contain, width: 20, height: 20,)
                       ),
                     ),

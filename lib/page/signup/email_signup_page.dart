@@ -6,6 +6,7 @@ import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
@@ -26,19 +27,22 @@ class EmailSignUpPage extends BaseStatefulWidget {
 class EmailSignUpState extends State<EmailSignUpPage>
     with SingleTickerProviderStateMixin{
 
-  TextEditingController _emailController = TextEditingController();
+  TextEditingController _emailController = TextEditingController(
+    text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.signupEmail:""
+  );
   FocusNode _emailNode = FocusNode();
-  TextEditingController _passwordController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController(
+      text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.signupPW:""
+  );
   FocusNode _passwordNode = FocusNode();
-  TextEditingController _checkPasswordController = TextEditingController();
+  TextEditingController _checkPasswordController = TextEditingController(
+      text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.signupPW:""
+  );
   FocusNode _checkPasswordNode = FocusNode();
 
   @override
   void initState() {
     super.initState();
-    _emailController = TextEditingController(text: "");
-    _passwordController = TextEditingController(text: "");
-    _checkPasswordController = TextEditingController(text: "");
   }
 
   @override
@@ -65,112 +69,122 @@ class EmailSignUpState extends State<EmailSignUpPage>
           backgroundColor: Colors.white,
         ),
       ),
-      body: Container(
-        padding: const EdgeInsets.only(left: 36.0, right: 36.0),
-        child: Column(
-          children: [
-            Container(
-              padding: const EdgeInsets.only(left: 24.0),
-              child: Row(
-                children: [
-                  IconButton(
-                      icon: Image.asset(AppImages.back),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      }),
-                ],
-              ),
-            ),
-            SignInUpTitle(title: '회원 정보를 입력해 주세요.'),
-            const SizedBox(height: 80),
-            Container(
-              margin: const EdgeInsets.only(bottom: 30),
-              child: SignInUpInput(
-                controller: _emailController,
-                firstNode: _emailNode,
-                secondNode: _passwordNode,
-                textInputAction: TextInputAction.next,
-                textInputType: TextInputType.emailAddress,
-                hintText: '이메일 아이디',
-              ),
-            ),
-            Container(
-              margin: const EdgeInsets.only(bottom: 30),
-              child: SignInUpInput(
-                controller: _passwordController,
-                firstNode: _passwordNode,
-                secondNode: _checkPasswordNode,
-                textInputAction: TextInputAction.next,
-                textInputType: TextInputType.text,
-                hintText: '비밀번호',
-                isPassword: true,
-              ),
-            ),
-            Container(
-                margin: const EdgeInsets.only(bottom: 30),
-                child: SignInUpInput(
-                  controller: _checkPasswordController,
-                  firstNode: _checkPasswordNode,
-                  // secondNode: _passwordNode,
-                  textInputAction: TextInputAction.done,
-                  textInputType: TextInputType.text,
-                  hintText: '비밀번호 확인',
-                  isPassword: true,
-                )
-            ),
-            Container(
-              child: GestureDetector(
-                onTap: () async {
-                  if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _checkPasswordController.text.isEmpty) {
-                    Fluttertoast.showToast(msg:"빈 칸을 모두 입력해 주세요.");
-                    return;
-                  }
-                  if (!checkEmailPattern()) {
-                    Fluttertoast.showToast(msg:"이메일 형식을 확인해주세요.");
-                    return;
-                  }
-                  if (_passwordController.text != _checkPasswordController.text) {
-                    Fluttertoast.showToast(msg:"비밀번호가 일치하지 않습니다.");
-                    return;
-                  }
-                  if (!checkPasswordPattern()) {
-                    Fluttertoast.showToast(msg:"비밀번호는 8자 이상 영문, 숫자를 포함해서 입력해 주세요.");
-                    return;
-                  }
-                  await signup();
-                },
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 150),
-                  child: SignInUpButton(
-                    buttonText: '회원가입',
-                    textColor: Colors.white,
-                    borderColor: Colors.transparent,
-                    gradientFirst: AppColors.buttonStart,
-                    gradientSecond: AppColors.buttonEnd,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      body: getBaseWillScope(
+        context, mainContent()
       )
     );
   }
 
+  Widget mainContent(){
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            padding: const EdgeInsets.only(left: 24.0),
+            child: Row(
+              children: [
+                IconButton(
+                    icon: Image.asset(AppImages.back),
+                    onPressed: () {
+                      Navigator.pop(context);
+                    }),
+              ],
+            ),
+          ),
+          SignInUpTitle(title: '회원 정보를 입력해 주세요.'),
+          const SizedBox(height: 80),
+          Container(
+            padding: const EdgeInsets.only(left: 36.0, right: 36.0),
+            margin: const EdgeInsets.only(bottom: 30),
+            child: SignInUpInput(
+              controller: _emailController,
+              firstNode: _emailNode,
+              secondNode: _passwordNode,
+              textInputAction: TextInputAction.next,
+              textInputType: TextInputType.emailAddress,
+              hintText: '이메일 아이디',
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.only(left: 36.0, right: 36.0),
+            margin: const EdgeInsets.only(bottom: 30),
+            child: SignInUpInput(
+              controller: _passwordController,
+              firstNode: _passwordNode,
+              secondNode: _checkPasswordNode,
+              textInputAction: TextInputAction.next,
+              textInputType: TextInputType.text,
+              hintText: '비밀번호',
+              isPassword: true,
+            ),
+          ),
+          Container(
+              padding: const EdgeInsets.only(left: 36.0, right: 36.0),
+              margin: const EdgeInsets.only(bottom: 30),
+              child: SignInUpInput(
+                controller: _checkPasswordController,
+                firstNode: _checkPasswordNode,
+                // secondNode: _passwordNode,
+                textInputAction: TextInputAction.done,
+                textInputType: TextInputType.text,
+                hintText: '비밀번호 확인',
+                isPassword: true,
+              )
+          ),
+          Container(
+            padding: const EdgeInsets.only(left: 36.0, right: 36.0),
+            child: GestureDetector(
+              onTap: () async {
+                if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _checkPasswordController.text.isEmpty) {
+                  Fluttertoast.showToast(msg:"빈 칸을 모두 입력해 주세요.");
+                  return;
+                }
+                if (!checkEmailPattern()) {
+                  Fluttertoast.showToast(msg:"이메일 형식을 확인해주세요.");
+                  return;
+                }
+                if (_passwordController.text != _checkPasswordController.text) {
+                  Fluttertoast.showToast(msg:"비밀번호가 일치하지 않습니다.");
+                  return;
+                }
+                if (!checkPasswordPattern()) {
+                  Fluttertoast.showToast(msg:"비밀번호는 8자 이상 영문, 숫자를 포함해서 입력해 주세요.");
+                  return;
+                }
+                await signup();
+              },
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 150),
+                child: SignInUpButton(
+                  buttonText: '회원가입',
+                  textColor: Colors.white,
+                  borderColor: Colors.transparent,
+                  gradientFirst: AppColors.buttonStart,
+                  gradientSecond: AppColors.buttonEnd,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
   Future<void> signup() async {
     ///회원가입 서버와 통신 이후에, 이슈 있으면 재시도 메세지, 이슈 없으면 메인화면
     String email = _emailController.text;
     String password = _passwordController.text;
+    await context.read<DataProvider>().setLoading(true);
     int response = await context.read<AuthProvider>().signup(email, password);
+    await context.read<DataProvider>().setLoading(false);
     if(!AppDAO.debugData.passCheckingSignupAPI){
       if(response == BaseResponse.STATE_UNCORRECT){
-        showSimpleAlertDialog(context, "연결에 실패했습니다. 다시 시도해주세요.");
         return;
       }
     }
-    ///todo 로그인 데이터를 갱신하거나 위에서 아예 받아오기
-    ///todo 로그인 데이터를 갱신하거나 위에서 아예 받아오기
-    Navigator.pushReplacementNamed(context, Routes.home);
+    /// 데이터로 바로 로그인하지않고, 로그인 페이지로 이동
+    // Navigator.pushReplacementNamed(context, Routes.loginList);
+    Fluttertoast.showToast(msg: "$email 가입완료");
+    Navigator.pushNamedAndRemoveUntil(context, Routes.loginList, (route) => false);
   }
 
   static const String validEmail = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";

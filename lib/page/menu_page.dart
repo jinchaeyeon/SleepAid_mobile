@@ -3,10 +3,9 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/main.dart';
-import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/util/app_themes.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/custom_switch_button.dart';
@@ -36,14 +35,15 @@ class MenuState extends State<MenuPage>
 
     AppStrings.menu_dark_mode: (context) async {
       if (AppDAO.isDarkMode) {
-        SleepAIDApp.of(context)?.changeTheme(AppThemes.lightTheme);
         await AppDAO.setDarkMode(false);
+        SleepAIDApp.of(context)?.changeTheme(AppThemes.lightTheme);
       } else{
-        SleepAIDApp.of(context)?.changeTheme(AppThemes.darkTheme);
         await AppDAO.setDarkMode(true);
+        SleepAIDApp.of(context)?.changeTheme(AppThemes.darkTheme);
       }
     },  
     AppStrings.menu_logout: (context) async {
+      await context.read<BluetoothProvider>().clearBluetooth();
       await AppDAO.clearAllData();
       Navigator.pushReplacementNamed(context, Routes.loginList);
     },
@@ -52,7 +52,6 @@ class MenuState extends State<MenuPage>
   @override
   void initState() {
     super.initState();
-
   }
 
   @override
@@ -96,7 +95,9 @@ class MenuState extends State<MenuPage>
       }
       Widget button = InkWell(
         onTap:() async {
-          await listeners[title]!(context);
+          if(title != AppStrings.menu_dark_mode){
+            await listeners[title]!(context);
+          }
         },
         child: Container(
             height: 50,

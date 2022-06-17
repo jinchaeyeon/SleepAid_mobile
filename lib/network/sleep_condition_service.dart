@@ -1,6 +1,4 @@
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/data/network/license_response.dart';
-import 'package:sleepaid/data/network/signup_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/base_service.dart';
 import 'package:http/http.dart' as http;

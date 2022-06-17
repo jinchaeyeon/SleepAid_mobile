@@ -8,6 +8,8 @@ class AuthData{
     "facebook": "facebook",
   };
 
+  String temporaryLicenseKey = "";
+
   AuthData();
 
   /// 유저 토큰 로컬에 저장

@@ -5,6 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/ble_device.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:sleepaid/util/util.dart';
@@ -22,6 +23,11 @@ class BluetoothProvider with ChangeNotifier{
   BleDevice? connectedDeviceForForehead; //이마 연결장치
 
   bool isDataScanning = false;
+
+  /// 로그아웃시, 블룰투스 관련 데이터 초기화
+  Future<void> clearBluetooth() async{
+    //todo
+  }
 
   ///기기가 연결되어 있으면 데이터 수집/비수집 전환한다
   Future<void> toggleDataCollecting() async{
@@ -90,12 +96,17 @@ class BluetoothProvider with ChangeNotifier{
   //     	val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
   //         requestBluetooth.launch(enableBtIntent)
   // }
-  ///12 이하에서는 LOCATION 도 필요
-  ///IOS 는 별도로
+  ///todo 12 이하에서는 LOCATION 도 필요
+  ///todo IOS 는 별도로
   Future<void> checkBluetoothPermission() async {
-
     Map<Permission, PermissionStatus> statuses =
     await [Permission.location, Permission.bluetooth].request();
+    if(
+      statuses[Permission.location] == PermissionStatus.denied ||
+      statuses[Permission.bluetooth] == PermissionStatus.denied
+    ){
+      completedExit();
+    }
   }
 
   /// 신체 연결 다이얼로그 노출 및 선택 시 해당 파트 기기 연결 처리

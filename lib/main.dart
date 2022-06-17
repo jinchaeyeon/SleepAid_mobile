@@ -25,13 +25,13 @@ void main() async {
   } else {
     gFlavor = Flavor.DEV;
   }
-  mainInit();
+  await mainInit();
 }
 
 /**
  * 기본 실행 시 호출 되어야하는 기본 값 함수
  */
-void mainInit() {
+Future<void> mainInit() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   //화면 회전 막는 기능
@@ -39,7 +39,7 @@ void mainInit() {
     SystemChrome.setPreferredOrientations(
         [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   }
-
+  await AppDAO.checkDarkMode;
   //Pheonix - 예상치 못한 오류 발생시 앱 새로 실행하는 패키지 적용
   runApp(
       MultiProvider(
@@ -73,7 +73,7 @@ class _SleepAIDApp extends State<SleepAIDApp> {
     setState(() {});
   }
 
-  void isDarkMode() {
+  checkDarkMode() {
     _theme = AppDAO.isDarkMode?AppThemes.darkTheme:AppThemes.lightTheme;
   }
 
@@ -82,8 +82,7 @@ class _SleepAIDApp extends State<SleepAIDApp> {
     // //todo 상태바 숨기기 기능(추후 UI에 따라서 수정)
     // SystemChrome.setSystemUIOverlayStyle(
     //     const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
-    isDarkMode();
-
+    checkDarkMode();
     return MaterialApp(
       // 디버그모드 알림 배너 숨김
       debugShowCheckedModeBanner: false,

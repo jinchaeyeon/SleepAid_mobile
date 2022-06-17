@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
@@ -55,7 +56,16 @@ class SplashState extends State<SplashPage>
 
   Future<void> checkState() async{
     await checkAppVersion();
+    await checkStoragePermission();
     await checkLoginState();
+  }
+
+  Future<void> checkStoragePermission() async {
+    Map<Permission, PermissionStatus> statuses =
+    await [Permission.storage].request();
+    if(statuses[Permission.storage] == PermissionStatus.denied){
+      completedExit();
+    }
   }
 
   /// 로그인 했는지 서버와 통신

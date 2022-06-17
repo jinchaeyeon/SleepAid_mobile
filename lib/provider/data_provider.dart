@@ -1,17 +1,12 @@
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
-import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/local/condition_review.dart';
 import 'package:sleepaid/data/network/base_response.dart';
-import 'package:sleepaid/data/network/license_response.dart';
-import 'package:sleepaid/data/network/login_response.dart';
-import 'package:sleepaid/data/network/signup_response.dart';
+import 'package:sleepaid/data/network/auth_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/email_login_service.dart';
-import 'package:sleepaid/network/license_service.dart';
-import 'package:sleepaid/network/signup_service.dart';
 import 'package:sleepaid/network/sleep_condition_service.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 
@@ -53,7 +48,8 @@ class DataProvider with ChangeNotifier{
     // return yesterdayConditionReview?.getYesterdayStr()??"";
   }
 
-  Future<bool> checkValidEmail(String email) async{
+  ///이메일에 리셋 링크 전송
+  Future<bool> sendResetPasswordLinkToEmail(String email) async{
     //todo 처리필요
     return true;
   }

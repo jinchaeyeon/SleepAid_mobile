@@ -4,6 +4,7 @@ import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/sign_in_up_button.dart';
 
@@ -32,107 +33,12 @@ class LoginState extends State<LoginListPage>
     return Scaffold(
         extendBody: true,
         body: SafeArea(
-            child: Container(
-                width: double.maxFinite,
-                height: double.maxFinite,
-                alignment: Alignment.center,
-                child: Container(
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: AssetImage(AppImages.IMAGE_BG_LOGIN),
-                            fit: BoxFit.cover,
-                        )
-                    ),
-                    child: Container(
-                      width: double.maxFinite,
-                      height: double.maxFinite,
-                      padding: const EdgeInsets.symmetric(horizontal: 36),
-                      child: Column(
-                        children: [
-                          Expanded(
-                            flex: 1,
-                            child: Container(
-                              child: Center(
-                                child: Text(
-                                  AppDAO.isDarkMode ? "Sleep Aid" : "",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 42,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Expanded(
-                            flex: 1,
-                            child: Container(),
-                          ),
-                          Expanded(
-                            flex: 2,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, Routes.emailLogin);
-                                  },
-                                  child: SignInUpButton(
-                                    buttonText: '기존 아이디로 로그인',
-                                    textColor: Theme.of(context).highlightColor,
-                                    borderColor: Colors.white,
-                                    innerColor: Colors.white,
-                                    isGradient: false,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                GestureDetector(
-                                  onTap: () {
-                                    showModalBottomSheet(
-                                      context: context,
-                                      isScrollControlled: true,
-                                      backgroundColor: Colors.black.withOpacity(0.3),
-                                      shape: const RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.all(Radius.circular(20)),
-                                      ),
-                                      builder: (context) => SingleChildScrollView(
-                                        child: Container(
-                                          padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                                          child: snsBottomSheet(),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: SignInUpButton(
-                                    buttonText: 'SNS 계정으로 로그인',
-                                    textColor: Colors.white,
-                                    borderColor: Colors.white,
-                                    innerColor: Colors.transparent,
-                                    isGradient: false,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.pushNamed(context, Routes.licenseKey);
-                                  },
-                                  child: const Text(
-                                    '회원가입',
-                                    style: TextStyle(
-                                      color: AppColors.black,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                    ),
-                                  ),
-                                )
-                              ],
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                )
-            )
+            child: WillPopScope(
+              onWillPop:() async {
+                await completedExit();
+                return true;
+              },
+              child: mainContent())
         )
     );
   }
@@ -238,6 +144,110 @@ class LoginState extends State<LoginListPage>
           ),
         ],
       ),
+    );
+  }
+
+  Widget mainContent() {
+    return Container(
+        width: double.maxFinite,
+        height: double.maxFinite,
+        alignment: Alignment.center,
+        child: Container(
+            decoration: BoxDecoration(
+                image: DecorationImage(
+                  image: AssetImage(AppImages.IMAGE_BG_LOGIN),
+                  fit: BoxFit.cover,
+                )
+            ),
+            child: Container(
+              width: double.maxFinite,
+              height: double.maxFinite,
+              padding: const EdgeInsets.symmetric(horizontal: 36),
+              child: Column(
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Container(
+                      child: Center(
+                        child: Text(
+                          AppDAO.isDarkMode ? "Sleep Aid" : "",
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 42,
+                            fontWeight: FontWeight.w400,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Container(),
+                  ),
+                  Expanded(
+                    flex: 2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.pushNamed(context, Routes.emailLogin);
+                          },
+                          child: SignInUpButton(
+                            buttonText: '기존 아이디로 로그인',
+                            textColor: Theme.of(context).highlightColor,
+                            borderColor: Colors.white,
+                            innerColor: Colors.white,
+                            isGradient: false,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        GestureDetector(
+                          onTap: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.black.withOpacity(0.3),
+                              shape: const RoundedRectangleBorder(
+                                borderRadius: BorderRadius.all(Radius.circular(20)),
+                              ),
+                              builder: (context) => SingleChildScrollView(
+                                child: Container(
+                                  padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                                  child: snsBottomSheet(),
+                                ),
+                              ),
+                            );
+                          },
+                          child: SignInUpButton(
+                            buttonText: 'SNS 계정으로 로그인',
+                            textColor: Colors.white,
+                            borderColor: Colors.white,
+                            innerColor: Colors.transparent,
+                            isGradient: false,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        InkWell(
+                          onTap: () {
+                            Navigator.pushNamed(context, Routes.licenseKey);
+                          },
+                          child: const Text(
+                            '회원가입',
+                            style: TextStyle(
+                              color: AppColors.black,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              ),
+            )
+        )
     );
   }
 }

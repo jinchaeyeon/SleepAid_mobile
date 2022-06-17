@@ -81,7 +81,9 @@ class LicenseKeyState extends State<LicenseKeyPage>
     );
   }
 
-  final textControllerLicense = TextEditingController();
+  final textControllerLicense = TextEditingController(
+    text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.licenseKey:""
+  );
 
   Future<bool> checkLicenseKey() async {
     String textLicense = textControllerLicense.text;
