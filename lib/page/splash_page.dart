@@ -64,7 +64,7 @@ class SplashState extends State<SplashPage>
     Map<Permission, PermissionStatus> statuses =
     await [Permission.storage].request();
     if(statuses[Permission.storage] == PermissionStatus.denied){
-      completedExit();
+      completedExit(context);
     }
   }
 

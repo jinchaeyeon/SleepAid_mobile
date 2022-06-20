@@ -440,8 +440,7 @@ class HomeState extends State<HomePage>
   Future<void> stopEveryStateChecker() async{
     log("stopEveryStateChecker");
     context.read<DataProvider>().setLoading(true);
-    // await checkBluetoothState();
-    // await checkBinauralBeatState();
+    await context.read<BluetoothProvider>().pauseParse();
     context.read<DataProvider>().setLoading(false);
   }
 
@@ -450,6 +449,7 @@ class HomeState extends State<HomePage>
     context.read<DataProvider>().setLoading(true);
     await checkBluetoothState();
     await checkBinauralBeatState();
+    await context.read<BluetoothProvider>().resumeParse();
     context.read<DataProvider>().setLoading(false);
   }
 }

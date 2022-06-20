@@ -35,7 +35,7 @@ class LoginState extends State<LoginListPage>
         body: SafeArea(
             child: WillPopScope(
               onWillPop:() async {
-                await completedExit();
+                await completedExit(context);
                 return true;
               },
               child: mainContent())

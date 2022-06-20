@@ -28,4 +28,17 @@ class BleDevice {
   List<double> actX = [];
   List<double> actY = [];
   List<double> actZ = [];
+
+  void disconnect() {
+    state = PeripheralConnectionState.disconnected;
+    battery = "-";
+    pulseSize = "";
+    pulseRadius = "";
+    pulsePadding = "";
+    ppg = [];
+    eeg = [];
+    actX = [];
+    actY = [];
+    actZ = [];
+  }
 }

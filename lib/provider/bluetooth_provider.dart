@@ -23,12 +23,15 @@ class BluetoothProvider with ChangeNotifier{
   List<BleDevice> deviceList = []; //전체 검색되는 장치목록
   BleDevice? connectedDeviceForNeck; //목 연결 장치
   BleDevice? connectedDeviceForForehead; //이마 연결장치
+
   static StreamSubscription? notifyNeckStream;
+  static StreamSubscription? monitoringNeckStream;
   static StreamSubscription? notifyForeheadStream;
 
   bool isDeviceScanning = false; //장치스캔
   bool isDataScanning = false; //장치에서 데이터 스캔
 
+  StreamSubscription? _monitoringNeckStreamSubscription; // 값 모니터링 Stream Object
   /// 로그아웃시, 블룰투스 관련 데이터 초기화
   Future<void> clearBluetooth() async{
     deviceList.clear();
@@ -100,7 +103,6 @@ class BluetoothProvider with ChangeNotifier{
     isDeviceScanning = false;
     // deviceList.clear();
     bleManager.stopPeripheralScan();
-    await bleManager.destroyClient();
     notifyListeners();
   }
 
@@ -125,7 +127,7 @@ class BluetoothProvider with ChangeNotifier{
     statuses[Permission.location] == PermissionStatus.denied ||
         statuses[Permission.bluetooth] == PermissionStatus.denied
     ){
-      completedExit();
+      completedExit(null);
     }
   }
 
@@ -135,6 +137,87 @@ class BluetoothProvider with ChangeNotifier{
   /// 3. 연결 실패하면 연결에 실패하였습니다
   /// 4. 연결 성공하면 업데이트
   Future<void> choiceBodyPosition(BODY_TYPE type,BleDevice device) async {
+    Peripheral peripheral = device.peripheral;
+    // if(await device.peripheral.isConnected()){
+    //   await device.peripheral?.disconnectOrCancelConnection();
+    // }
+
+    notifyNeckStream?.cancel();
+    notifyNeckStream = peripheral
+        .observeConnectionState(emitCurrentValue: true)
+        .listen((PeripheralConnectionState connectionState) {
+      log("state: ${connectionState.index}");
+      switch (connectionState) {
+        case PeripheralConnectionState.connected:
+          {
+            //연결됨
+            connectedDeviceForNeck = device;
+
+
+            device.peripheral.discoverAllServicesAndCharacteristics().whenComplete((){
+              /// 장치 변수에 할당
+              /// todo 그전에 ID 동일한지 체크
+              connectedDeviceForNeck?.peripheral = peripheral;
+
+              Stream<Uint8List> characteristic = device.peripheral.monitorCharacteristic(
+                  SERVICE_UUID_LIST[0],
+                  TX_UUID_LIST[0],
+                  transactionId: "monitor-neck"
+              ).map((characteristic) => characteristic.value);
+
+              _monitoringNeckStreamSubscription = characteristic.listen((Uint8List message) {
+                // print("neck message: ${message}");
+                String batteryValue = Protocol.getBatteryValue(message);
+                setBatteryValue(connectedDeviceForNeck!, batteryValue);
+                double ppgValue = Protocol.getPPGValue(message);
+                setPPGValue(connectedDeviceForNeck!, ppgValue);
+                notifyListeners();
+                // String eegValue = Protocol.getEEGValue(message);
+                // setEEGValue(connectedDeviceForNeck!, eegValue);
+              }, onError: (error){
+                print("notifyNeckStream error:: $error");
+              } ,cancelOnError: false);
+            });
+          }
+          break;
+        case PeripheralConnectionState.connecting:
+          {
+            //  setBLEState('connecting');
+          } //연결중
+          break;
+        case PeripheralConnectionState.disconnected:
+          {
+            //해제됨
+            log("disconnected!");
+            showToast("목 - 연결 해제");
+            connectedDeviceForNeck?.disconnect();
+          }
+          break;
+        case PeripheralConnectionState.disconnecting:
+          {
+            // setBLEState('disconnecting');
+          } //해제중
+          break;
+        default:{}
+          break;
+      }
+    });
+
+    notifyNeckStream?.onError((handleError) {
+      log("error:"+handleError.toString());
+    });
+
+    bool isConnected = await peripheral.isConnected();
+    if (isConnected) {
+      showToast("Device is Already Connected");
+      return;
+    }
+
+    await peripheral.connect(isAutoConnect: true, refreshGatt: true);
+    notifyListeners();
+
+    return;
+
     BleDevice newDevice = BleDevice(device.deviceName,device.rssi, device.peripheral, device.advertisementData);
     if(type == BODY_TYPE.NECK){
       /// 블루투스 기기에 연결시도
@@ -277,5 +360,20 @@ class BluetoothProvider with ChangeNotifier{
   }
 
 
+  /// 블루투스 데이터 송신 정지
+  Future pauseParse() async{
+    _monitoringNeckStreamSubscription?.pause();
+  }
+
+  /// 블루투스 데이터 송신 재개
+  Future resumeParse() async{
+    _monitoringNeckStreamSubscription?.resume();
+  }
+
+
+  /// 앱 종료시 블루투스 클라이언트 종료
+  Future destroyClient() async{
+    await bleManager?.destroyClient();
+  }
 }
 

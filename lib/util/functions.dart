@@ -4,11 +4,20 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/src/provider.dart';
+import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'app_colors.dart';
 import 'dart:math';
 
-Future<void> completedExit() async {
+Future<void> completedExit(BuildContext? context) async {
+  try{
+    if(context!=null){
+      await context.read<BluetoothProvider>().destroyClient();
+    }
+  }catch(e){
+
+  }
+
   if (Platform.isIOS) {
     exit(0);
   } else {
