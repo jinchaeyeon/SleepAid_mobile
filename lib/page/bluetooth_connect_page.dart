@@ -4,10 +4,13 @@ import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/util/app_styles.dart';
+import 'package:sleepaid/util/functions.dart';
+import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:provider/provider.dart';
 
@@ -32,82 +35,125 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
 
   @override
   Widget build(BuildContext context){
+    return Scaffold(
+        appBar: appBar(context, '블루투스 연결', isRound: false,),
+        extendBody: false,
+        resizeToAvoidBottomInset: true,
+        body: SafeArea(
+            child: getBaseWillScope(
+              context, Container(
+                width: double.maxFinite,
+                height: double.maxFinite,
+                alignment: Alignment.topCenter,
+                decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+                ),
+                child: Column(
+                  children: [
+                    searchingStatusButton(context),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: context.watch<BluetoothProvider>().deviceList.length,
+                        itemBuilder: (_context, index){
+                          return _bluetoothDeviceListItemWidget(
+                              context.read<BluetoothProvider>().deviceList, index);
+                        },
+                      )
+                    )
+                  ],
+                ),
+            ),
+            onWillScope: () async {
+              await stopScanning();
+              Navigator.pop(context);
+              return false;
+            }
+        )
+      )
+    );
+  }
 
-    return WillPopScope(
-      onWillPop: () async {
-        await stopScanning();
-        Navigator.pop(context);
-        return false;
-      },
-      child: Scaffold(
-          extendBody: true,
-          body: SafeArea(
-              child: Container(
-                  width: double.maxFinite,
-                  height: double.maxFinite,
-                  alignment: Alignment.center,
-                  child: Column(
-                    children: [
-                      const Expanded(flex: 1, child: SizedBox.shrink()),
-                      Expanded(
-                          flex: 3,
-                          child: Container(
-                              height: 50,
-                              width: double.maxFinite,
-                              child: Row(
-                                children: [
-                                  InkWell(
-                                      onTap:(){
-                                        Navigator.pop(context);
-                                      },
-                                      child: Image.asset(AppImages.ic_menu, width: 50, height: 50)
-                                  ),
-                                  Text(AppStrings.app_logo, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                  Container(
-                                      width: 50, height: 50,
-                                      child: SizedBox.shrink()
-                                  )
-                                ],
-                              )
-                          )
-                      ),
-                      Expanded(
-                        flex: 7,
-                        child: ListView.builder(
-                          itemCount: context.watch<BluetoothProvider>().deviceList.length,
-                          itemBuilder: (_context, index){
-                            return _bluetoothDeviceListItemWidget(
-                                context.watch<BluetoothProvider>().deviceList, index);
-                          },
-                        ),
-                      ),
-                    ],
-                  )
-              )
-          )
-      ));
+  /// 장치검색 / 검색중지 토글
+  Future<void> searching() async{
+    context.read<BluetoothProvider>().toggleDeviceScanning();
+    //todo search
+  }
+
+  Widget searchingStatusButton(BuildContext context){
+    return InkWell(
+        onTap:() async {
+          await searching();
+        },
+        child: Container(
+            height: 70,
+            decoration: BoxDecoration(
+              border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+            ),
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            width: double.maxFinite,
+            child: Row(
+                children: [
+                  Text(
+                    "기기 검색",
+                    style: TextStyle(
+                      color: Theme.of(context).textSelectionTheme.selectionColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width:10),
+                  context.watch<BluetoothProvider>().isDeviceScanning?
+                  const SizedBox(
+                    width:20, height: 20,
+                    child: CircularProgressIndicator(color: AppColors.grey, strokeWidth: 3,),
+                  ):
+                  const SizedBox(
+                    width:20, height: 20,
+                    child: Icon(Icons.search, color:AppColors.black,),
+                  ),
+                  const Expanded(child: SizedBox.shrink()),
+                ]
+            )
+        )
+    );
   }
 
   Widget _bluetoothDeviceListItemWidget(List<BleDevice> deviceList, int index) {
     BleDevice device = deviceList[index];
+    BODY_TYPE bodyType = context.watch<BluetoothProvider>().isConnectedDevice(device);
     return InkWell(
-      onTap:() async {
-        await showBodyTypeDialog(context, device);
-      },
-      child: SizedBox(
-          height: 50,
-          width: double.maxFinite,
-          child: Container(
-            color: index.isEven?AppColors.baseGreen:AppColors.white,
+        onTap:() async {
+          await showBodyTypeDialog(context, device);
+        },
+        child: Container(
+            height: 70,
+            decoration: BoxDecoration(
+                border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+            ),
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            width: double.maxFinite,
             child: Row(
-              children: [
-                Text("${device.deviceName}"),
-                const Expanded(child: SizedBox.shrink(),),
-                Text("${device.peripheral.identifier}"),
-              ],
+                children: [
+                  Text(
+                    _getDeviceName(bodyType,device),
+                    style: TextStyle(
+                      color: Theme.of(context).textSelectionTheme.selectionColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Expanded(child: SizedBox.shrink()),
+                  Text(
+                    _getDeviceStatusText(bodyType, device),
+                    style: TextStyle(
+                      color: Theme.of(context).textSelectionTheme.selectionColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ]
             )
-          )
-      )
+        )
     );
   }
 
@@ -127,57 +173,101 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
   Future<void> showBodyTypeDialog(BuildContext context, BleDevice device) async{
     showModalBottomSheet(
       context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+      ),
       builder: (BuildContext context) {
-        return AlertDialog(
-          titlePadding: const EdgeInsets.all(0.0),
-          contentPadding: const EdgeInsets.all(0.0),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25.0),
-          ),
-          content: SizedBox(
-            width: double.maxFinite,
-            height: 400,
-            child: Container(
-              child: Column(
+        return  Wrap(
+            children: [
+              Column(
                 children: [
+                  Container(height: 30),
                   Container(
-                      child: Text("기기부착 부위선택")
+                      height: 50,
+                      width: double.maxFinite,
+                      alignment: Alignment.center,
+                      child: const Text("기기부착 부위선택",
+                          textAlign:TextAlign.center,
+                          style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
+                              color: AppColors.textBlack))
                   ),
                   Container(
-                      child: Text("~~~~~~")
+                      height: 50,
+                      width: double.maxFinite,
+                      alignment: Alignment.center,
+                      child: Text(device.deviceName,
+                          textAlign:TextAlign.center,
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                              color: AppColors.textBlack))
+                  ),
+                  Container(height: 70),
+                  Container(
+                    width: double.maxFinite,
+                    height: 1,
+                    color:AppColors.borderGrey,
                   ),
                   Row(
-                    children: [
-                      Expanded(
-                        child: InkWell(
-                            onTap: () async {
-                              await context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK,device);
+                      children: [
+                        Expanded(
+                          child: InkWell(
+                            onTap:() async {
+                              await context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, device);
                               Navigator.pop(context);
                             },
-                            child: Container(
-                                child: Text("목")
-                            )
+                            child:Container(
+                                alignment: Alignment.center,
+                                child: const Text("목",style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                            ),
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        child: InkWell(
-                            onTap: () async {
-                              await context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD,device);
+                        Container(
+                          width: 1,
+                          height: 90,
+                          color:AppColors.borderGrey,
+                        ),
+                        Expanded(
+                          child: InkWell(
+                            onTap:() async {
+                              await context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, device);
                               Navigator.pop(context);
                             },
-                            child: Container(
-                                child: Text("이마")
-                            )
+                            child:Container(
+                                alignment: Alignment.center,
+                                child: const Text("이마", style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                            ),
+                          ),
                         ),
-                      )
-                    ],
+                      ]
                   )
                 ],
-              )
-            )
-          ),
+              ),
+            ]
         );
       },
     );
+  }
+
+  String _getDeviceName(BODY_TYPE bodyType, BleDevice device) {
+    if(bodyType == BODY_TYPE.NONE){
+      return device.deviceName;
+    }else if(bodyType == BODY_TYPE.NECK){
+      return "${device.deviceName}(목)";
+    }else if(bodyType == BODY_TYPE.FOREHEAD){
+      return "${device.deviceName}(이마)";
+    }else{
+      return device.deviceName;
+    }
+  }
+
+  String _getDeviceStatusText(BODY_TYPE bodyType, BleDevice device) {
+    if(bodyType == BODY_TYPE.NONE){
+      return "연결안됨";
+    }else if(bodyType == BODY_TYPE.NECK){
+      return "연결됨";
+    }else if(bodyType == BODY_TYPE.FOREHEAD){
+      return "연결됨";
+    }else{
+      return "연결안됨";
+    }
   }
 }

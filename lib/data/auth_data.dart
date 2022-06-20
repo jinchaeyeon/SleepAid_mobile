@@ -1,6 +1,9 @@
 import 'local/app_dao.dart';
 
 class AuthData{
+  AuthData();
+
+  String temporaryLicenseKey = "";
   Map<String, String> userTypes = {
     "email": "email",
     "naver": "naver",
@@ -8,9 +11,8 @@ class AuthData{
     "facebook": "facebook",
   };
 
-  String temporaryLicenseKey = "";
+  DateTime created = DateTime.now().subtract(const Duration(days: 1));
 
-  AuthData();
 
   /// 유저 토큰 로컬에 저장
   Future setUserToken(String token) async {
@@ -32,6 +34,17 @@ class AuthData{
 
   Future<String?> userType() async {
     return await AppDAO.userType;
+  }
+
+  Future setUserCreated(DateTime created) async {
+    await AppDAO.setUserCreated(created);
+  }
+
+  DateTime getUserCreated(){
+    if(created == null){
+      return DateTime.now().subtract(Duration(days:1));
+    }
+    return created!;
   }
 
 }

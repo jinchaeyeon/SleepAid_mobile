@@ -6,7 +6,9 @@ import 'package:sleepaid/widget/calendar/day_calendar_widget.dart.dart';
 
 class WeekCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
-  const WeekCalendarWidget({Key? key, this.onTapCallback}) : super(key: key);
+
+  final List<DateTime?> week;
+  const WeekCalendarWidget({Key? key, this.onTapCallback, required this.week}) : super(key: key);
 
   @override
   WeekCalendarState createState() => WeekCalendarState();
@@ -39,13 +41,13 @@ class WeekCalendarState extends State<WeekCalendarWidget>{
 
   getDaysWidget() {
     List<Widget> days = [];
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
-    days.add(Expanded(child: DayCalendarWidget(onTapCallback: widget.onTapCallback)));
+    widget.week.forEach((date) {
+      if(date == null){
+        days.add(Expanded(child: Container()));
+      }else{
+        days.add(Expanded(child: DayCalendarWidget(day:date,onTapCallback: widget.onTapCallback)));
+      }
+    });
     return days;
   }
 }

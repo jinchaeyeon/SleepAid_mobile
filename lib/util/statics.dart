@@ -46,9 +46,9 @@ PreferredSize appBar(BuildContext context, String title, {bool isRound = true}) 
                 child: Text(
                   title,
                   style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 19,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.textBlack
+                      color: Theme.of(context).textSelectionTheme.selectionColor
                   ),
                 )
             ),

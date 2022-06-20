@@ -6,15 +6,15 @@ import 'month_calendar_widget.dart.dart';
 
 class DayCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
-  const DayCalendarWidget({Key? key, this.onTapCallback}) : super(key: key);
+  final DateTime day;
+  const DayCalendarWidget({Key? key, this.onTapCallback, required this.day}) : super(key: key);
 
   @override
   DayCalendarState createState() => DayCalendarState();
 }
 
 class DayCalendarState extends State<DayCalendarWidget>{
-  String text = "월";
-  String number = "1";
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -30,8 +30,8 @@ class DayCalendarState extends State<DayCalendarWidget>{
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(height:5),
-              Text("$text", style: const TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold)),
-              Text("$number", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
+              Text("${getWeekDayString(widget.day.weekday)}", style: const TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold)),
+              Text("${widget.day.day}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
               Container(
                   width: 10,
                   height: 10,
@@ -46,5 +46,10 @@ class DayCalendarState extends State<DayCalendarWidget>{
           )
       )
     );
+  }
+
+  List<String> weekdays = ["월", "화", "수", "목", "금", "토", "일",];
+  String getWeekDayString(int weekday) {
+    return weekdays[weekday - 1];
   }
 }

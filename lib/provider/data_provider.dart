@@ -5,6 +5,7 @@ import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/local/condition_review.dart';
 import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/data/network/auth_response.dart';
+import 'package:sleepaid/data/network/calendar_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/email_login_service.dart';
 import 'package:sleepaid/network/sleep_condition_service.dart';
@@ -20,6 +21,13 @@ class DataProvider with ChangeNotifier{
     isLoading = showLoading;
     print("--isLoading: $isLoading");
     notifyListeners();
+
+    if(isLoading){
+      await Future.delayed(const Duration(seconds: 2),(){
+        isLoading = false;
+        notifyListeners();
+      });
+    }
   }
 
   /// 수면컨디션 목록
@@ -62,6 +70,7 @@ class DataProvider with ChangeNotifier{
       //정상 응답이면 로그인 체크
       if(isAutoLogin){
         await AppDAO.authData.setUserToken(response.token!);
+        await AppDAO.authData.setUserCreated(response.created!);
       }
       return true;
     }else if(response is ServiceError){
@@ -71,6 +80,10 @@ class DataProvider with ChangeNotifier{
       return false;
     }
     return false;
+  }
+
+  Future<List<CalendarDetailResponse>> loadCalendarData() async{
+    return [];
   }
 }
 

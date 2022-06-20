@@ -33,7 +33,7 @@ void main() async {
  */
 Future<void> mainInit() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await AppDAO.init();
   //화면 회전 막는 기능
   if(!AppDAO.debugData.cancelBlockRotationDevice){
     SystemChrome.setPreferredOrientations(

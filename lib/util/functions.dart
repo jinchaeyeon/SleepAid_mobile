@@ -22,6 +22,10 @@ Future<bool> checkNetworkState() async{
   return true;
 }
 
+showToast(String msg){
+  Fluttertoast.showToast(msg: msg);
+}
+
 const String validEmail = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";
 bool checkEmailPattern(String email) {
   RegExp validEmailStr = RegExp(validEmail);
@@ -71,7 +75,8 @@ Widget getBaseWillScope(BuildContext context, Widget? body, {Function? onWillSco
         return false;
       }
       if(onWillScope!=null){
-        return onWillScope();
+        await onWillScope();
+        return true;
       }
       Navigator.pop(context);
       return true;

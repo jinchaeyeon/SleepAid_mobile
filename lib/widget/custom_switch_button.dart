@@ -15,13 +15,13 @@ class _CustomSwitchButton extends State<CustomSwitchButton> with SingleTickerPro
   late Animation _circleAnimation;
   late AnimationController _animationController;
 
-  LinearGradient switchOffGradient = LinearGradient(
+  LinearGradient switchOffGradient = const LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [AppColors.switchOffStart, AppColors.switchOffMiddle, AppColors.switchOffEnd],
   );
 
-  LinearGradient switchOnGradient = LinearGradient(
+  LinearGradient switchOnGradient = const LinearGradient(
     begin: Alignment.centerLeft,
     end: Alignment.centerRight,
     colors: [AppColors.buttonStart, AppColors.buttonEnd],

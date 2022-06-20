@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
+import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
@@ -83,7 +84,11 @@ class CalendarState extends State<CalendarPage>
                           height: double.maxFinite,
                           padding: const EdgeInsets.all(15),
                           child: MyCalendarWidget(
-                              onTapCallback: onTapCallback
+                            onTapCallback: onTapCallback,
+                            // startDate: AppDAO.authData.created,
+                            // endDate: DateTime.now().subtract(const Duration(days:1)),
+                            startDate: DateTime.now().subtract(const Duration(days:200)),
+                            endDate: DateTime.now().subtract(const Duration(days:1)),
                           )
                         )
                     )

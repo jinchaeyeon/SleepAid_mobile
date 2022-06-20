@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/widgets.dart';
+import 'package:provider/src/provider.dart';
 import 'package:sleepaid/page/binaural_beat_page.dart';
 import 'package:sleepaid/page/calendar_detail_page.dart';
 import 'package:sleepaid/page/calendar_page.dart';
@@ -17,6 +18,7 @@ import 'package:sleepaid/page/signup/license_key_page.dart';
 import 'package:sleepaid/page/login_list_page.dart';
 import 'package:sleepaid/page/menu_page.dart';
 import 'package:sleepaid/page/splash_page.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 
 class Routes{
   static const splash = SplashPage.ROUTE;

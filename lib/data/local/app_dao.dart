@@ -1,4 +1,5 @@
 import 'package:sembast/sembast.dart';
+import 'package:sembast/timestamp.dart';
 import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_database.dart';
 
@@ -93,6 +94,22 @@ class AppDAO{
     bool? _isDarkMode = await _get(key: 'is_dark_mode') as bool?;
     isDarkMode = _isDarkMode??=false;
     return isDarkMode;
+  }
+
+  static Future setUserCreated(DateTime? created) async{
+    created != null
+        ? await _put(key: 'created', value: Timestamp.fromDateTime(created))
+        : await _delete(key: 'created');
+  }
+
+  static Future<DateTime> get userCreated async {
+    Timestamp? timestamp = await _get(key: 'created') as Timestamp?;
+    authData.created = timestamp?.toDateTime()??DateTime.now().subtract(Duration(days:1));
+    return authData.created!;
+  }
+
+  static Future init() async{
+    await userCreated;
   }
 }
 

@@ -38,10 +38,10 @@ class MyWeeklyCalendarState extends State<MyWeeklyCalendarWidget>{
 
   getPages() {
     List<Widget> weeks = [];
-    weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
-    weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
-    weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
-    weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
+    // weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
+    // weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
+    // weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
+    // weeks.add(WeekCalendarWidget(onTapCallback: widget.onTapCallback));
     return weeks;
   }
 
