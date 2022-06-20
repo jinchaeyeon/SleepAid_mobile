@@ -88,6 +88,11 @@ class DataProvider with ChangeNotifier{
     return [];
   }
 
+  /// 일시적으로 비트 출력을 정지 / 해제
+  Future pauseBinauralBeatState(bool pause) async{
+
+  }
+
 
 }
 

@@ -416,9 +416,9 @@ class HomeState extends State<HomePage>
     return 130;
   }
 
-  /// todo 바이너럴 비트 상태 체크 (플레이중인지 아닌지 등)
-  Future<void> checkBinauralBeatState() async{
-
+  /// 플레이 중이라면 일시정지 또는 일시정지 해제
+  Future<void> pauseBinauralBeatState(bool pause) async{
+    await context.read<DataProvider>().pauseBinauralBeatState(pause);
   }
 
   /// 1. 블루투스 권한 확인
@@ -440,6 +440,7 @@ class HomeState extends State<HomePage>
   Future<void> stopEveryStateChecker() async{
     log("stopEveryStateChecker");
     context.read<DataProvider>().setLoading(true);
+    await pauseBinauralBeatState(true);
     await context.read<BluetoothProvider>().pauseParse();
     context.read<DataProvider>().setLoading(false);
   }
@@ -448,7 +449,7 @@ class HomeState extends State<HomePage>
     log("startEveryStateChecker");
     context.read<DataProvider>().setLoading(true);
     await checkBluetoothState();
-    await checkBinauralBeatState();
+    await pauseBinauralBeatState(false);
     await context.read<BluetoothProvider>().resumeParse();
     context.read<DataProvider>().setLoading(false);
   }
