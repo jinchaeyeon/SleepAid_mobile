@@ -32,6 +32,8 @@ dependencies:
   surround_sound: ^0.3.2
   calendar_appbar: ^0.0.6
 
+  syncfusion_flutter_charts: 19.4.52 #차트(그래프) 라이브러리 ///todo 문의 후 삭제해야 할수도 있음
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

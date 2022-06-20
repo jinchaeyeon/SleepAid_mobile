@@ -8,6 +8,7 @@ import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 import '../app_routes.dart';
 
@@ -168,7 +169,6 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
   Widget getGraphWidget(String title, {bool showParameterUI=false} ){
     return Container(
       // color: AppColors.white,
-
       width: double.maxFinite,
       height: 220,
       child: Column(
@@ -232,7 +232,25 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               color: AppColors.grey ,
               width: double.maxFinite,
               height: double.maxFinite,
-              child: SizedBox.shrink()
+              // child: SizedBox.shrink()
+              child: SfCartesianChart(
+                series: <LineSeries<double, int>>[
+                  LineSeries<double, int>(
+                    dataSource: isNeckMode?
+                    context.watch<BluetoothProvider>().connectedDeviceForNeck!.ppg:
+                    context.watch<BluetoothProvider>().connectedDeviceForForehead!.ppg,
+                    color: AppColors.mainBlue,
+                    xValueMapper: (data, idx) => idx,
+                    yValueMapper: (data, idx) => data,
+                  )
+                ],
+                primaryXAxis: NumericAxis(
+                  isVisible: false,
+                ),
+                primaryYAxis: NumericAxis(
+                  isVisible: false,
+                ),
+              )
             )
           )
         ]

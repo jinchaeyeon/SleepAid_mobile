@@ -366,7 +366,7 @@ class BluetoothProvider with ChangeNotifier{
       bleDevice.ppg.removeAt(0);
     }
     bleDevice.ppg.add(ppgValue);
-    log("===setPPGValue: ${bleDevice.ppg}");
+    print("===setPPGValue: ${bleDevice.ppg}");
     return;
   }
 
@@ -379,7 +379,7 @@ class BluetoothProvider with ChangeNotifier{
     bleDevice.eeg.add(eegValue[0]);
     bleDevice.eeg.add(eegValue[1]);
 
-    log("===setEEGValue: ${bleDevice.eeg}");
+    print("===setEEGValue: ${bleDevice.eeg}");
     return;
   }
 
@@ -398,16 +398,16 @@ class BluetoothProvider with ChangeNotifier{
     bleDevice.actY.add(actValue[1]);
     bleDevice.actZ.add(actValue[2]);
 
-    log("===setAccelerometerValue Xs: ${bleDevice.actX}");
-    log("===setAccelerometerValue Ys: ${bleDevice.actY}");
-    log("===setAccelerometerValue Zs: ${bleDevice.actZ}");
+    print("===setAccelerometerValue Xs: ${bleDevice.actX}");
+    print("===setAccelerometerValue Ys: ${bleDevice.actY}");
+    print("===setAccelerometerValue Zs: ${bleDevice.actZ}");
   }
 
   void setPulseValue(BleDevice bleDevice, List<String> pulseValue) {
     bleDevice.pulseSize = pulseValue[0];
     bleDevice.pulseRadius = pulseValue[1];
     bleDevice.pulsePadding = pulseValue[2];
-    log("===setPulseValue: size: ${bleDevice.pulseSize}, radius: ${bleDevice.pulseRadius}, Padding: ${bleDevice.pulsePadding}");
+    print("===setPulseValue: size: ${bleDevice.pulseSize}, radius: ${bleDevice.pulseRadius}, Padding: ${bleDevice.pulsePadding}");
   }
 
   /// 블루투스 데이터 송신 정지

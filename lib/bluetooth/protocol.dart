@@ -82,12 +82,4 @@ class Protocol{
     // // pulsePadding = (pulsePadding * 2 / 1638 * 100).round();
     return [brainSignalArr[3], brainSignalArr[4], brainSignalArr[5]];
   }
-
-  // static List<String> getBrainSignal(List<String> brainSignal) {
-  //   String brainSignalDemical = getPulseSizes(brainSignal);
-  //   List<String> brainSignalDemicalArr = brainSignalDemical.split(",");
-  //   _pulseSize = brainSignalDemicalArr[0];
-  //   _pulseRadius = brainSignalDemicalArr[1];
-  //   _pulsePadding = brainSignalDemicalArr[2];
-  // }
 }
