@@ -31,7 +31,7 @@ class Protocol{
     }
   }
 
-  static double getPPGValue(Uint8List message) {
+  static String buildBrainSignal(Uint8List message) {
     String brainSignal = "";
     for (int i = 0; i < 8; i++) {
       int pos = 2 + i * 3;
@@ -39,9 +39,55 @@ class Protocol{
       int value = (bytesToInteger(list) / 1000).round();
       brainSignal = brainSignal + value.toString() + ", ";
     }
-    //ppg 신호 가져오기
-    List<String> brainSignalPPGList = brainSignal.split(",");
-    print("getPPGValue brainSignalPPGList: $brainSignalPPGList");
-    return double.parse(brainSignalPPGList[2]);
+    return brainSignal;
   }
+
+  static List<String> buildBrainSignalList(String brainSignal){
+    //ppg 신호 가져오기
+    List<String> brainSignalList = brainSignal.split(",");
+    return brainSignalList;
+  }
+  /// PPG 응답 신호값 처리
+  static double getPPGValue(List<String> brainSignal) {
+    //ppg 신호 가져오기
+    return double.parse(brainSignal[2]);
+  }
+  /// EEG 응답 신호값 처리
+  static List<double> getEEGValue(List<String> brainSignal) {
+    //ppg 신호 가져오기
+    return [double.parse(brainSignal[0]), double.parse(brainSignal[1])];
+  }
+
+  static List<double> getAccelerometerValue(Uint8List message, String brainSignal) {
+    String actSignal = "";
+    for (int i = 0; i < 3; i++) {
+      int pos = 26 + i * 2;
+      Uint8List list = message.sublist(pos, pos + 2);
+      int value = (bytesToInteger(list)).round();
+      actSignal = brainSignal + value.toString() + ", ";
+    }
+
+    List<String> brainSignalActList = actSignal.split(",");
+    return [double.parse(brainSignalActList[0]),double.parse(brainSignalActList[0]),double.parse(brainSignalActList[0])];
+  }
+
+  static List<String> getPulseSizes(String brainSignal) {
+    //펄스 속성값 가공
+    List<String> brainSignalArr = brainSignal.split(",");
+    // int pulseSize = int.tryParse(brainSignalArr[3]);
+    // // pulseSize = (pulseSize * 2 / 1638 * 100).round();
+    // int pulseRadius = int.tryParse(brainSignalArr[4]);
+    // // pulseRadius = (pulseRadius * 2 / 1638 * 100).round();
+    // int pulsePadding = int.tryParse(brainSignalArr[5]);
+    // // pulsePadding = (pulsePadding * 2 / 1638 * 100).round();
+    return [brainSignalArr[3], brainSignalArr[4], brainSignalArr[5]];
+  }
+
+  // static List<String> getBrainSignal(List<String> brainSignal) {
+  //   String brainSignalDemical = getPulseSizes(brainSignal);
+  //   List<String> brainSignalDemicalArr = brainSignalDemical.split(",");
+  //   _pulseSize = brainSignalDemicalArr[0];
+  //   _pulseRadius = brainSignalDemicalArr[1];
+  //   _pulsePadding = brainSignalDemicalArr[2];
+  // }
 }

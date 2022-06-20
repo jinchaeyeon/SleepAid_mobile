@@ -29,8 +29,8 @@ class BleDevice {
   List<double> actY = [];
   List<double> actZ = [];
 
-  void disconnect() {
-    state = PeripheralConnectionState.disconnected;
+  void resetData() {
+    // state = PeripheralConnectionState.disconnected;
     battery = "-";
     pulseSize = "";
     pulseRadius = "";
