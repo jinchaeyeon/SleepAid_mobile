@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
@@ -21,6 +22,8 @@ class RealtimeSignalPage extends BaseStatefulWidget {
 
 class RealtimeSignalState extends State<RealtimeSignalPage>
     with SingleTickerProviderStateMixin{
+
+  bool isNeckMode = true;
 
   @override
   void initState() {
@@ -58,7 +61,8 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                               Expanded(
                                   child: InkWell(
                                       onTap: (){
-
+                                        isNeckMode = true;
+                                        setState(() {});
                                       },
                                       child: Container(
                                           width: double.maxFinite,
@@ -69,7 +73,8 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                               Expanded(
                                   child: InkWell(
                                       onTap: (){
-
+                                        isNeckMode = false;
+                                        setState(() {});
                                       },
                                       child: Container(
                                           width: double.maxFinite,
@@ -93,7 +98,9 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                                       child: Container(
                                           width: double.maxFinite,
                                           height: 3,
-                                          color: AppColors.borderGrey,
+                                          color: isNeckMode
+                                          ?AppColors.borderGrey
+                                          :Theme.of(context).colorScheme.secondary,
                                           alignment: Alignment.center,
                                           child: SizedBox.shrink()
                                       ))),
@@ -105,7 +112,9 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                                       child: Container(
                                           width: double.maxFinite,
                                           height: 3,
-                                          color: Theme.of(context).colorScheme.secondary,
+                                          color: !isNeckMode
+                                              ?AppColors.borderGrey
+                                              :Theme.of(context).colorScheme.secondary,
                                           alignment: Alignment.center,
                                           child: SizedBox.shrink()
                                       ))),
@@ -113,23 +122,41 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                         )
                     ),
                     // context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
-                    context.watch<BluetoothProvider>().connectedDeviceForNeck != null?
+                    if(isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
                     Expanded(
-                      child: getRecommandConnectWidget()
+                        child: getRecommandConnectWidget()
                     ):
                     Expanded(
-                      child: SingleChildScrollView(
-                        child: Container(
-                          padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
-                          child: Column(
-                            children: [
-                              getGraphWidget("PPG"),
-                              getGraphWidget("Actigraphy"),
-                              getGraphWidget("HRV", showParameterUI:true),
-                            ],
-                          ),
+                        child: SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
+                              child: Column(
+                                children: [
+                                  getGraphWidget("PPG"),
+                                  getGraphWidget("Actigraphy"),
+                                  getGraphWidget("HRV", showParameterUI:true),
+                                ],
+                              ),
+                            )
                         )
-                      )
+                    ),
+                    if(!isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForForehead == null?
+                    Expanded(
+                        child: getRecommandConnectWidget()
+                    ):
+                    Expanded(
+                        child: SingleChildScrollView(
+                            child: Container(
+                              padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
+                              child: Column(
+                                children: [
+                                  getGraphWidget("PPG"),
+                                  getGraphWidget("Actigraphy"),
+                                  getGraphWidget("HRV", showParameterUI:true),
+                                ],
+                              ),
+                            )
+                        )
                     )
                   ],
                 )
@@ -525,7 +552,12 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: () async {
+              context.read<DataProvider>().setLoading(true);
               await Navigator.pushNamed(context, Routes.bluetoothConnect);
+              await Future.delayed(const Duration(milliseconds: 1000),(){
+                context.read<DataProvider>().setLoading(false);
+                // setState(() {});
+              });
             },
             style: OutlinedButton.styleFrom(
                 backgroundColor: AppColors.subButtonGrey,

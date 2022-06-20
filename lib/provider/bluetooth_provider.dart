@@ -23,8 +23,8 @@ class BluetoothProvider with ChangeNotifier{
   List<BleDevice> deviceList = []; //전체 검색되는 장치목록
   BleDevice? connectedDeviceForNeck; //목 연결 장치
   BleDevice? connectedDeviceForForehead; //이마 연결장치
-  StreamSubscription? notifyNeckStream;
-  StreamSubscription? notifyForeheadStream;
+  static StreamSubscription? notifyNeckStream;
+  static StreamSubscription? notifyForeheadStream;
 
   bool isDeviceScanning = false; //장치스캔
   bool isDataScanning = false; //장치에서 데이터 스캔
@@ -152,23 +152,29 @@ class BluetoothProvider with ChangeNotifier{
         connectedDeviceForNeck = newDevice;
 
         notifyNeckStream?.cancel();
-        notifyNeckStream = newDevice.peripheral
+        notifyNeckStream = connectedDeviceForNeck!.peripheral
             .observeConnectionState(emitCurrentValue: true)
             .listen((PeripheralConnectionState connectionState) async {
 
-              newDevice.state = connectionState;
+              connectedDeviceForNeck!.state = connectionState;
               if(device.state == PeripheralConnectionState.connected){
                 await device.peripheral.discoverAllServicesAndCharacteristics();
 
-                notifyNeckStream = device.peripheral.monitorCharacteristic(
+                notifyNeckStream = connectedDeviceForNeck!.peripheral.monitorCharacteristic(
                     SERVICE_UUID_LIST[0],
                     TX_UUID_LIST[0],
                     transactionId: "monitor"
                 ).listen((task) {
                   Uint8List message = task.value;
-
+                  print("neck message: ${message}");
                   String batteryValue = Protocol.getBatteryValue(message);
                   setBatteryValue(connectedDeviceForNeck!, batteryValue);
+                  double ppgValue = Protocol.getPPGValue(message);
+                  setPPGValue(connectedDeviceForNeck!, ppgValue);
+                  notifyListeners();
+                  // String eegValue = Protocol.getEEGValue(message);
+                  // setEEGValue(connectedDeviceForNeck!, eegValue);
+
 
                 }, onError: (error){
                   print("notifyNeckStream error:: $error");
@@ -179,7 +185,7 @@ class BluetoothProvider with ChangeNotifier{
     }else if(type == BODY_TYPE.FOREHEAD){
       // 이마에 연결된 기기를 목에 연결시 / 목연결 기기를 이마에 연결시 기존 연결 취소 처리
       /// 블루투스 기기에 연결시도
-      await newDevice.peripheral.connect(isAutoConnect: true).whenComplete(() async {
+      newDevice.peripheral.connect(isAutoConnect: true).whenComplete(() async {
         if(await newDevice.peripheral.isConnected()){
           print("newDevice isConnected");
           showToast("기기 연결 성공");
@@ -193,23 +199,26 @@ class BluetoothProvider with ChangeNotifier{
         connectedDeviceForForehead = newDevice;
 
         notifyForeheadStream?.cancel();
-        notifyForeheadStream = newDevice.peripheral
+        notifyForeheadStream = connectedDeviceForForehead!.peripheral
             .observeConnectionState(emitCurrentValue: true)
             .listen((PeripheralConnectionState connectionState) async {
 
-          newDevice.state = connectionState;
+          connectedDeviceForForehead!.state = connectionState;
           if(device.state == PeripheralConnectionState.connected){
-            await device.peripheral.discoverAllServicesAndCharacteristics();
+            await connectedDeviceForForehead!.peripheral.discoverAllServicesAndCharacteristics();
 
-            notifyForeheadStream = device.peripheral.monitorCharacteristic(
+            notifyForeheadStream = connectedDeviceForForehead!.peripheral.monitorCharacteristic(
                 SERVICE_UUID_LIST[0],
                 TX_UUID_LIST[0],
                 transactionId: "monitor"
             ).listen((task) {
               Uint8List message = task.value;
-
+              print("forehead message: ${message}");
               String batteryValue = Protocol.getBatteryValue(message);
               setBatteryValue(connectedDeviceForForehead!, batteryValue);
+              double ppgValue = Protocol.getPPGValue(message);
+              setPPGValue(connectedDeviceForForehead!, ppgValue);
+              notifyListeners();
 
             }, onError: (error){
               print("notifyForeheadStream error:: $error");
@@ -254,6 +263,17 @@ class BluetoothProvider with ChangeNotifier{
     print("Battery: $batteryValue");
     connectedDevice.battery = batteryValue.split(".")[0];
     notifyListeners();
+  }
+
+  bool setPPGValue(BleDevice bleDevice, double ppgValue) {
+    //ppg 신호 가져오기
+
+    if(bleDevice.ppg.length > 20000) {
+      bleDevice.ppg.removeAt(0);
+    }
+    bleDevice.ppg.add(ppgValue);
+    print("bleDevice.ppg: ${bleDevice.ppg}");
+    return true;
   }
 
 
