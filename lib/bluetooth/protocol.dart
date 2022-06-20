@@ -14,6 +14,16 @@ class Protocol{
     return const[];
   }
 
-  static requestBattery(BleDevice device) {
+  static requestBattery(BleDevice device, ) {
+  }
+
+  static String getBatteryValue(message) {
+    try{
+      int batteryLevel = 0xff & message[32];
+      //현재 배터리 상태값 가공
+      return ((batteryLevel * 0.0032 * 6.9) / 4.7 * 100).toString();
+    }catch(e){
+       return "";
+    }
   }
 }

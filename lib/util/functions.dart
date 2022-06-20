@@ -1,13 +1,12 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/src/provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
-
 import 'app_colors.dart';
+import 'dart:math';
 
 Future<void> completedExit() async {
   if (Platform.isIOS) {
@@ -24,6 +23,15 @@ Future<bool> checkNetworkState() async{
 
 showToast(String msg){
   Fluttertoast.showToast(msg: msg);
+}
+
+int bytesToInteger(List<int> bytes) {
+  //byte to Uint8 변환
+  var value = 0;
+  for (var i = 0, length = bytes.length; i < length; i++) {
+    value += (bytes[i] * pow(256, i)).toInt();
+  }
+  return value;
 }
 
 const String validEmail = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";

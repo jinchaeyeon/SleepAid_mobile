@@ -18,4 +18,14 @@ class BleDevice {
     print("Peripheral ${peripheral.identifier} connection state is $connectionState");
     state = connectionState;
   }
+
+  String battery = "-";
+  String pulseSize = "";
+  String pulseRadius = "";
+  String pulsePadding = "";
+  List<double> ppg = [];
+  List<double> eeg = [];
+  List<double> actX = [];
+  List<double> actY = [];
+  List<double> actZ = [];
 }

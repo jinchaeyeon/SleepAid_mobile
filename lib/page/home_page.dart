@@ -164,11 +164,20 @@ class HomeState extends State<HomePage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              contentButton(AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', '', onTap:() {
+              context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
+              context.watch<BluetoothProvider>().connectedDeviceForForehead != null
+              ?contentButton(AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', '', onTap:() {
+                Navigator.pushNamed(context, Routes.bodySignal);
+              })
+              :contentButton(AppImages.bioSignal, '실시간 생체신호', false, '실시간 신호 출력중지', '', onTap:() {
                 Navigator.pushNamed(context, Routes.bodySignal);
               }),
-              contentButton(AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', '',onTap: (){
-                //todo
+              context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
+                  context.watch<BluetoothProvider>().connectedDeviceForForehead != null
+              ?contentButton(AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', '',onTap: (){
+                Navigator.pushNamed(context, Routes.settingRecipe);
+              })
+              :contentButton(AppImages.electricalStimulation, '전기자극설정', false, '전기 자극 출력증지', '',onTap: (){
                 Navigator.pushNamed(context, Routes.settingRecipe);
               }),
             ],
@@ -179,7 +188,13 @@ class HomeState extends State<HomePage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              contentButton(AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', '',onTap: () {
+              ( context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
+              context.watch<BluetoothProvider>().connectedDeviceForForehead != null )
+              && context.watch<DataProvider>().isPlayingBeat
+              ?contentButton(AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', '',onTap: () {
+                Navigator.pushNamed(context, Routes.binauralBeat);
+              })
+              :contentButton(AppImages.binauralBeat, 'Binaural Beat', false, 'Binaural Beat 출력중지', '',onTap: () {
                 Navigator.pushNamed(context, Routes.binauralBeat);
               }),
               contentButton(AppImages.sleepAnalysis, '수면분석', false, '새로운 수면 정보 확인', '', onTap: () {
@@ -192,11 +207,21 @@ class HomeState extends State<HomePage>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            contentButton(AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 100%', '', onTap: () {
+            context.watch<BluetoothProvider>().connectedDeviceForNeck != null
+            ?contentButton(AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForNeck!.battery}%', '', onTap: () {
+              //todo
+              // Navigator.pushNamed(context, routeSleepAnalysis);
+            })
+            :contentButton(AppImages.bluetoothConnect, '기기 연결 (목)', false, '배터리 잔량 -', '', onTap: () {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             }),
-            contentButton(AppImages.bluetoothDisconnect, '기기 연결 (이마)', false, '배터리 잔량 -', '', onTap: () {
+            context.watch<BluetoothProvider>().connectedDeviceForForehead != null
+            ?contentButton(AppImages.bluetoothDisconnect, '기기 연결 (이마)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForForehead!.battery}%', '', onTap: () {
+              //todo
+              // Navigator.pushNamed(context, routeSleepAnalysis);
+            },)
+            :contentButton(AppImages.bluetoothDisconnect, '기기 연결 (이마)', false, '배터리 잔량 -', '', onTap: () {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             },)

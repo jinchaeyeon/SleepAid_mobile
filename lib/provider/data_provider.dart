@@ -16,6 +16,8 @@ class DataProvider with ChangeNotifier{
   SleepConditionItemListResponse? sleepConditionItemResponse;
   //어제 컨디션 리뷰
   ConditionReview? yesterdayConditionReview;
+  /// 비트 출력시 true
+  bool isPlayingBeat = false;
 
   Future<void> setLoading(bool showLoading) async{
     isLoading = showLoading;

@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:sleepaid/bluetooth/protocol.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/util/functions.dart';
 
@@ -16,7 +18,6 @@ class BluetoothProvider with ChangeNotifier{
   static const List<String> RX_UUID_LIST = ['6e400002-b5a3-f393-e0a9-e50e24dcca9e'];
   static const List<String> TX_UUID_LIST = ['6e400003-b5a3-f393-e0a9-e50e24dcca9e'];
   static const int MTU = 20;
-
 
   BleManager bleManager = BleManager();
   List<BleDevice> deviceList = []; //전체 검색되는 장치목록
@@ -134,9 +135,8 @@ class BluetoothProvider with ChangeNotifier{
   /// 3. 연결 실패하면 연결에 실패하였습니다
   /// 4. 연결 성공하면 업데이트
   Future<void> choiceBodyPosition(BODY_TYPE type,BleDevice device) async {
+    BleDevice newDevice = BleDevice(device.deviceName,device.rssi, device.peripheral, device.advertisementData);
     if(type == BODY_TYPE.NECK){
-      BleDevice newDevice = BleDevice(device.deviceName,device.rssi, device.peripheral, device.advertisementData);
-
       /// 블루투스 기기에 연결시도
       await newDevice.peripheral.connect(isAutoConnect: true).whenComplete(() async {
         if(await newDevice.peripheral.isConnected()){
@@ -147,32 +147,7 @@ class BluetoothProvider with ChangeNotifier{
           showToast("기기 연결 실패");
           return;
         }
-
-        await device.peripheral.discoverAllServicesAndCharacteristics();
-        var services = await device.peripheral.services();
-        for (var service in services) {
-          log("SERVICE : " + service.uuid);
-          List<Characteristic> characteristics = await service.characteristics();
-          for( var characteristic in characteristics ) {
-            log("CHARACTER : ${characteristic.uuid}");
-            log("NOTIFY : " + characteristic.isNotifiable.toString());
-            log("INDICATE : " + characteristic.isIndicatable.toString());
-            log("WRITE_RES : " + characteristic.isWritableWithResponse.toString());
-            log("WRITE_NORES : " + characteristic.isWritableWithoutResponse.toString());
-            log("READ : " + characteristic.isReadable.toString());
-
-            if (characteristic.isNotifiable) {
-              print("isNofifiable");
-            }else if(characteristic.uuid == "6e400003-b5a3-f393-e0a9-e50e24dcca9e"){
-              print("is not Nofifiable");
-              // _writeCharacteristicUuid = characteristic.uuid;
-              // _writeService = service.uuid;
-            }
-          }
-        }
-
-        /// 잘 연결 되었다면 notify Listener 설정
-
+        // await device.peripheral.discoverAllServicesAndCharacteristics();
         /// 장치 변수에 할당
         connectedDeviceForNeck = newDevice;
 
@@ -190,99 +165,58 @@ class BluetoothProvider with ChangeNotifier{
                     TX_UUID_LIST[0],
                     transactionId: "monitor"
                 ).listen((task) {
-                  var list = task.value.toList();
-                  print("notifyNeckStream notify:: $list");
+                  Uint8List message = task.value;
+
+                  String batteryValue = Protocol.getBatteryValue(message);
+                  setBatteryValue(connectedDeviceForNeck!, batteryValue);
+
                 }, onError: (error){
                   print("notifyNeckStream error:: $error");
                 } ,cancelOnError: true);
               }
         });
       });
-      // connectedDeviceForNeck = device;
-      // connectedDeviceForNeck!.setState(PeripheralConnectionState.connected);
-
-
-      // // 이마에 연결된 기기를 목에 연결시 / 목연결 기기를 이마에 연결시 기존 연결 취소 처리
-      // if(device.peripheral.identifier == connectedDeviceForForehead?.peripheral.identifier){
-      //   await connectedDeviceForForehead?.peripheral.disconnectOrCancelConnection();
-      //   connectedDeviceForForehead = null;
-      // }
-      // await device.peripheral.disconnectOrCancelConnection();
-      // await device.peripheral.connect(isAutoConnect: true).whenComplete((){
-      //   notifyNeckStream?.cancel();
-      //
-      //   notifyNeckStream = device.peripheral
-      //       .observeConnectionState(emitCurrentValue: true)
-      //       .listen((PeripheralConnectionState connectionState) async {
-      //     device.state = connectionState;
-      //     if(device.state == PeripheralConnectionState.connected){
-      //
-      //       await device.peripheral.discoverAllServicesAndCharacteristics();
-      //
-      //       notifyNeckStream = device.peripheral.monitorCharacteristic(
-      //           SERVICE_UUID_LIST[0],
-      //           TX_UUID_LIST[0],
-      //           transactionId: "monitor"
-      //       ).listen((task) {
-      //         var list = task.value.toList();
-      //         print("notifyNeckStream notify:: $list");
-      //       }, onError: (error){
-      //         print("notifyNeckStream error:: $error");
-      //       } ,cancelOnError: true);
-      //     }
-      //   });
-      // });
-      // connectedDeviceForNeck = device;
-      // connectedDeviceForNeck!.setState(PeripheralConnectionState.connected);
-
-
-
-
-      // await device.peripheral.isConnected().then((bool isConnected) async {
-        // if(!isConnected) {
-        //   showToast("연결실패. 다시 시도해주세요.");
-        //   return;
-        // }
-
-      //   connectedDeviceForNeck = device;
-      //   connectedDeviceForNeck!.setState(PeripheralConnectionState.connected);
-      //   showToast("장치 연결 확인");
-      //
-      //   notifyNeckStream?.cancel();
-      //   notifyNeckStream = device.peripheral
-      //       .observeConnectionState(emitCurrentValue: true)
-      //       .listen((PeripheralConnectionState connectionState) {
-      //         device.state = connectionState;
-      //         if(device.state == PeripheralConnectionState.connected){
-      //           notifyNeckStream = connectedDeviceForNeck!.peripheral.monitorCharacteristic(
-      //               SERVICE_UUID_LIST[0],
-      //               TX_UUID_LIST[0],
-      //               transactionId: "monitor"
-      //           ).listen((task) {
-      //             var list = task.value.toList();
-      //             print("notifyNeckStream notify:: $list");
-      //           }, onError: (error){
-      //             print("notifyNeckStream error:: $error");
-      //           } ,cancelOnError: true);
-      //         }
-      //   });
-      // });
     }else if(type == BODY_TYPE.FOREHEAD){
       // 이마에 연결된 기기를 목에 연결시 / 목연결 기기를 이마에 연결시 기존 연결 취소 처리
-      if(device.peripheral.identifier == connectedDeviceForNeck?.peripheral.identifier){
-        await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
-        connectedDeviceForNeck = null;
-      }
-      await connectedDeviceForForehead?.peripheral.disconnectOrCancelConnection();
-      await device.peripheral.connect(isAutoConnect: true);
-      bool connected = await device.peripheral.isConnected();
-      if(!connected){
-        showToast("연결실패. 다시 시도해주세요.");
-      }else{
-        connectedDeviceForForehead = device;
-        connectedDeviceForForehead!.setState(PeripheralConnectionState.connected);
-        showToast("장치 연결 확인");
-      }
+      /// 블루투스 기기에 연결시도
+      await newDevice.peripheral.connect(isAutoConnect: true).whenComplete(() async {
+        if(await newDevice.peripheral.isConnected()){
+          print("newDevice isConnected");
+          showToast("기기 연결 성공");
+        }else{
+          print("newDevice is not Connected");
+          showToast("기기 연결 실패");
+          return;
+        }
+        // await device.peripheral.discoverAllServicesAndCharacteristics();
+        /// 장치 변수에 할당
+        connectedDeviceForForehead = newDevice;
+
+        notifyForeheadStream?.cancel();
+        notifyForeheadStream = newDevice.peripheral
+            .observeConnectionState(emitCurrentValue: true)
+            .listen((PeripheralConnectionState connectionState) async {
+
+          newDevice.state = connectionState;
+          if(device.state == PeripheralConnectionState.connected){
+            await device.peripheral.discoverAllServicesAndCharacteristics();
+
+            notifyForeheadStream = device.peripheral.monitorCharacteristic(
+                SERVICE_UUID_LIST[0],
+                TX_UUID_LIST[0],
+                transactionId: "monitor"
+            ).listen((task) {
+              Uint8List message = task.value;
+
+              String batteryValue = Protocol.getBatteryValue(message);
+              setBatteryValue(connectedDeviceForForehead!, batteryValue);
+
+            }, onError: (error){
+              print("notifyForeheadStream error:: $error");
+            } ,cancelOnError: true);
+          }
+        });
+      });
     }
     device.peripheral.observeConnectionState(emitCurrentValue: true, completeOnDisconnect: true)
         .listen((connectionState) {
@@ -310,87 +244,18 @@ class BluetoothProvider with ChangeNotifier{
     }
   }
 
-// Future<void> getBluetoothConnection(address) async {
-//   //Bluetooth 주소값을 이용한 연결
-//   try {
-//     BluetoothConnection connection =
-//     await BluetoothConnection.toAddress(address);
-//     Util.log("Connected to the device.");
-//
-//     connection.input.listen((Uint8List data) {
-//       Util.log("Data incoming : ${ascii.decode(data)}");
-//       connection.output.add(data);
-//       //Serialized Data 이쪽으로 받아옴
-//       //총 바이트코드 length = 16
-//       //[0] 펄스폭 조회
-//       //[1] 펄스폭 설정
-//       //[2] 펄스간격 조회
-//       //[3, 4] 펄스간격 설정
-//       //[5] 펄스크기 조회₩
-//       //[6, 7] 펄스크기 설정
-//       //[8] 펄스극성 조회
-//       //[9] 펄스극성 설정
-//       //[10] 펄스 OUTPUT
-//       //[11] 펄스 OUTPUT ALL
-//       //[12] 실행모드
-//       //[13] 현상태 출력 -> 피드백 필요
-//       //[14, 15] 배터리 전압 출력 -> 범위로 주어짐
-//
-//       if (ascii.decode(data).contains('!')) {
-//         connection.finish();
-//         Util.log("Disconnecting by local host");
-//       }
-//     }).onDone(() {
-//       Util.log("Disconnected");
-//     });
-//   } catch (exception) {
-//     Util.log("Cannot Connect, exception occured");
-//   }
-// }
-//
-// Future<List<blue.BluetoothDevice>> getBluetoothDeviceList() async {
-//   //사용 가능한 Bluetooth 기기 목록 받아오기
-//   //address -> device.address
-//   //isConnected -> device.isConnected로 접근 가능
-//   List<blue.BluetoothDevice> devicesList = [];
-//   try {
-//     blue.FlutterBlue flutterBlue;
-//     flutterBlue.scanResults.listen((List<blue.ScanResult> results) {
-//       for (blue.ScanResult result in results){
-//         devicesList.add(result.device);
-//       }
-//     });
-//   } catch (exception) {
-//     Util.log("Cannot get devices list, exception occured");
-//   }
-//
-//   return devicesList;
-// }
-//
-// Future<List<blue.BluetoothDevice>> getPairedBluetoothDeviceList() async {
-//   //페어링 된 Bluetooth 기기 목록 받아오기
-//   List<blue.BluetoothDevice> devicesList = [];
-//   try {
-//     blue.FlutterBlue flutterBlue;
-//     flutterBlue.connectedDevices.asStream().listen((List<blue.BluetoothDevice> devices){
-//       for (blue.BluetoothDevice device in devices){
-//         devicesList.add(device);
-//       }
-//     });
-//   } catch (exception) {
-//     Util.log("Cannot get devices list, exception occured");
-//   }
-//
-//   return devicesList;
-// }
-//
-// int getConnectedDeviceBattery(byteCode){
-//   //바이트코드에서 배터리 받아오는 예시 코드
-//   var batteryByte = ByteData.sublistView(byteCode, 14, 15);
-//   int battery = batteryByte.getUint8(0);
-//   //Bytedata.subListView(블루투스 기기에서 날아온 값, 바이트코드의 시작 인덱스, 바이트코드의 끝 인덱스)
-//
-//   return battery;
-// }
+  String getBatteryValue(int batteryValue) {
+    //현재 배터리 상태값 가공
+    return ((batteryValue * 0.0032 * 6.9) / 4.7 * 100).toString();
+  }
+
+  /// 장치에 배터리값을 변경
+  void setBatteryValue(BleDevice connectedDevice, String batteryValue) {
+    print("Battery: $batteryValue");
+    connectedDevice.battery = batteryValue.split(".")[0];
+    notifyListeners();
+  }
+
+
 }
 
