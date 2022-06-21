@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
+import 'package:sleepaid/data/network/reset_password_response.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
+import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/widget/sign_in_up_input.dart';
 
 import '../../app_routes.dart';
@@ -84,7 +86,7 @@ class _FindPasswordPage extends State<FindPasswordPage> {
                               Container(
                                   margin: const EdgeInsets.only(left: 30, top:10),
                                   alignment: Alignment.centerLeft,
-                                  child: const Text("아이디를 입력해주세요.", style: TextStyle(fontSize: 20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                                  child: Text("아이디를 입력해주세요.", style: TextStyle(fontSize: 20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                               ),
                               Container(
                                 padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30, top:80),
@@ -123,13 +125,7 @@ class _FindPasswordPage extends State<FindPasswordPage> {
                         Fluttertoast.showToast(msg:"이메일 형식이 아닙니다.");
                         return ;
                       }
-                      bool isSendingEmail = await sendResetEmail(_emailController.text);
-                      if(isSendingEmail){
-                        /// 비밀번호 변경 메일 알림
-                        Fluttertoast.showToast(msg: "${_emailController.text}로\n비밀번호 변경 메일이 발송되었습니다");
-                      }else{
-                        Fluttertoast.showToast(msg: "연결오류. 다시 시도해주세요.");
-                      }
+                      await sendResetEmail(_emailController.text);
                     },
                     style: OutlinedButton.styleFrom(
                         backgroundColor: AppColors.buttonBlue,
@@ -154,12 +150,11 @@ class _FindPasswordPage extends State<FindPasswordPage> {
     );
   }
 
-  ///로직 변경으로 사용 X
   Future<void> showSignupBottomSheetDialog(BuildContext context)  async{
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
         return  Wrap(
@@ -167,12 +162,12 @@ class _FindPasswordPage extends State<FindPasswordPage> {
             Column(
               children: [
                 Container(
-                    height: 100,
+                    height: 150,
                     width: double.maxFinite,
                     alignment: Alignment.center,
                     child: Text("등록되지 않은 이메일입니다.\n회원가입 페이지로 이동하시겠습니까?",
                         textAlign:TextAlign.center,
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold,
                             color: AppColors.textBlack))
                 ),
                 Container(
@@ -189,7 +184,7 @@ class _FindPasswordPage extends State<FindPasswordPage> {
                           },
                           child:Container(
                               alignment: Alignment.center,
-                              child: Text("취소",style:TextStyle(fontSize:15, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                              child: Text("취소",style:TextStyle(fontSize:18, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                           ),
                         ),
                       ),
@@ -201,12 +196,12 @@ class _FindPasswordPage extends State<FindPasswordPage> {
                       Expanded(
                         child: InkWell(
                           onTap:(){
-                            Navigator.pop(context);
-                            Navigator.pushNamedAndRemoveUntil(context, Routes.licenseKey, (route) => false);
+                            Navigator.pushNamedAndRemoveUntil(context, Routes.loginList, (route) => false);
+                            Navigator.pushNamed(context, Routes.licenseKey);
                           },
                           child:Container(
                               alignment: Alignment.center,
-                              child: Text("확인",style:TextStyle(fontSize:15, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                              child: Text("확인",style:TextStyle(fontSize:18, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                           ),
                         ),
                       ),
@@ -220,10 +215,18 @@ class _FindPasswordPage extends State<FindPasswordPage> {
     );
   }
 
-  Future<bool> sendResetEmail(String email) async{
-    await context.read<DataProvider>().setLoading(true);
-    bool isSuccess = !await context.read<DataProvider>().sendResetPasswordLinkToEmail(email);
-    await context.read<DataProvider>().setLoading(false);
-    return isSuccess;
+  Future<void> sendResetEmail(String email) async{
+    Object result = await context.read<DataProvider>().sendResetPasswordLinkToEmail(email);
+    if(result is ResetPasswordResponse){
+      showToast("비밀번호 변경메일이 전송되었습니다.");
+      Navigator.pop(context);
+    }else if(result is ServiceError){
+      if(
+        result.code == ServiceError.EMAIL_NOT_FOUND_ERROR ||
+        result.code == ServiceError.EMAIL_ERROR
+      ){
+        showSignupBottomSheetDialog(context);
+      }
+    }
   }
 }

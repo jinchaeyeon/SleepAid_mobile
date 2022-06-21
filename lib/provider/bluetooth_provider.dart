@@ -167,6 +167,7 @@ class BluetoothProvider with ChangeNotifier{
               ).map((characteristic) => characteristic.value);
 
               _monitoringNeckStreamSubscription = characteristic.listen((Uint8List message) {
+                print("monitoring message:: $message");
                 String batteryValue = Protocol.getBatteryValue(message);
                 setBatteryValue(connectedDeviceForNeck!, batteryValue);
 
@@ -362,7 +363,7 @@ class BluetoothProvider with ChangeNotifier{
   /// ppg 신호 로컬 저장
   /// todo n개 모으면 서버 전송 처리 추가
   void setPPGValue(BleDevice bleDevice, double ppgValue) {
-    if(bleDevice.ppg.length > 20000) {
+    if(bleDevice.ppg.length > 200) {
       bleDevice.ppg.removeAt(0);
     }
     bleDevice.ppg.add(ppgValue);
@@ -385,13 +386,13 @@ class BluetoothProvider with ChangeNotifier{
 
   /// 가속도 신호 로컬 저장
   void setAccelerometerValue(BleDevice bleDevice, List<double> actValue) {
-    while(bleDevice.actX.length > 20000) {
+    while(bleDevice.actX.length > 200) {
       bleDevice.actX.removeAt(0);
     }
-    while(bleDevice.actY.length > 20000) {
+    while(bleDevice.actY.length > 200) {
       bleDevice.actY.removeAt(0);
     }
-    while(bleDevice.actZ.length > 20000) {
+    while(bleDevice.actZ.length > 200) {
       bleDevice.actZ.removeAt(0);
     }
     bleDevice.actX.add(actValue[0]);

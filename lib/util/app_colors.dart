@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/material.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 
 class AppColors{
@@ -12,13 +13,10 @@ class AppColors{
   static get COLOR_BG_SPASH => AppDAO.isDarkMode
       ? colorDarkSplash
       : white;
-
-  static const Color mainBlue = Color(0xFF7282d4);
-  static const Color mainYellow = Color(0xFFe9a951);
-  static const Color subYellow = Color(0xFFf6c985);
-  static const Color mainGrey = Color(0xFFefefef);
-  static const Color mainGreen = Color(0xFF7eb641);
-  static const Color textBlack = Color(0xFF3d3d3d);
+  static get textBlack => AppDAO.isDarkMode
+      ? Colors.white
+      : const Color(0xFF3d3d3d);
+  // static const Color textBlack = Color(0xFF3d3d3d);
   static const Color subTextBlack = Color(0xFF676767);
   static const Color textGrey = Color(0xFFc2c2c2);
   static const Color subTextGrey = Color(0x80000000);
@@ -26,6 +24,12 @@ class AppColors{
   static const Color subTextPurple = Color(0xA67667b5);
   static const Color textRed = Color(0xFFd10000);
   static const Color subTextRed = Color(0x4Dd10000);
+
+  static const Color mainBlue = Color(0xFF7282d4);
+  static const Color mainYellow = Color(0xFFe9a951);
+  static const Color subYellow = Color(0xFFf6c985);
+  static const Color mainGrey = Color(0xFFefefef);
+  static const Color mainGreen = Color(0xFF7eb641);
   static const Color inputYellow = Color(0xFFe9a950);
   static const Color inputBlack = Color(0x80000000);
   static const Color inputInfoYellow = Color(0xFFf4bd74);

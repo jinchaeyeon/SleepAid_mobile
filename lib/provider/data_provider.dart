@@ -6,10 +6,13 @@ import 'package:sleepaid/data/local/condition_review.dart';
 import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/data/network/auth_response.dart';
 import 'package:sleepaid/data/network/calendar_response.dart';
+import 'package:sleepaid/data/network/reset_password_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/email_login_service.dart';
+import 'package:sleepaid/network/reset_password_service.dart';
 import 'package:sleepaid/network/sleep_condition_service.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
+import 'package:sleepaid/util/statics.dart';
 
 class DataProvider with ChangeNotifier{
   bool isLoading = false;
@@ -19,13 +22,13 @@ class DataProvider with ChangeNotifier{
   /// 비트 출력시 true
   bool isPlayingBeat = false;
 
-  Future<void> setLoading(bool showLoading) async{
+  void setLoading(bool showLoading) {
     isLoading = showLoading;
     print("--isLoading: $isLoading");
     notifyListeners();
 
     if(isLoading){
-      await Future.delayed(const Duration(seconds: 2),(){
+      Future.delayed(const Duration(seconds: TIMEOUT_SECOND),(){
         isLoading = false;
         notifyListeners();
       });
@@ -59,9 +62,11 @@ class DataProvider with ChangeNotifier{
   }
 
   ///이메일에 리셋 링크 전송
-  Future<bool> sendResetPasswordLinkToEmail(String email) async{
-    //todo 처리필요
-    return true;
+  Future<Object> sendResetPasswordLinkToEmail(String email) async{
+    setLoading(true);
+    var result = await PostResetPasswordService(email:email).start();
+    setLoading(false);
+    return result;
   }
 
   Future<bool> login(String email, String pw, {bool isAutoLogin = false}) async{

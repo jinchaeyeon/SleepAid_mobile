@@ -7,7 +7,7 @@ import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/util/util.dart';
 
-const MAX_RETRY_COUNT = 1;
+const MAX_RETRY_COUNT = 0;
 
 abstract class BaseService<T> {
   int _retryCount = 0;

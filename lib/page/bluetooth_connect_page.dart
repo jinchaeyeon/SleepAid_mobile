@@ -186,7 +186,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                       height: 50,
                       width: double.maxFinite,
                       alignment: Alignment.center,
-                      child: const Text("기기부착 부위선택",
+                      child: Text("기기부착 부위선택",
                           textAlign:TextAlign.center,
                           style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold,
                               color: AppColors.textBlack))
@@ -197,7 +197,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                       alignment: Alignment.center,
                       child: Text(device.deviceName,
                           textAlign:TextAlign.center,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
                               color: AppColors.textBlack))
                   ),
                   Container(height: 70),
@@ -216,7 +216,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                             },
                             child:Container(
                                 alignment: Alignment.center,
-                                child: const Text("목",style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                                child: Text("목",style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                             ),
                           ),
                         ),
@@ -233,7 +233,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                             },
                             child:Container(
                                 alignment: Alignment.center,
-                                child: const Text("이마", style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                                child: Text("이마", style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                             ),
                           ),
                         ),

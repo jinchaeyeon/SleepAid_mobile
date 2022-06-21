@@ -8,10 +8,12 @@ class ServiceError {
   static const String NON_FIELD_ERRORS = 'non_field_errors';
   static const String EMAIL_ERROR = 'email_error';
   static const String LICENSE_KEY_ERROR = 'license_key_error';
-
+  static const String EMAIL_NOT_FOUND_ERROR = 'email_not_found';
   String? code;
   String? message;
   final String? spec;
+
+
 
 
 

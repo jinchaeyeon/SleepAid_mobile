@@ -173,9 +173,9 @@ class EmailSignUpState extends State<EmailSignUpPage>
     ///회원가입 서버와 통신 이후에, 이슈 있으면 재시도 메세지, 이슈 없으면 메인화면
     String email = _emailController.text;
     String password = _passwordController.text;
-    await context.read<DataProvider>().setLoading(true);
+    context.read<DataProvider>().setLoading(true);
     int response = await context.read<AuthProvider>().signup(email, password);
-    await context.read<DataProvider>().setLoading(false);
+    context.read<DataProvider>().setLoading(false);
     if(!AppDAO.debugData.passCheckingSignupAPI){
       if(response == BaseResponse.STATE_UNCORRECT){
         return;

@@ -75,11 +75,11 @@ class MyCalendarState extends State<MyCalendarWidget>{
     isLoading = false;
     print("checkData start");
     await Future.delayed(const Duration(milliseconds:100));
-    await context.read<DataProvider>().setLoading(true);
+    context.read<DataProvider>().setLoading(true);
     List<CalendarDetailResponse> response = await context.read<DataProvider>().loadCalendarData();
     dateBuilder = CalendarDateBuilder(widget.startDate, widget.endDate, response);
     setState(() {});
-    await context.read<DataProvider>().setLoading(false);
+    context.read<DataProvider>().setLoading(false);
   }
 
   Widget? mainContent() {

@@ -4,6 +4,8 @@ import 'package:sleepaid/provider/data_provider.dart';
 import 'app_colors.dart';
 import 'app_images.dart';
 
+const int TIMEOUT_SECOND = 15;
+
 Gradient sliderGradient = LinearGradient(
   begin: Alignment.centerLeft,
   end: Alignment.centerRight,

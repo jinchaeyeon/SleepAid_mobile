@@ -75,7 +75,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                                           width: double.maxFinite,
                                           height: 50,
                                           alignment: Alignment.center,
-                                          child: const Text("목", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
+                                          child: Text("목", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
                                       ))),
                               Expanded(
                                   child: InkWell(
@@ -86,7 +86,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                                           width: double.maxFinite,
                                           height: 50,
                                           alignment: Alignment.center,
-                                          child: const Text("이마", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
+                                          child: Text("이마", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
                                       ))),
                             ]
                         )

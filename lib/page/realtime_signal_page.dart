@@ -234,6 +234,9 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               height: double.maxFinite,
               // child: SizedBox.shrink()
               child: SfCartesianChart(
+                onZoomStart: (value){
+                  print("zoom: value");
+                },
                 series: <LineSeries<double, int>>[
                   LineSeries<double, int>(
                     dataSource: isNeckMode?
@@ -583,7 +586,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                     borderRadius: BorderRadius.all(Radius.circular(10))
                 )
             ),
-            child: const Text(
+            child: Text(
               '기기 연결하러 가기',
               style: TextStyle(
                 fontSize: 15.0,

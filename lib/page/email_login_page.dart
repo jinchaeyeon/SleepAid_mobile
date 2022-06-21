@@ -86,7 +86,7 @@ class EmailLoginState extends State<EmailLoginPage>
                               Container(
                                   margin: const EdgeInsets.only(left: 30, top:10),
                                   alignment: Alignment.centerLeft,
-                                  child: const Text("로그인 해주세요.", style: TextStyle(fontSize: 20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
+                                  child: Text("로그인 해주세요.", style: TextStyle(fontSize: 20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                               ),
                               Container(
                                 padding: const EdgeInsets.only(left: 30, right: 30, bottom: 30, top:80),
@@ -193,9 +193,9 @@ class EmailLoginState extends State<EmailLoginPage>
   }
 
   Future<void> login(String id, String pw) async{
-    await context.read<DataProvider>().setLoading(true);
+    context.read<DataProvider>().setLoading(true);
     bool isSuccess = await context.read<DataProvider>().login(id, pw, isAutoLogin: isAutoLogin);
-    await context.read<DataProvider>().setLoading(false);
+    context.read<DataProvider>().setLoading(false);
     if(isSuccess){
       Navigator.pushReplacementNamed(context, Routes.home);
     }

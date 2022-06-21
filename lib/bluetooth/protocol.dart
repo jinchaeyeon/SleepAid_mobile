@@ -36,9 +36,11 @@ class Protocol{
     for (int i = 0; i < 8; i++) {
       int pos = 2 + i * 3;
       Uint8List list = message.sublist(pos, pos + 3);
+      print(list);
       int value = (bytesToInteger(list) / 1000).round();
       brainSignal = brainSignal + value.toString() + ", ";
     }
+    print("braiSiginal:$brainSignal");
     return brainSignal;
   }
 
