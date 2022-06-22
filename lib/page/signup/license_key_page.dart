@@ -95,6 +95,7 @@ class LicenseKeyState extends State<LicenseKeyPage>
     /// 가입 시작하는 이메일 가입자라면 이메일 가입 처리 진행 시작
       int response = await context.read<AuthProvider>().checkLicense(textLicense);
       if(response == BaseResponse.STATE_CORRECT){
+        AppDAO.authData.temporaryLicenseKey = textLicense;
         //CORRECT
         return true;
       }else if(response == BaseResponse.STATE_UNCORRECT){
@@ -196,14 +197,7 @@ class LicenseKeyState extends State<LicenseKeyPage>
                       ),
                       child: OutlinedButton(
                         onPressed: () async {
-                          //정상 라이센스 값 확인
-                          if(!AppDAO.debugData.passCheckingLicenseKey){
-                            bool checked = await checkLicenseKey();
-                            if(!checked) return;
-                          }
-                          //개인정보수집 약관 동의 페이지로 변경
-                          Navigator.pushReplacementNamed(
-                              context, Routes.agreementTerm);
+                          await checkValidLicenseKey();
                         },
                         style: OutlinedButton.styleFrom(
                           backgroundColor: AppColors.buttonBlue,
@@ -229,5 +223,16 @@ class LicenseKeyState extends State<LicenseKeyPage>
         ],
       ),
     );
+  }
+
+  Future checkValidLicenseKey() async{
+    //정상 라이센스 값 확인
+    if(!AppDAO.debugData.passCheckingLicenseKey){
+      bool checked = await checkLicenseKey();
+      if(!checked) return;
+    }
+    //개인정보수집 약관 동의 페이지로 변경
+    Navigator.pushReplacementNamed(
+        context, Routes.agreementTerm);
   }
 }

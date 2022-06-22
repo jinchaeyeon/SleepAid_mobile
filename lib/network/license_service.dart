@@ -1,26 +1,23 @@
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/data/network/license_response.dart';
 import 'package:sleepaid/network/base_service.dart';
 import 'package:http/http.dart' as http;
 
-class PostLicenseValuableService extends BaseService<LicenseResponse> {
-  Map<String, String> body;
-
-  PostLicenseValuableService({required this.body});
+class GetLicenseValuableService extends BaseService<bool> {
+  String licenseKey;
+  GetLicenseValuableService({required this.licenseKey});
 
   @override
   Future<http.Response> request() async {
-    return fetchPost();
+    return fetchGet();
   }
 
   @override
   setUrl() {
-    return AppDAO.baseUrl + 'check/license';
+    return AppDAO.baseUrl + 'users/licenses/validate?license_key=$licenseKey';
   }
 
   @override
-  LicenseResponse success(body) {
-    LicenseResponse licenseResponose = LicenseResponse.fromJson(body);
-    return licenseResponose;
+  bool success(body){
+    return true;
   }
 }

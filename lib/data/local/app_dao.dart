@@ -10,9 +10,8 @@ class DebugData{
   bool cancelBlockRotationDevice = false; // 화면 기울임 회전 막아둔 기능 풀기
 
   bool inputTestInputData = true; // 테스트와 관련된 입력값 미리 넣어두기
-  String licenseKey = "5d9qhe6o";
-
-  String signupEmail = "test9999@naver.com";
+  String licenseKey = "3tdbq4nh";
+  String signupEmail = "test0000@test.com";
   String signupPW = "qwer1234@@";
 }
 
