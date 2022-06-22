@@ -4,19 +4,23 @@ import NaverThirdPartyLogin
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
-    //   // code for naver login 1.6.0
+   // code for naver login 1.2.4
     override func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
-        var applicationResult = false
-        if (!applicationResult) {
-           applicationResult = NaverThirdPartyLoginConnection.getSharedInstance().application(app, open: url, options: options)
-        }
-        // if you use other application url process, please add code here.
-
-        if (!applicationResult) {
-           applicationResult = super.application(app, open: url, options: options)
-        }
-        return applicationResult
+        return NaverThirdPartyLoginConnection.getSharedInstance().application(app, open: url, options: options)
     }
+//     //   // code for naver login 1.6.0
+//     override func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
+//         var applicationResult = false
+//         if (!applicationResult) {
+//            applicationResult = NaverThirdPartyLoginConnection.getSharedInstance().application(app, open: url, options: options)
+//         }
+//         // if you use other application url process, please add code here.
+//
+//         if (!applicationResult) {
+//            applicationResult = super.application(app, open: url, options: options)
+//         }
+//         return applicationResult
+//     }
 
 //   // code for naver login 1.4.0
 //   override func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any] = [:]) -> Bool {
