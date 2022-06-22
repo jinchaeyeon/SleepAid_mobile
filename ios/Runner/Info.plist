@@ -2,7 +2,7 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-     <key>NSBluetoothAlwaysUsageDescription</key>
+    <key>NSBluetoothAlwaysUsageDescription</key>
     <string>Need BLE permission</string>
     <key>NSBluetoothPeripheralUsageDescription</key>
     <string>Need BLE permission</string>
@@ -51,5 +51,54 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+
+	<key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleTypeRole</key>
+            <string>Editor</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>neurotx.kr.sleepaid.sleepaid</string>
+            </array>
+        </dict>
+    </array>
+    <key>LSApplicationQueriesSchemes</key>
+    <array>
+        <string>naversearchapp</string>
+        <string>naversearchthirdlogin</string>
+    </array>
+    <key>naverServiceAppUrlScheme</key>
+    <string>neurotx.kr.sleepaid.sleepaid</string>
+    <key>naverConsumerKey</key>
+    <string>z4nD612bbATdAG6RRGMT</string>
+    <key>naverConsumerSecret</key>
+    <string>ABpX7xjoCO</string>
+    <key>naverServiceAppName</key>
+    <string>SleepAID</string>
+
+
+    <key>NSAppTransportSecurity</key>
+    <dict>
+       <key>NSAllowsArbitraryLoads</key>
+       <true/>
+       <key>NSExceptionDomains</key>
+       <dict>
+          <key>naver.com</key>
+          <dict>
+             <key>NSExceptionRequiresForwardSecrecy</key>
+             <false/>
+             <key>NSIncludesSubdomains</key>
+             <true/>
+          </dict>
+          <key>naver.net</key>
+          <dict>
+             <key>NSExceptionRequiresForwardSecrecy</key>
+             <false/>
+             <key>NSIncludesSubdomains</key>
+             <true/>
+          </dict>
+       </dict>
+    </dict>
 </dict>
 </plist>

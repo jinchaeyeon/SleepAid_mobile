@@ -4,7 +4,10 @@ class AuthData{
   AuthData();
 
   String temporaryLicenseKey = "";
-  Map<String, String> userTypes = {
+  String temporarySNSType = "";
+  String temporarySNSUID = "";
+
+  static Map<String, String> userTypes = {
     "email": "email",
     "naver": "naver",
     "google": "google",

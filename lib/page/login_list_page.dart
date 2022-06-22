@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/src/provider.dart';
 import 'package:sleepaid/app_routes.dart';
+import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
@@ -71,70 +74,85 @@ class LoginState extends State<LoginListPage>
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            width: 50,
-                            height: 50,
-                            child: Image.asset(AppImages.naver, fit: BoxFit.contain),
-                          ),
-                          Text(
-                            'Naver',
-                            style: TextStyle(
-                              color: AppColors.subTextBlack,
-                              fontSize: 14,
-                              // fontFamily: Util.roboto,
-                              fontWeight: FontWeight.w400,
+                    InkWell(
+                      onTap: () async {
+                        await _actionSNSLogin(AuthData.userTypes["naver"]);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              width: 50,
+                              height: 50,
+                              child: Image.asset(AppImages.naver, fit: BoxFit.contain),
                             ),
-                          )
-                        ],
+                            const Text(
+                              'Naver',
+                              style: TextStyle(
+                                color: AppColors.subTextBlack,
+                                fontSize: 14,
+                                // fontFamily: Util.roboto,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        await _actionSNSLogin(AuthData.userTypes["google"]);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              width: 50,
+                              height: 50,
+                              child: Image.asset(AppImages.facebook, fit: BoxFit.contain),
+                            ),
+                            const Text(
+                              'Facebook',
+                              style: TextStyle(
+                                color: AppColors.subTextBlack,
+                                fontSize: 14,
+                                // fontFamily: Util.roboto,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        )
                       ),
                     ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            width: 50,
-                            height: 50,
-                            child: Image.asset(AppImages.facebook, fit: BoxFit.contain),
-                          ),
-                          Text(
-                            'Facebook',
-                            style: TextStyle(
-                              color: AppColors.subTextBlack,
-                              fontSize: 14,
-                              // fontFamily: Util.roboto,
-                              fontWeight: FontWeight.w400,
+                    InkWell(
+                      onTap: () async {
+                        await _actionSNSLogin(AuthData.userTypes["facebook"]);
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Column(
+                          children: [
+                            Container(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              width: 50,
+                              height: 50,
+                              child: Image.asset(AppImages.google, fit: BoxFit.contain),
                             ),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 30),
-                      child: Column(
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            width: 50,
-                            height: 50,
-                            child: Image.asset(AppImages.google, fit: BoxFit.contain),
-                          ),
-                          Text(
-                            'Google',
-                            style: TextStyle(
-                              color: AppColors.subTextBlack,
-                              fontSize: 14,
-                              // fontFamily: Util.roboto,
-                              fontWeight: FontWeight.w400,
-                            ),
-                          )
-                        ],
+                            const Text(
+                              'Google',
+                              style: TextStyle(
+                                color: AppColors.subTextBlack,
+                                fontSize: 14,
+                                // fontFamily: Util.roboto,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            )
+                          ],
+                        )
                       ),
                     ),
                   ],
@@ -249,5 +267,11 @@ class LoginState extends State<LoginListPage>
             )
         )
     );
+  }
+
+  /// SNS 로그인 요청 처리
+  Future<void> _actionSNSLogin(String? userType) async{
+    Navigator.pop(context);
+    await context.read<AuthProvider>().checkSNSLogin(context, userType);
   }
 }

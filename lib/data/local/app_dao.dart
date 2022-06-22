@@ -58,7 +58,7 @@ class AppDAO{
   static Future clearAllData() async{
     await setUserToken(null);
     await setUserType(null);
-    await setDarkMode(null);
+    await setDarkMode(false);
   }
 
   static Future setUserToken(String? token) async{
