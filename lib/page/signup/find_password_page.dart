@@ -216,6 +216,7 @@ class _FindPasswordPage extends State<FindPasswordPage> {
   }
 
   Future<void> sendResetEmail(String email) async{
+    FocusManager.instance.primaryFocus?.unfocus();
     Object result = await context.read<DataProvider>().sendResetPasswordLinkToEmail(email);
     if(result is ResetPasswordResponse){
       showToast("비밀번호 변경메일이 전송되었습니다.");

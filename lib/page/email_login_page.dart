@@ -193,6 +193,7 @@ class EmailLoginState extends State<EmailLoginPage>
   }
 
   Future<void> login(String id, String pw) async{
+    FocusManager.instance.primaryFocus?.unfocus();
     context.read<DataProvider>().setLoading(true);
     bool isSuccess = await context.read<DataProvider>().login(id, pw, isAutoLogin: isAutoLogin);
     context.read<DataProvider>().setLoading(false);

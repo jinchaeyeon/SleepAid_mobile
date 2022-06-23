@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
@@ -174,7 +175,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.all(Radius.circular(20)),
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       builder: (BuildContext context) {
         return  Wrap(
@@ -211,10 +212,13 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                         Expanded(
                           child: InkWell(
                             onTap:() async {
-                              await context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, device);
                               Navigator.pop(context);
+                              context.read<DataProvider>().setLoading(true);
+                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, device);
+                              context.read<DataProvider>().setLoading(false);
                             },
                             child:Container(
+                              height: 100,
                                 alignment: Alignment.center,
                                 child: Text("목",style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                             ),
@@ -222,16 +226,19 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                         ),
                         Container(
                           width: 1,
-                          height: 90,
+                          height: 100,
                           color:AppColors.borderGrey,
                         ),
                         Expanded(
                           child: InkWell(
                             onTap:() async {
-                              await context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, device);
                               Navigator.pop(context);
+                              context.read<DataProvider>().setLoading(true);
+                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, device);
+                              context.read<DataProvider>().setLoading(false);
                             },
                             child:Container(
+                                height: 100,
                                 alignment: Alignment.center,
                                 child: Text("이마", style:TextStyle(fontSize:20, color: AppColors.textBlack, fontWeight: FontWeight.bold))
                             ),
@@ -262,9 +269,9 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
   String _getDeviceStatusText(BODY_TYPE bodyType, BleDevice device) {
     if(bodyType == BODY_TYPE.NONE){
       return "연결안됨";
-    }else if(bodyType == BODY_TYPE.NECK){
+    }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connected){
       return "연결됨";
-    }else if(bodyType == BODY_TYPE.FOREHEAD){
+    }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connected){
       return "연결됨";
     }else{
       return "연결안됨";
