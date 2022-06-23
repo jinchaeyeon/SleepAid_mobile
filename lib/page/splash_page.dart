@@ -3,6 +3,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/network/get_sleep_condition_service.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
@@ -101,10 +102,7 @@ class SplashState extends State<SplashPage>
    */
   Future<void> checkAppVersion() async{
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
-    // String appName = packageInfo.appName;
-    // String packageName = packageInfo.packageName;
     String version = packageInfo.version;
     await AppDAO.setAppVersion(version);
-    // String buildNumber = packageInfo.buildNumber;
   }
 }

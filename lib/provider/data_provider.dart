@@ -5,12 +5,16 @@ import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/local/condition_review.dart';
 import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/data/network/auth_response.dart';
+import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/calendar_response.dart';
-import 'package:sleepaid/data/network/reset_password_response.dart';
+import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/email_login_service.dart';
+import 'package:sleepaid/network/get_binaural_beats_service.dart';
+import 'package:sleepaid/network/get_electro_stimulations_service.dart';
+import 'package:sleepaid/network/get_sleep_condition_service.dart';
 import 'package:sleepaid/network/reset_password_service.dart';
-import 'package:sleepaid/network/sleep_condition_service.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/util/statics.dart';
 
@@ -32,23 +36,6 @@ class DataProvider with ChangeNotifier{
         isLoading = false;
         notifyListeners();
       });
-    }
-  }
-
-  /// 수면컨디션 목록
-  /// 필수는 고정이므로, 선택목록을 가져온다
-  Future<int> getSleepConditionQuestions() async{
-    DateTime yesterDay = DateTime.now().subtract(const Duration(days: 1));
-    var format = DateFormat.yMd();
-    var params = {"date": format.format(yesterDay)};
-    var response = await GetSleepConditionService(body:params).start();
-    if(response is SleepConditionItemListResponse){
-      sleepConditionItemResponse = response;
-      //응답체크
-      return BaseResponse.STATE_CORRECT;
-    }else{
-      //이상응답
-      return BaseResponse.STATE_UNCORRECT;
     }
   }
 
@@ -96,6 +83,26 @@ class DataProvider with ChangeNotifier{
   /// 일시적으로 비트 출력을 정지 / 해제
   Future pauseBinauralBeatState(bool pause) async{
 
+  }
+
+  Future loadParameters() async{
+    await GetSleepConditionService().start().then((result){
+      if(result is List<SleepConditionParameterResponse>){
+        AppDAO.baseData.sleepConditionParameters = result;
+      }
+    });
+
+    await GetElectroStimulationsService().start().then((result){
+      if(result is List<ElectroStimulationParameterResponse>){
+        AppDAO.baseData.electroStimulationParameters = result;
+      }
+    });
+
+    await GetBinauralBeatsService().start().then((result){
+      if(result is List<BinauralBeatParameterResponse>){
+        AppDAO.baseData.binauralBeatParameters = result;
+      }
+    });
   }
 
 

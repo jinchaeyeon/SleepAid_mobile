@@ -1,15 +1,12 @@
 import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
-import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
-import 'package:sleepaid/util/app_images.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
-import 'package:provider/provider.dart';
-import '../app_routes.dart';
+
 
 class ConditionReviewPage extends BaseStatefulWidget {
   static const ROUTE = "ConditionReview";
@@ -110,12 +107,16 @@ class ConditionReviewState extends State<ConditionReviewPage>
 
   List<Widget> getSurveyItems() {
     List<Widget> list = [];
-    list.add(getSurveryItemWidget(item: SleepConditionItem(question: "테스트1", isFixed: true, score: 0)),);
-    list.add(getSurveryItemWidget(item: SleepConditionItem(question: "테스트2", isFixed: true, score: 0)),);
-    list.add(getSurveryItemWidget(item: SleepConditionItem(question: "테스트3", isFixed: false, isCorrect: null)),);
-    list.add(getSurveryItemWidget(item: SleepConditionItem(question: "테스트4", isFixed: false, isCorrect: null)),);
-    list.add(getSurveryItemWidget(item: SleepConditionItem(question: "테스트5", isFixed: false, isCorrect: null)),);
-    list.add(getSurveryItemWidget(item: SleepConditionItem(question: "테스트6", isFixed: false, isCorrect: null)),);
+    for (var parameter in AppDAO.baseData.sleepConditionParameters) {
+      ///응답유형 처리 추가 필요
+      AppDAO.baseData.sleepConditionParameters.indexOf(parameter).isEven
+          ?list.add(getSurveryItemWidget(
+          item: SleepConditionItem(
+              question: parameter.question, isFixed: true, score: 0)),)
+          :list.add(getSurveryItemWidget(
+          item: SleepConditionItem(
+              question: parameter.question, isFixed: false, isCorrect: null)),);
+    }
     return list;
   }
 
@@ -167,7 +168,8 @@ class ConditionReviewState extends State<ConditionReviewPage>
                   activeTrackBarHeight: 22,
                 ),
                 onDragging: (handlerIndex, lowerValue, upperValue) {
-                  item.score = lowerValue;
+                  // print("lower; $lowerValue upper:$upperValue");
+                  item.score = (lowerValue as double).toInt();
                   setState(() {});
                 },
                 tooltip: FlutterSliderTooltip(
@@ -177,12 +179,12 @@ class ConditionReviewState extends State<ConditionReviewPage>
                     positionOffset: FlutterSliderTooltipPositionOffset(
                         top: 100
                     ),
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       color: AppColors.textPurple,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
-                    boxStyle: FlutterSliderTooltipBox(
+                    boxStyle: const FlutterSliderTooltipBox(
                       decoration: BoxDecoration(),
                     )),
               )

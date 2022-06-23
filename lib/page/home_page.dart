@@ -2,6 +2,14 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/data/network/binarual_beat_recipe_response.dart';
+import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
+import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
+import 'package:sleepaid/network/get_binaural_beats_service.dart';
+import 'package:sleepaid/network/get_electro_stimulations_service.dart';
+import 'package:sleepaid/network/get_sleep_condition_service.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
@@ -229,8 +237,8 @@ class HomeState extends State<HomePage>
         ),
         const Expanded(child: SizedBox.shrink(),),
        InkWell(
-         onTap: () {
-           Navigator.pushNamed(context, Routes.conditionReview);
+         onTap: () async {
+           await _action(Routes.conditionReview);
          },
          child:  Container(
            height: 150,
@@ -448,10 +456,30 @@ class HomeState extends State<HomePage>
   Future<void> startEveryStateChecker() async{
     log("startEveryStateChecker");
     context.read<DataProvider>().setLoading(true);
+    await context.read<DataProvider>().loadParameters();
     await checkBluetoothState();
     await pauseBinauralBeatState(false);
     await context.read<BluetoothProvider>().resumeParse();
     context.read<DataProvider>().setLoading(false);
+  }
+
+  Future _action(String actionType) async {
+    if(actionType == Routes.conditionReview){
+      await checkParameters();
+      Navigator.pushNamed(context, Routes.conditionReview);
+    }
+  }
+
+  Future checkParameters() async{
+    bool isValidParameters = true;
+    if(AppDAO.baseData.sleepConditionParameters.isEmpty) isValidParameters = false;
+    if(AppDAO.baseData.binauralBeatParameters.isEmpty) isValidParameters = false;
+    if(AppDAO.baseData.electroStimulationParameters.isEmpty) isValidParameters = false;
+    if(!isValidParameters){
+      context.read<DataProvider>().setLoading(true);
+      await context.read<DataProvider>().loadParameters();
+      context.read<DataProvider>().setLoading(false);
+    }
   }
 }
 

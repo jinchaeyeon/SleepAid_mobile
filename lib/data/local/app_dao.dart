@@ -2,6 +2,16 @@ import 'package:sembast/sembast.dart';
 import 'package:sembast/timestamp.dart';
 import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_database.dart';
+import 'package:sleepaid/data/network/binarual_beat_recipe_response.dart';
+import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
+import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
+
+class AppBaseData {
+  List<SleepConditionParameterResponse> sleepConditionParameters = [];
+  List<ElectroStimulationParameterResponse> electroStimulationParameters = [];
+  List<BinauralBeatParameterResponse> binauralBeatParameters = [];
+}
 
 class DebugData{
   bool hasDummyUserInfo = false; // 더미 유저정보를 가지고 시작
@@ -11,12 +21,11 @@ class DebugData{
 
   bool inputTestInputData = true; // 테스트와 관련된 입력값 미리 넣어두기
   String licenseKey = "3tdbq4nh";
-  String signupEmail = "test0000@test.com";
+  String signupEmail = "test1234@test.com	";
   String signupPW = "qwer1234@@";
 }
 
 class AppDAO{
-
   static _put({required String key, dynamic value}) async {
     var store = StoreRef.main();
     var db = await AppDatabase.instance.database;
@@ -34,7 +43,7 @@ class AppDAO{
     var db = await AppDatabase.instance.database;
     await store.record(key).delete(db);
   }
-
+  static AppBaseData baseData = AppBaseData();
   static DebugData debugData = DebugData();
   static AuthData authData = AuthData();
   static var appVersion = '1.0.0';

@@ -2,7 +2,9 @@ import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:sleepaid/data/network/recipe_response.dart';
+import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
+import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
@@ -23,22 +25,23 @@ class SettingRecipePage extends BaseStatefulWidget {
 
 class SettingRecipeState extends State<SettingRecipePage>
     with SingleTickerProviderStateMixin{
+  bool isNeckMode = true;
+  bool isControllable = false;
   /// 처음에 기기에서 가져와야함, 실시간 변경되는 메인 레시피
-  RecipeResponse? currentRecipe;
+  ElectroStimulationParameterResponse? currentRecipe;
   /// 서버에서 가져와야 함, 레시피 목록
-  List<RecipeResponse> recipes = [];
+  List<ElectroStimulationParameterResponse> recipes = [];
   /// 선택중인 레시피 앱 실행시에는 기본값을 모르기 때문에 null, 앱 사용 중 레시피 선택하면 해당 레시피를 선택 상태로 설정
-  RecipeResponse? selectedRecipe;
+  ElectroStimulationParameterResponse? selectedRecipe;
 
   @override
   void initState() {
-    initPage();
     super.initState();
-
   }
 
   @override
   Widget build(BuildContext context){
+    initPage();
 
     return Scaffold(
       appBar: appBar(context, '전기 자극 상태', isRound: false,),
@@ -69,7 +72,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                               Expanded(
                                   child: InkWell(
                                       onTap: (){
-
+                                        setNeckMode(true);
                                       },
                                       child: Container(
                                           width: double.maxFinite,
@@ -80,7 +83,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                               Expanded(
                                   child: InkWell(
                                       onTap: (){
-
+                                        setNeckMode(false);
                                       },
                                       child: Container(
                                           width: double.maxFinite,
@@ -104,7 +107,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                                       child: Container(
                                           width: double.maxFinite,
                                           height: 3,
-                                          color: AppColors.borderGrey,
+                                          color: isNeckMode?AppColors.borderGrey:Theme.of(context).colorScheme.secondary,
                                           alignment: Alignment.center,
                                           child: SizedBox.shrink()
                                       ))),
@@ -116,7 +119,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                                       child: Container(
                                           width: double.maxFinite,
                                           height: 3,
-                                          color: Theme.of(context).colorScheme.secondary,
+                                          color: !isNeckMode?AppColors.borderGrey:Theme.of(context).colorScheme.secondary,
                                           alignment: Alignment.center,
                                           child: SizedBox.shrink()
                                       ))),
@@ -421,6 +424,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                 padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
                 child: Column(
                   children: [
+                    if(!isControllable)getExplaationWidget(),
                     ...getRecipeWidgets()
                   ],
                 ),
@@ -454,6 +458,7 @@ class SettingRecipeState extends State<SettingRecipePage>
           ),
           Expanded(flex: 7,
               child: FlutterSlider(
+                disabled : !isControllable,
                 values: [getValueFromCurrentRecipe(index)],
                 max: max,
                 min: 0,
@@ -479,8 +484,8 @@ class SettingRecipeState extends State<SettingRecipePage>
                     positionOffset: FlutterSliderTooltipPositionOffset(
                         top: 60
                     ),
-                    textStyle: const TextStyle(
-                      color: AppColors.textPurple,
+                    textStyle: TextStyle(
+                      color: isControllable?AppColors.textPurple:Colors.transparent,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                     ),
@@ -496,24 +501,21 @@ class SettingRecipeState extends State<SettingRecipePage>
 
   /// 초기값 설정
   void initPage() {
-    Future.delayed(const Duration(milliseconds:100),(){
-      ///테스트에서만 보이는 레시피
-      if(kDebugMode){
-        recipes.add(RecipeResponse(text:"TEST RECIPE 1", interval: 1, intensity: 9, elevation: 6));
-        recipes.add(RecipeResponse(text:"TEST RECIPE 2", interval: 4, intensity: 3, elevation: 5));
-        recipes.add(RecipeResponse(text:"TEST RECIPE 3", interval: 5, intensity: 4, elevation: 6));
-        recipes.add(RecipeResponse(text:"TEST RECIPE 4", interval: 6, intensity: 3, elevation: 3));
-        recipes.add(RecipeResponse(text:"TEST RECIPE 5", interval: 5, intensity: 1, elevation: 1));
-        setState(() {});
-      }
-      checkDeviceStatus();
-    });
-  }
+    isControllable = getControllableState(context, isNeckMode);
+    recipes = [];
+    if(isControllable){
+      ///todo 추후 서버에서 맞춤설정 가져와야함
+      recipes.add(ElectroStimulationParameterResponse(
+          name:"사용자 맞춤 설정", interval: 1, intensity: 9, height: 6));
+    }
 
-  /// 현재 연결된 기기 상태 체크
-  /// 목일때에는 목기기, 이마일때는 이마 기기 체크
-  void checkDeviceStatus() {
-    // context.read<BluetoothProvider>().connectedDeviceForNeck
+    for (var parameter in AppDAO.baseData.electroStimulationParameters) {
+      recipes.add(ElectroStimulationParameterResponse(
+          name:parameter.name,
+          interval: parameter.interval,
+          intensity: parameter.intensity,
+          height: parameter.height));
+    }
   }
 
   List<Widget> getRecipeWidgets() {
@@ -522,8 +524,10 @@ class SettingRecipeState extends State<SettingRecipePage>
     recipes.forEach((recipe) {
       Widget widget = GestureDetector(
         onTap: () {
-          updateCurrentRecipe(recipe);
-          setState(() {});
+          if(isControllable){
+            updateCurrentRecipe(recipe);
+            setState(() {});
+          }
         },
         child: Container(
           margin:EdgeInsets.only(top:10),
@@ -548,7 +552,7 @@ class SettingRecipeState extends State<SettingRecipePage>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              recipe.text,
+              recipe.name,
               style: Theme
                   .of(context)
                   .textTheme
@@ -556,11 +560,12 @@ class SettingRecipeState extends State<SettingRecipePage>
             ),
             SizedBox(height: 22),
             Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                SizedBox(width: 8),
                 Expanded(
                   flex: 1,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '자극\n간격',
@@ -569,9 +574,9 @@ class SettingRecipeState extends State<SettingRecipePage>
                             .textTheme
                             .headline2,
                       ),
-                      SizedBox(width: 6),
+                      SizedBox(width: 10),
                       Text(
-                        '${recipe.interval.toInt()}',
+                        '${recipe.interval}',
                         style: Theme
                             .of(context)
                             .textTheme
@@ -583,6 +588,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                 Expanded(
                   flex: 1,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '자극\n세기',
@@ -591,9 +597,9 @@ class SettingRecipeState extends State<SettingRecipePage>
                             .textTheme
                             .headline2,
                       ),
-                      SizedBox(width: 6),
+                      SizedBox(width: 10),
                       Text(
-                        '${recipe.intensity.toInt()}',
+                        '${recipe.intensity}',
                         style: Theme
                             .of(context)
                             .textTheme
@@ -605,6 +611,7 @@ class SettingRecipeState extends State<SettingRecipePage>
                 Expanded(
                   flex: 1,
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
                         '자극\n높이',
@@ -613,9 +620,9 @@ class SettingRecipeState extends State<SettingRecipePage>
                             .textTheme
                             .headline2,
                       ),
-                      SizedBox(width: 6),
+                      SizedBox(width: 10),
                       Text(
-                        '${recipe.elevation.toInt()}',
+                        '${recipe.height}',
                         style: Theme
                             .of(context)
                             .textTheme
@@ -624,7 +631,6 @@ class SettingRecipeState extends State<SettingRecipePage>
                     ],
                   ),
                 ),
-                SizedBox(width: 8),
               ],
             )
           ],
@@ -638,7 +644,7 @@ class SettingRecipeState extends State<SettingRecipePage>
     return list;
   }
 
-  void updateCurrentRecipe(RecipeResponse recipe) {
+  void updateCurrentRecipe(ElectroStimulationParameterResponse recipe) {
     currentRecipe = recipe;
     selectedRecipe = recipe;
   }
@@ -646,12 +652,69 @@ class SettingRecipeState extends State<SettingRecipePage>
   double getValueFromCurrentRecipe(double index) {
     if(currentRecipe == null) return 0;
     if(index == 0){
-      return currentRecipe!.interval;
+      return currentRecipe!.interval.toDouble();
     }else if(index == 1){
-      return currentRecipe!.intensity;
+      return currentRecipe!.intensity.toDouble();
     }else if(index == 2){
-      return currentRecipe!.elevation;
+      return currentRecipe!.height.toDouble();
     }
     return 0;
+  }
+
+  /// 컨트롤 가능 상태인지 알림
+  bool getControllableState(BuildContext context, bool isNeckMode) {
+    if(isNeckMode){
+      if( context.read<BluetoothProvider>().connectedDeviceForNeck != null &&
+          context.read<BluetoothProvider>().connectedDeviceForNeck!.state == PeripheralConnectionState.connected){
+        return true;
+      }
+    }
+    if(!isNeckMode){
+      if( context.read<BluetoothProvider>().connectedDeviceForForehead != null &&
+          context.read<BluetoothProvider>().connectedDeviceForForehead!.state == PeripheralConnectionState.connected){
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  Widget getExplaationWidget() {
+    return Container(
+      margin:EdgeInsets.only(top:10),
+      width: double.maxFinite,
+      padding: const EdgeInsets.only(
+        top: 16,
+        left: 16,
+        right: 16,
+        bottom: 26,
+      ),
+      decoration: BoxDecoration(
+        color: Theme.of(context).focusColor,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(width: 1.5,
+            color: Colors.transparent),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "사용자 맞춤 설정",
+            style: Theme.of(context).textTheme.headline6,
+          ),
+          SizedBox(height:15),
+          Text(
+            "사용자 맞춤 전기 자극 설정은 실시간 생체 신호를 계산하여 인공지능을 통해 최적의 자극 레시피를 산출하는 방법으로 기기 부착 후 사용 가능한 설정입니다.",
+            style: Theme.of(context).textTheme.headline3,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void setNeckMode(bool _isNeckMode) {
+    isNeckMode = _isNeckMode;
+    initPage();
+    setState(() {});
   }
 }

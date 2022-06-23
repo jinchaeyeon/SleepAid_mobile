@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/data/network/binarual_beat_recipe_response.dart';
-import 'package:sleepaid/data/network/recipe_response.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/statics.dart';

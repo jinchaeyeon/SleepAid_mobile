@@ -149,6 +149,7 @@ class BluetoothProvider with ChangeNotifier{
         .observeConnectionState(emitCurrentValue: true)
         .listen((PeripheralConnectionState connectionState) {
       log("state: ${connectionState.index}");
+      device.setState(connectionState);
       switch (connectionState) {
         case PeripheralConnectionState.connected:
           {

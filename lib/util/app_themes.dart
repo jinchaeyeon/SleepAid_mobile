@@ -69,7 +69,7 @@ class AppThemes{
         color: Color(0xFF000000),
         fontSize: 14,
         // fontFamily: Util.notoSans,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.bold,
       ),
       subtitle1: TextStyle(
         color: Color(0xFF676767),
@@ -191,7 +191,7 @@ class AppThemes{
         color:Color(0xFFf1f1f1),
         fontSize: 14,
         // fontFamily: Util.notoSans,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.bold,
       ),
       subtitle1: TextStyle(
         color:Color(0xFFf1f1f1),
