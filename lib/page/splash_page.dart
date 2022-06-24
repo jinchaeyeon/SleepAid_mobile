@@ -35,12 +35,11 @@ class SplashState extends State<SplashPage>
   @override
   void initState() {
     super.initState();
-    checkState();
   }
 
   @override
   Widget build(BuildContext context){
-
+    checkState();
     return Scaffold(
         extendBody: true,
         body: SafeArea(
@@ -56,9 +55,11 @@ class SplashState extends State<SplashPage>
   }
 
   Future<void> checkState() async{
-    await checkAppVersion();
-    await checkStoragePermission();
-    await checkLoginState();
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      await checkAppVersion();
+      await checkStoragePermission();
+      await checkLoginState();
+    });
   }
 
   Future<void> checkStoragePermission() async {
@@ -91,7 +92,8 @@ class SplashState extends State<SplashPage>
           }
           return;
         }else{
-          Navigator.of(context).pop(true);
+          showToast("네트워크 연결 상태를 확인해주세요");
+          completedExit(context);
         }
       });
     });

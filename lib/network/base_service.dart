@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/util/util.dart';
 
@@ -43,6 +44,14 @@ abstract class BaseService<T> {
   }
   static const Map<String, String> emptyMap = {};
   Future<dynamic> start({Map<String, String> extraHeaders = emptyMap}) async {
+    bool isConnected = await checkNetworkState().then((isConnected){
+      if(!isConnected){
+        showToast("네트워크 연결 상태를 확인해주세요.");
+      }
+      return isConnected;
+    });
+    if(!isConnected) return;
+
     _url = await setUrl();
     var extra = await _extraHeaders();
     if (extra != null && extra is Map<String, String>) {

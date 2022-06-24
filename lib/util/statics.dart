@@ -73,7 +73,7 @@ PreferredSize appBar(BuildContext context, String title, {bool isRound = true}) 
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    GestureDetector(
+                    InkWell(
                       onTap: () {
                         Navigator.pop(context);
                       },
@@ -86,8 +86,8 @@ PreferredSize appBar(BuildContext context, String title, {bool isRound = true}) 
                           fit: BoxFit.contain, width: 12, height: 21,
 
                         ),
-                      ),
-                    ),
+                      )
+                    )
                   ],
                 ),
               )

@@ -3,9 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:provider/src/provider.dart';
+import 'package:sleepaid/data/ble_device.dart';
+import 'package:sleepaid/page/realtime_signal_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
+import '../app_routes.dart';
 import 'app_colors.dart';
 import 'dart:math';
 
@@ -25,13 +29,18 @@ Future<void> completedExit(BuildContext? context) async {
   }
 }
 
+/// 네트워크 연결 상태 체크하는 코드
 Future<bool> checkNetworkState() async{
-  ///todo 네트워크 연결 상태 체크하는 코드
-  return true;
+  bool result = await InternetConnectionChecker().hasConnection;
+  if(result == true) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 showToast(String msg){
-  Fluttertoast.showToast(msg: msg);
+  Fluttertoast.showToast(msg: msg, gravity: ToastGravity.BOTTOM);
 }
 
 int bytesToInteger(List<int> bytes) {
@@ -84,7 +93,7 @@ showSimpleAlertDialog(BuildContext context, String text) {
 }
 
 /// 로딩, 로딩중 뒤로가기 처리
-Widget getBaseWillScope(BuildContext context, Widget? body, {Function? onWillScope}){
+Widget getBaseWillScope(BuildContext context, Widget? body, {Function? onWillScope, String? routes}){
   return WillPopScope(
     onWillPop: () async{
       if(context.read<DataProvider>().isLoading){
@@ -107,11 +116,10 @@ Widget getBaseWillScope(BuildContext context, Widget? body, {Function? onWillSco
           if(context.watch<DataProvider>().isLoading)Positioned(
             left: 0, right: 0, top: 0, bottom: 0,
             child: getLoading(context),
-          )
+          ),
         ]
     )
   );
-
 }
 
 Widget getLoading(BuildContext context) {

@@ -5,6 +5,7 @@ import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
@@ -37,131 +38,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
       appBar: appBar(context, '실시간 생체신호', isRound: false,),
         extendBody: true,
         body: SafeArea(
-            child: Container(
-                width: double.maxFinite,
-                height: double.maxFinite,
-                alignment: Alignment.topCenter,
-                child: Column(
-                  children: [
-                    Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: <Color>[Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
-                          ),
-                          borderRadius: const BorderRadius.only(
-                            bottomLeft: Radius.circular(0),
-                            bottomRight: Radius.circular(0),
-                          ),
-                        ),
-                        width: double.maxFinite,
-                        height: 50,
-                        child: Row(
-                            children:[
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-                                        isNeckMode = true;
-                                        setState(() {});
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 50,
-                                          alignment: Alignment.center,
-                                          child: Text("목", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
-                                      ))),
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-                                        isNeckMode = false;
-                                        setState(() {});
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 50,
-                                          alignment: Alignment.center,
-                                          child: Text("이마", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
-                                      ))),
-                            ]
-                        )
-                    ),
-                    Container(
-                        width: double.maxFinite,
-                        height: 3,
-                        child: Row(
-                            children:[
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 3,
-                                          color: isNeckMode
-                                          ?AppColors.borderGrey
-                                          :Theme.of(context).colorScheme.secondary,
-                                          alignment: Alignment.center,
-                                          child: SizedBox.shrink()
-                                      ))),
-                              Expanded(
-                                  child: InkWell(
-                                      onTap: (){
-
-                                      },
-                                      child: Container(
-                                          width: double.maxFinite,
-                                          height: 3,
-                                          color: !isNeckMode
-                                              ?AppColors.borderGrey
-                                              :Theme.of(context).colorScheme.secondary,
-                                          alignment: Alignment.center,
-                                          child: SizedBox.shrink()
-                                      ))),
-                            ]
-                        )
-                    ),
-                    // context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
-                    if(isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
-                    Expanded(
-                        child: getRecommandConnectWidget()
-                    ):
-                    Expanded(
-                        child: SingleChildScrollView(
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
-                              child: Column(
-                                children: [
-                                  getGraphWidget("PPG"),
-                                  getGraphWidget("Actigraphy"),
-                                  getGraphWidget("HRV", showParameterUI:true),
-                                ],
-                              ),
-                            )
-                        )
-                    ),
-                    if(!isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForForehead == null?
-                    Expanded(
-                        child: getRecommandConnectWidget()
-                    ):
-                    Expanded(
-                        child: SingleChildScrollView(
-                            child: Container(
-                              padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
-                              child: Column(
-                                children: [
-                                  getGraphWidget("PPG"),
-                                  getGraphWidget("Actigraphy"),
-                                  getGraphWidget("HRV", showParameterUI:true),
-                                ],
-                              ),
-                            )
-                        )
-                    )
-                  ],
-                )
-            )
+            child: getBaseWillScope(context, mainContent(context), routes: RealtimeSignalPage.ROUTE)
         )
     );
   }
@@ -596,6 +473,134 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
           )
         ]
       )
+    );
+  }
+
+  Widget mainContent(BuildContext cotext) {
+    return Container(
+        width: double.maxFinite,
+        height: double.maxFinite,
+        alignment: Alignment.topCenter,
+        child: Column(
+          children: [
+            Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: <Color>[Theme.of(context).colorScheme.primary, Theme.of(context).colorScheme.secondary],
+                  ),
+                  borderRadius: const BorderRadius.only(
+                    bottomLeft: Radius.circular(0),
+                    bottomRight: Radius.circular(0),
+                  ),
+                ),
+                width: double.maxFinite,
+                height: 50,
+                child: Row(
+                    children:[
+                      Expanded(
+                          child: InkWell(
+                              onTap: (){
+                                isNeckMode = true;
+                                setState(() {});
+                              },
+                              child: Container(
+                                  width: double.maxFinite,
+                                  height: 50,
+                                  alignment: Alignment.center,
+                                  child: Text("목", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
+                              ))),
+                      Expanded(
+                          child: InkWell(
+                              onTap: (){
+                                isNeckMode = false;
+                                setState(() {});
+                              },
+                              child: Container(
+                                  width: double.maxFinite,
+                                  height: 50,
+                                  alignment: Alignment.center,
+                                  child: Text("이마", style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textBlack))
+                              ))),
+                    ]
+                )
+            ),
+            Container(
+                width: double.maxFinite,
+                height: 3,
+                child: Row(
+                    children:[
+                      Expanded(
+                          child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: Container(
+                                  width: double.maxFinite,
+                                  height: 3,
+                                  color: isNeckMode
+                                      ?AppColors.borderGrey
+                                      :Theme.of(context).colorScheme.secondary,
+                                  alignment: Alignment.center,
+                                  child: SizedBox.shrink()
+                              ))),
+                      Expanded(
+                          child: InkWell(
+                              onTap: (){
+
+                              },
+                              child: Container(
+                                  width: double.maxFinite,
+                                  height: 3,
+                                  color: !isNeckMode
+                                      ?AppColors.borderGrey
+                                      :Theme.of(context).colorScheme.secondary,
+                                  alignment: Alignment.center,
+                                  child: SizedBox.shrink()
+                              ))),
+                    ]
+                )
+            ),
+            // context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
+            if(isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
+            Expanded(
+                child: getRecommandConnectWidget()
+            ):
+            Expanded(
+                child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
+                      child: Column(
+                        children: [
+                          getGraphWidget("PPG"),
+                          getGraphWidget("Actigraphy"),
+                          getGraphWidget("HRV", showParameterUI:true),
+                        ],
+                      ),
+                    )
+                )
+            ),
+            if(!isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForForehead == null?
+            Expanded(
+                child: getRecommandConnectWidget()
+            ):
+            Expanded(
+                child: SingleChildScrollView(
+                    child: Container(
+                      padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
+                      child: Column(
+                        children: [
+                          getGraphWidget("PPG"),
+                          getGraphWidget("Actigraphy"),
+                          getGraphWidget("HRV", showParameterUI:true),
+                        ],
+                      ),
+                    )
+                )
+            )
+          ],
+        )
     );
   }
 }

@@ -34,10 +34,6 @@ class BluetoothProvider with ChangeNotifier{
   StreamSubscription? _monitoringNeckStreamSubscription; // 데이터 응답 스트림 구독
   StreamSubscription? _monitoringForeheadStreamSubscription;  // 데이터 응답 스트림 구독
 
-  //재연결 다이얼로그를 노출 해주는 플래그
-  bool showReconnectNeckDialog = false;
-  bool showReconnectForeheadDialog = false;
-
   /// 로그아웃시, 블룰투스 관련 데이터 초기화
   Future<void> clearBluetooth() async{
     deviceList.clear();
@@ -146,18 +142,7 @@ class BluetoothProvider with ChangeNotifier{
   Future<void> choiceBodyPosition(BODY_TYPE type,BleDevice device) async {
     Peripheral peripheral = device.peripheral;
 
-    /// 1. 해당 슬롯에 기 연결 기기가 있음면 연결 취소 처리
-    if(type == BODY_TYPE.NECK){
-      await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
-      await notifyNeckStream?.cancel();
-      connectedDeviceForNeck = null;
-    }
-    if(type == BODY_TYPE.FOREHEAD){
-      await connectedDeviceForForehead?.peripheral.disconnectOrCancelConnection();
-      await notifyForeheadStream?.cancel();
-      connectedDeviceForForehead = null;
-    }
-    /// 또는 연결중인 기기중에 현재 선택 기기가 있으면 연결 취소 처리
+    /// 또는 현재 연결중인 기기중에 현재 선택 기기가 있으면 연결 취소 처리
     if(connectedDeviceForNeck?.peripheral.identifier == peripheral.identifier){
       await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
       await notifyNeckStream?.cancel();
@@ -168,6 +153,18 @@ class BluetoothProvider with ChangeNotifier{
       await notifyForeheadStream?.cancel();
       connectedDeviceForForehead = null;
     }
+    /// 해당 슬롯에 기 연결 기기가 있음면 연결 취소 처리
+    if(type == BODY_TYPE.NECK){
+      await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
+      await notifyNeckStream?.cancel();
+      connectedDeviceForNeck = null;
+    }
+    if(type == BODY_TYPE.FOREHEAD){
+      await connectedDeviceForForehead?.peripheral.disconnectOrCancelConnection();
+      await notifyForeheadStream?.cancel();
+      connectedDeviceForForehead = null;
+    }
+
 
     /// 2. 신규 기기 연결 시도
     if(type == BODY_TYPE.NECK){
@@ -216,7 +213,6 @@ class BluetoothProvider with ChangeNotifier{
                 }, onError: (error){
                   log("notifyNeckStream error:: $error");
                   // 기기 연결 이슈가 생겼으므로 재연결 다이얼로그 보여준다
-                  showReconnectDialog(type);
                 } ,cancelOnError: true);
               });
             }
@@ -231,7 +227,6 @@ class BluetoothProvider with ChangeNotifier{
               //해제됨
               log("disconnected!");
               connectedDeviceForNeck?.resetData();
-              showReconnectDialog(type);
             }
             break;
           case PeripheralConnectionState.disconnecting:
@@ -292,8 +287,6 @@ class BluetoothProvider with ChangeNotifier{
                   notifyListeners();
                 }, onError: (error){
                   log("notifyForeheadStream error:: $error");
-                  // 기기 연결 이슈가 생겼으므로 재연결 다이얼로그 보여준다
-                  showReconnectDialog(type);
                 } ,cancelOnError: true);
               });
             }
@@ -308,7 +301,6 @@ class BluetoothProvider with ChangeNotifier{
               //해제됨
               log("disconnected!");
               connectedDeviceForForehead?.resetData();
-              showReconnectDialog(type);
             }
             break;
           case PeripheralConnectionState.disconnecting:
@@ -536,14 +528,5 @@ class BluetoothProvider with ChangeNotifier{
     await bleManager?.destroyClient();
   }
 
-  /// 재연결 요청 다이얼로그를 보여준다
-  void showReconnectDialog(BODY_TYPE type) {
-    if(type == BODY_TYPE.NECK){
-      showReconnectNeckDialog = true;
-    }else if(type == BODY_TYPE.FOREHEAD){
-      showReconnectForeheadDialog = true;
-    }
-    notifyListeners();
-  }
 }
 
