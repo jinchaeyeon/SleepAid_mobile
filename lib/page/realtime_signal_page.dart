@@ -450,12 +450,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
           const SizedBox(height: 20),
           OutlinedButton(
             onPressed: () async {
-              context.read<DataProvider>().setLoading(true);
               await Navigator.pushNamed(context, Routes.bluetoothConnect);
-              await Future.delayed(const Duration(milliseconds: 1000),(){
-                context.read<DataProvider>().setLoading(false);
-                // setState(() {});
-              });
             },
             style: OutlinedButton.styleFrom(
                 backgroundColor: AppColors.subButtonGrey,
