@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
+import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
@@ -14,25 +15,27 @@ import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
 
 
-class SettingRecipePage extends BaseStatefulWidget {
+class ElectricStimulationPage extends BaseStatefulWidget {
   static const ROUTE = "SettingRecipe";
 
-  const SettingRecipePage({Key? key}) : super(key: key);
+  const ElectricStimulationPage({Key? key}) : super(key: key);
 
   @override
   SettingRecipeState createState() => SettingRecipeState();
 }
 
-class SettingRecipeState extends State<SettingRecipePage>
+class SettingRecipeState extends State<ElectricStimulationPage>
     with SingleTickerProviderStateMixin{
   bool isNeckMode = true;
   bool isControllable = false;
-  /// 처음에 기기에서 가져와야함, 실시간 변경되는 메인 레시피
-  ElectroStimulationParameterResponse? currentRecipe;
-  /// 서버에서 가져와야 함, 레시피 목록
-  List<ElectroStimulationParameterResponse> recipes = [];
+
+  /// 기본값 없음. 기기와 연결되면 1회 가져와서 입력(initState, 기기연결시에 1회)
   /// 선택중인 레시피 앱 실행시에는 기본값을 모르기 때문에 null, 앱 사용 중 레시피 선택하면 해당 레시피를 선택 상태로 설정
   ElectroStimulationParameterResponse? selectedRecipe;
+  /// todo 처음에 서버에서 가져와야함, 우선은 서버에서 랜덤값으로 가져옴 서버 개발 전에는 임의값으로 선언해둠
+  ElectroStimulationParameterResponse? recommedRecipe = ElectroStimulationParameterResponse(id:0,onDisplay:true,name:"사용자 맞춤설정",interval:9,intensity:8, height:7);
+  /// 서버에서 가져와야 함, 레시피 목록
+  List<ElectroStimulationParameterResponse> recipes = [];
 
   @override
   void initState() {
@@ -41,7 +44,7 @@ class SettingRecipeState extends State<SettingRecipePage>
 
   @override
   Widget build(BuildContext context){
-    initPage();
+    buildPage();
 
     return Scaffold(
       appBar: appBar(context, '전기 자극 상태', isRound: false,),
@@ -499,8 +502,8 @@ class SettingRecipeState extends State<SettingRecipePage>
     );
   }
 
-  /// 초기값 설정
-  void initPage() {
+  /// 레시피 페이지 설정
+  void buildPage() {
     isControllable = getControllableState(context, isNeckMode);
     recipes = [];
     if(isControllable){
@@ -644,19 +647,27 @@ class SettingRecipeState extends State<SettingRecipePage>
     return list;
   }
 
+  /***
+   * 현재
+   */
   void updateCurrentRecipe(ElectroStimulationParameterResponse recipe) {
-    currentRecipe = recipe;
     selectedRecipe = recipe;
+    BleDevice? device = isNeckMode?
+    context.read<BluetoothProvider>().connectedDeviceForNeck:
+    context.read<BluetoothProvider>().connectedDeviceForForehead;
+    if(device!=null){
+      sendDataToDevice(device);
+    }
   }
 
   double getValueFromCurrentRecipe(double index) {
-    if(currentRecipe == null) return 0;
+    if(selectedRecipe == null) return 0;
     if(index == 0){
-      return currentRecipe!.interval.toDouble();
+      return selectedRecipe!.interval.toDouble();
     }else if(index == 1){
-      return currentRecipe!.intensity.toDouble();
+      return selectedRecipe!.intensity.toDouble();
     }else if(index == 2){
-      return currentRecipe!.height.toDouble();
+      return selectedRecipe!.height.toDouble();
     }
     return 0;
   }
@@ -714,7 +725,16 @@ class SettingRecipeState extends State<SettingRecipePage>
 
   void setNeckMode(bool _isNeckMode) {
     isNeckMode = _isNeckMode;
-    initPage();
+    buildPage();
     setState(() {});
+  }
+
+  void sendDataToDevice(BleDevice device) {
+    var recipe = selectedRecipe;
+    context.read<BluetoothProvider>().sendData(device, "102|" + ((recipe?.intensity??10 / 10 * 200).round()).toString() + "\n");
+    context.read<BluetoothProvider>().sendData(device,"104|" + ((recipe?.height??10 / 10 * 200).round()).toString() + "\n");
+    context.read<BluetoothProvider>().sendData(device,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
+    context.read<BluetoothProvider>().sendData(device,"109|1\n");
+    context.read<BluetoothProvider>().sendData(device,"909|1\n");
   }
 }

@@ -273,6 +273,10 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
       return "연결됨";
     }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connected){
       return "연결됨";
+    }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connecting){
+      return "연결중";
+    }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connecting){
+      return "연결중";
     }else{
       return "연결안됨";
     }

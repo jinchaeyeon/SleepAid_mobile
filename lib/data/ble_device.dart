@@ -14,9 +14,14 @@ class BleDevice {
   PeripheralConnectionState state = PeripheralConnectionState.disconnected;
   BleDevice(this.deviceName, this.rssi, this.peripheral, this.advertisementData);
 
-  void setState(PeripheralConnectionState connectionState) {
+  /// 장치 상태 보여준다. 같은 상태라면 변경없이 false리턴
+  bool setState(PeripheralConnectionState connectionState) {
     print("Peripheral ${peripheral.identifier} connection state is $connectionState");
+    if(state == connectionState){
+      return false;
+    }
     state = connectionState;
+    return true;
   }
 
   String battery = "-";

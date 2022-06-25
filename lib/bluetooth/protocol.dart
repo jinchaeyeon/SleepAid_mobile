@@ -30,7 +30,7 @@ class Protocol{
        return "";
     }
   }
-
+  /// 2, 5, 8 ...23 부터 3개 잘라서 체크
   static String buildBrainSignal(Uint8List message) {
     String brainSignal = "";
     for (int i = 0; i < 8; i++) {

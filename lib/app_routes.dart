@@ -7,7 +7,7 @@ import 'package:sleepaid/page/calendar_page.dart';
 import 'package:sleepaid/page/condition_review_page.dart';
 import 'package:sleepaid/page/email_login_page.dart';
 import 'package:sleepaid/page/realtime_signal_page.dart';
-import 'package:sleepaid/page/setting_recipe_page.dart';
+import 'package:sleepaid/page/electric_stimulation_page.dart';
 import 'package:sleepaid/page/signup/agreement_term_page.dart';
 import 'package:sleepaid/page/bluetooth_connect_page.dart';
 import 'package:sleepaid/page/signup/change_password_page.dart';
@@ -31,7 +31,7 @@ class Routes{
   static const bluetoothConnect = BluetoothConnectPage.ROUTE;
   static const conditionReview = ConditionReviewPage.ROUTE;
   static const bodySignal = RealtimeSignalPage.ROUTE;
-  static const settingRecipe = SettingRecipePage.ROUTE;
+  static const settingRecipe = ElectricStimulationPage.ROUTE;
   static const binauralBeat = BinauralBeatPage.ROUTE;
   static const licenseKey = LicenseKeyPage.ROUTE;
   static const signupWithEmail = EmailSignUpPage.ROUTE;
@@ -83,7 +83,7 @@ class Routes{
         case Routes.binauralBeat:
           return const BinauralBeatPage();
         case Routes.settingRecipe:
-          return const SettingRecipePage();
+          return const ElectricStimulationPage();
         case Routes.calendar:
           return const CalendarPage();
         case Routes.calendarDetail:

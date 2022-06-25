@@ -5,9 +5,9 @@ class ElectroStimulationParameterResponse extends BaseResponse {
   int id;
   bool onDisplay;
   String name;
-  int interval;
-  int intensity;
-  int height;
+  int interval; // _pulseRadius
+  int intensity; // _pulseSize
+  int height; // _pulsePadding
 
   ElectroStimulationParameterResponse({
     this.id=-1,

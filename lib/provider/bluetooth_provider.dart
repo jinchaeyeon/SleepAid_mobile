@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -173,7 +174,6 @@ class BluetoothProvider with ChangeNotifier{
       notifyNeckStream = peripheral
           .observeConnectionState(emitCurrentValue: true)
           .listen((PeripheralConnectionState connectionState) {
-        dPrint("state: ${connectionState.index}");
         device.setState(connectionState);
         switch (connectionState) {
           case PeripheralConnectionState.connected:
@@ -193,7 +193,11 @@ class BluetoothProvider with ChangeNotifier{
                 ).map((characteristic) => characteristic.value);
 
                 _monitoringNeckStreamSubscription = characteristic.listen((Uint8List message) {
-                  dPrint("monitoring message:: $message");
+                  print("monitoring messagex:: $message");
+
+                  String decodeString = utf8.decode(message.toList());
+                  print("responseData decodeString:$decodeString");
+
                   String batteryValue = Protocol.getBatteryValue(message);
                   setBatteryValue(connectedDeviceForNeck!, batteryValue);
 
@@ -260,7 +264,6 @@ class BluetoothProvider with ChangeNotifier{
       notifyForeheadStream = peripheral
           .observeConnectionState(emitCurrentValue: true)
           .listen((PeripheralConnectionState connectionState) {
-        dPrint("state: ${connectionState.index}");
         device.setState(connectionState);
         switch (connectionState) {
           case PeripheralConnectionState.connected:
@@ -280,7 +283,11 @@ class BluetoothProvider with ChangeNotifier{
                 ).map((characteristic) => characteristic.value);
 
                 _monitoringForeheadStreamSubscription = characteristic.listen((Uint8List message) {
-                  dPrint("monitoring message:: $message");
+                  print("monitoring message:: $message");
+
+                  String decodeString = utf8.decode(message.toList());
+                  print("responseData decodeString:$decodeString");
+
                   String batteryValue = Protocol.getBatteryValue(message);
                   setBatteryValue(connectedDeviceForForehead!, batteryValue);
 
@@ -374,6 +381,17 @@ class BluetoothProvider with ChangeNotifier{
     }
   }
 
+  void sendData(BleDevice? device, String requestString) {
+    if(device!=null){
+      print("requestString:$requestString");
+      List<int> list = utf8.encode(requestString);
+      print("request list:$list");
+      Uint8List bytes = Uint8List.fromList(list);
+      print("sendData: $bytes");
+      device.peripheral.writeCharacteristic(SERVICE_UUID_LIST[0], RX_UUID_LIST[0], bytes, true);
+    }
+  }
+
   String getBatteryValue(int batteryValue) {
     //현재 배터리 상태값 가공
     return ((batteryValue * 0.0032 * 6.9) / 4.7 * 100).toString();
@@ -454,6 +472,5 @@ class BluetoothProvider with ChangeNotifier{
   Future destroyClient() async{
     await bleManager?.destroyClient();
   }
-
 }
 

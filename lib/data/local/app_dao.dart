@@ -14,7 +14,7 @@ class AppBaseData {
 }
 
 class DebugData{
-  bool showDebugPrint = true; //디버그 프린트 할지 처리
+  bool showDebugPrint = false; //디버그 프린트 할지 처리
   bool hasDummyUserInfo = false; // 더미 유저정보를 가지고 시작
   bool passCheckingLicenseKey = false;  // 라이센스키 값이 올바른지 확인하는지
   bool passCheckingSignupAPI = false; // 회원가입 API 확인 안하고 넘어가도록 처리
