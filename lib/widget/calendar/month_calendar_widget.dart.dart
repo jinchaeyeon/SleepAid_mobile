@@ -1,18 +1,20 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
+import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
 
 class MonthCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
   final List<List<DateTime?>> weeks;
   final String title;
-
+  final CalendarDateBuilder dateBuilder;
   const MonthCalendarWidget({
     Key? key,
     required this.title,
     this.onTapCallback,
-    required this.weeks
+    required this.weeks,
+    required this.dateBuilder,
   }) : super(key: key);
 
   @override
@@ -33,7 +35,9 @@ class MonthCalendarState extends State<MonthCalendarWidget>{
       width: double.maxFinite,
       child: Column(
         children: [
-          getTitle(),
+          Container(
+            child: getTitle(),
+          ),
           ...getWeekWidget()
         ],
       )
@@ -42,8 +46,10 @@ class MonthCalendarState extends State<MonthCalendarWidget>{
 
   List<Widget> getWeekWidget() {
     List<Widget> weekWidgets = [];
+    print("week=-----------------");
     for (var week in widget.weeks) {
-      weekWidgets.add(WeekCalendarWidget(week:week, onTapCallback: widget.onTapCallback,));
+      print("week: ${week}");
+      weekWidgets.add(WeekCalendarWidget(dateBuilder: widget.dateBuilder, week:week, onTapCallback: widget.onTapCallback,));
     }
     return weekWidgets;
   }
@@ -75,11 +81,11 @@ class MonthCalendarState extends State<MonthCalendarWidget>{
 
   int getTitleIndex(List<List<DateTime?>> weeks) {
     int index = 0;
-    weeks[0]!.forEach((date) {
+    for (var date in weeks[0]) {
       if(date == null){
         index = index + 1;
       }
-    });
+    }
     return index;
   }
 }

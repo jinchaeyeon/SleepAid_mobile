@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:sleepaid/data/ble_device.dart';
@@ -36,7 +37,8 @@ class Protocol{
     for (int i = 0; i < 8; i++) {
       int pos = 2 + i * 3;
       Uint8List list = message.sublist(pos, pos + 3);
-      dPrint(list);
+      dPrint("brainSignal list[$i]: $list");
+
       int value = (bytesToInteger(list) / 1000).round();
       brainSignal = brainSignal + value.toString() + ", ";
     }
@@ -70,7 +72,8 @@ class Protocol{
     }
 
     List<String> brainSignalActList = actSignal.split(",");
-    return [double.parse(brainSignalActList[0]),double.parse(brainSignalActList[0]),double.parse(brainSignalActList[0])];
+    print("brainSignalActList: $brainSignalActList");
+    return [double.parse(brainSignalActList[0]),double.parse(brainSignalActList[1]),double.parse(brainSignalActList[2])];
   }
 
   static List<String> getPulseSizes(String brainSignal) {

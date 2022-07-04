@@ -4,6 +4,7 @@ import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/sign_in_up_title.dart';
 
@@ -204,7 +205,42 @@ class _AgreementTermPage extends State<AgreementTermPage> {
             width: double.maxFinite,
             height: double.maxFinite,
             color: Colors.white,
-            child: Text("TTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\nTTTTTTTTTTTTTTTTTT\n")
+            child: Column(
+              children: [
+                Container(
+                  height: 123,
+                  padding: const EdgeInsets.only(top: 0, left: 36),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).scaffoldBackgroundColor,
+                    borderRadius:
+                    const BorderRadius.only(bottomLeft: Radius.circular(20), bottomRight: Radius.circular(20)),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: SizedBox(
+                          width: 12,
+                          height: 21,
+                          child: Image.asset(AppImages.back, color: Colors.black, fit: BoxFit.contain),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child:Container(
+                      padding: EdgeInsets.all(20),
+                      child: Text(AppStrings.signup_agreement, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.black),)
+                    )
+                  ),
+                )
+              ],
+            )
         )
       );
     });

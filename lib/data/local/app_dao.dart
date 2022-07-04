@@ -14,15 +14,15 @@ class AppBaseData {
 }
 
 class DebugData{
-  bool showDebugPrint = false; //디버그 프린트 할지 처리
+  bool showDebugPrint = true; //디버그 프린트 할지 처리
   bool hasDummyUserInfo = false; // 더미 유저정보를 가지고 시작
   bool passCheckingLicenseKey = false;  // 라이센스키 값이 올바른지 확인하는지
   bool passCheckingSignupAPI = false; // 회원가입 API 확인 안하고 넘어가도록 처리
   bool cancelBlockRotationDevice = false; // 화면 기울임 회전 막아둔 기능 풀기
 
   bool inputTestInputData = true; // 테스트와 관련된 입력값 미리 넣어두기
-  String licenseKey = "3tdbq4nh";
-  String signupEmail = "test1234@test.com	";
+  String licenseKey = "gktq1bwr";
+  String signupEmail = "redlunak89@gmail.com";
   String signupPW = "qwer1234@@";
 }
 

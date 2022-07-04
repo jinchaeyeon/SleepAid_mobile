@@ -168,7 +168,6 @@ class BluetoothProvider with ChangeNotifier{
       connectedDeviceForForehead = null;
     }
 
-
     /// 2. 신규 기기 연결 시도
     if(type == BODY_TYPE.NECK){
       notifyNeckStream = peripheral
@@ -195,8 +194,8 @@ class BluetoothProvider with ChangeNotifier{
                 _monitoringNeckStreamSubscription = characteristic.listen((Uint8List message) {
                   print("monitoring messagex:: $message");
 
-                  String decodeString = utf8.decode(message.toList());
-                  print("responseData decodeString:$decodeString");
+                  // String decodeString = utf8.decode(message.toList());
+                  // print("responseData decodeString:$decodeString");
 
                   String batteryValue = Protocol.getBatteryValue(message);
                   setBatteryValue(connectedDeviceForNeck!, batteryValue);

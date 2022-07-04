@@ -200,7 +200,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      GestureDetector(
+                      InkWell(
                         onTap: () {
                           Navigator.pop(context);
                         },
@@ -428,7 +428,8 @@ class SettingRecipeState extends State<ElectricStimulationPage>
                 child: Column(
                   children: [
                     if(!isControllable)getExplaationWidget(),
-                    ...getRecipeWidgets()
+                    ...getRecipeWidgets(),
+                    getDebugWidget(context)
                   ],
                 ),
               ),
@@ -736,5 +737,38 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     context.read<BluetoothProvider>().sendData(device,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
     context.read<BluetoothProvider>().sendData(device,"109|1\n");
     context.read<BluetoothProvider>().sendData(device,"909|1\n");
+  }
+
+  Widget getDebugWidget(BuildContext context) {
+    BleDevice? device = isNeckMode?
+    context.read<BluetoothProvider>().connectedDeviceForNeck:
+    context.read<BluetoothProvider>().connectedDeviceForForehead;
+    if(kDebugMode){
+      return Row(
+        children: [
+          Expanded(
+              child:InkWell(
+                  onTap: () {
+                    context.read<BluetoothProvider>().sendData(device,"912|-1\n");
+                  },
+                  child: Container(
+                      child: Text("배터리 전압 출력")
+                  )
+              )
+          ),
+          Expanded(
+              child:InkWell(
+                  onTap: () {
+                    context.read<BluetoothProvider>().sendData(device,"911|-1\n");
+                  },
+                  child: Container(
+                      child: Text("현상태 출력")
+                  )
+              )
+          ),
+        ]
+      );
+    }
+    return Container();
   }
 }

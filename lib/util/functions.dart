@@ -38,6 +38,112 @@ Future<void> completedExit(BuildContext? context) async {
   }
 }
 
+Future<bool> showExitDialog(BuildContext context) async {
+  return await showDialog(
+    context: context,
+    builder: (context) => GestureDetector(
+      onTap: () {
+        Navigator.pop(context, false);
+      },
+      child: Material(
+        color: Colors.transparent,
+        child: Center(
+          child: GestureDetector(
+            onTap: () {},
+            child: Container(
+              margin:const EdgeInsets.only(left:20, right:20),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(15),
+                ),
+              ),
+              width: double.maxFinite,
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: <Widget>[
+                    SizedBox(
+                      height: 150,
+                      child: Center(
+                        child: Text(
+                          "정말 종료하시겠습니까?",
+                          style: TextStyle(
+                              color: AppColors.textBlack,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      child: Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: Container(
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: AppColors.buttonGrey,
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(15),
+                                ),
+                              ),
+                              child: TextButton(
+                                child: Text(
+                                  "취소",
+                                  style: TextStyle(
+                                    color: AppColors.textBlack,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.pop(context, false);
+                                },
+                              ),
+                            ),
+                            flex: 1,
+                          ),
+                          Expanded(
+                            child: Container(
+                              height: 56,
+                              decoration: const BoxDecoration(
+                                color: AppColors.mainBlue,
+                                borderRadius: BorderRadius.only(
+                                  bottomRight: Radius.circular(15),
+                                ),
+                              ),
+                              child: TextButton(
+                                child: const Text(
+                                  "확인",
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  completedExit(context);
+                                },
+                              ),
+                            ),
+                            flex: 1,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    ),
+  ) ??
+      false;
+}
+
 /// 네트워크 연결 상태 체크하는 코드
 Future<bool> checkNetworkState() async{
   bool result = await InternetConnectionChecker().hasConnection;

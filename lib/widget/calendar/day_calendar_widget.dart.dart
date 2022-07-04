@@ -1,13 +1,19 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
+import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 
 import 'month_calendar_widget.dart.dart';
 
 class DayCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
   final DateTime day;
-  const DayCalendarWidget({Key? key, this.onTapCallback, required this.day}) : super(key: key);
+  final CalendarDateBuilder dateBuilder;
+  final bool isSelectedDay;
+
+  const DayCalendarWidget({Key? key, this.onTapCallback,
+    required this.day, required this.dateBuilder, this.isSelectedDay = false}) : super(key: key);
 
   @override
   DayCalendarState createState() => DayCalendarState();
@@ -20,7 +26,7 @@ class DayCalendarState extends State<DayCalendarWidget>{
     return InkWell(
       onTap: (){
         if(widget.onTapCallback != null){
-          widget.onTapCallback!(DateTime.now());
+          widget.onTapCallback!(widget.dateBuilder, widget.day);
         }
       },
       child: SizedBox(
@@ -30,18 +36,27 @@ class DayCalendarState extends State<DayCalendarWidget>{
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               SizedBox(height:5),
-              Text("${getWeekDayString(widget.day.weekday)}", style: const TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold)),
+              Container(
+                width:30,
+                height: 30,
+                decoration: BoxDecoration(
+                  color: widget.isSelectedDay?AppColors.buttonYellow:Colors.transparent,
+                  borderRadius: BorderRadius.circular(15)
+                ),
+                alignment: Alignment.center,
+                child: Text("${getWeekDayString(widget.day.weekday)}", style: const TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold)),
+              ),
               Text("${widget.day.day}", style: const TextStyle(color: Colors.black, fontSize: 15, fontWeight: FontWeight.bold)),
               Container(
                   width: 10,
                   height: 10,
-                  margin: EdgeInsets.only(top:10),
+                  margin: EdgeInsets.only(top:5),
                   decoration: BoxDecoration(
                       color: Colors.orange,
                       borderRadius: BorderRadius.circular(5)
                   )
               ),
-              SizedBox(height:5),
+              SizedBox(height:15),
             ],
           )
       )

@@ -79,7 +79,9 @@ class HomeState extends State<HomePage>
     return Scaffold(
         extendBody: true,
         body: SafeArea(
-            child: getBaseWillScope(context, mainContent(), onWillScope: completedExit)
+            child: getBaseWillScope(context, mainContent(), onWillScope: (){
+              showExitDialog(context);
+            })
         )
     );
   }
