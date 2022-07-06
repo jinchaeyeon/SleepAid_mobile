@@ -1,8 +1,8 @@
+import 'package:headset_connection_event/headset_event.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/timestamp.dart';
 import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_database.dart';
-import 'package:sleepaid/data/network/binarual_beat_recipe_response.dart';
 import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
@@ -27,6 +27,8 @@ class DebugData{
 }
 
 class AppDAO{
+  static bool completeInit = false;
+
   static _put({required String key, dynamic value}) async {
     var store = StoreRef.main();
     var db = await AppDatabase.instance.database;

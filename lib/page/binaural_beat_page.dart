@@ -1,12 +1,19 @@
+import 'dart:math';
+
 import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:provider/src/provider.dart';
 import 'package:sleepaid/data/network/binarual_beat_recipe_response.dart';
+import 'package:sleepaid/provider/bluetooth_provider.dart';
+import 'package:sleepaid/provider/main_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
+import 'package:sleepaid/widget/graph/beat_painter.dart';
+import 'package:surround_sound/surround_sound.dart';
 
 class BinauralBeatPage extends BaseStatefulWidget {
   static const ROUTE = "BinauralBeat";
@@ -19,18 +26,20 @@ class BinauralBeatPage extends BaseStatefulWidget {
 
 class BinauralBeatState extends State<BinauralBeatPage>
     with SingleTickerProviderStateMixin{
-  /// 처음에 기기에서 가져와야함, 실시간 변경되는 메인 레시피
-  BinauralBeatRecipeResponse? currentRecipe;
   /// 서버에서 가져와야 함, 레시피 목록
   List<BinauralBeatRecipeResponse> recipes = [];
   /// 선택중인 레시피 앱 실행시에는 기본값을 모르기 때문에 null, 앱 사용 중 레시피 선택하면 해당 레시피를 선택 상태로 설정
   BinauralBeatRecipeResponse? selectedRecipe;
 
-  var isRight = true;
+  SoundController controllerLeft = SoundController();
+  SoundController controllerRight = SoundController();
 
+  List<int> cycleLeft = [];
+  List<int> cycleRight = [];
 
   @override
   void initState() {
+    initSoundController();
     initPage();
     super.initState();
   }
@@ -66,9 +75,28 @@ class BinauralBeatState extends State<BinauralBeatPage>
                 child: Column(
                   children: [
                     Container(
+                      child:Column(
+                        children: [
+                          SoundWidget(
+                            soundController: controllerLeft,
+                          ),
+                          SoundWidget(
+                            soundController: controllerRight,
+                          ),
+                        ]
+                      )
+                    ),
+                    Container(
                       width: double.maxFinite,
                       height: 160,
-                      color: Colors.red,
+                      alignment: Alignment.center,
+                      child: Container(
+                          width: double.maxFinite,
+                          height: 100,
+                        child: CustomPaint(
+                          painter: BeatPainter(cycleLeft, cycleRight),
+                        )
+                      )
                     ),
                     Container(
                       width: double.maxFinite,
@@ -76,10 +104,37 @@ class BinauralBeatState extends State<BinauralBeatPage>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          GestureDetector(
+                          SizedBox(width:20),
+                          InkWell(
+                            onTap:(){
+                              context.read<MainProvider>().togglePlayingBeatMode(controllerLeft, controllerRight);
+                            },
+                            child: Container(
+                              width: 90,
+                              height: 35,
+                              decoration: BoxDecoration(
+                                border: Border.all(width: 1, color: Colors.black),
+                                borderRadius: BorderRadius.all(Radius.circular(8)),
+                                color: !context.watch<MainProvider>().isPlayingBeatMode ? Colors.transparent:AppColors.buttonYellow,
+                              ),
+                              child: Center(
+                                child: Text(
+                                  context.watch<MainProvider>().isPlayingBeatMode?'STOP':'PLAY',
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const Expanded(child:SizedBox.shrink()),
+                          InkWell(
                             onTap: () {
                               setState(() {
-                                isRight = false;
+                                context.read<MainProvider>().setRightBeatMode(false);
                               });
                             },
                             child: Container(
@@ -88,13 +143,13 @@ class BinauralBeatState extends State<BinauralBeatPage>
                               decoration: BoxDecoration(
                                 border: Border.all(width: 1, color: AppColors.buttonYellow),
                                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                                color: !isRight ? AppColors.buttonYellow : Colors.transparent,
+                                color: !context.watch<MainProvider>().isRightBeatMode ? AppColors.buttonYellow : Colors.transparent,
                               ),
                               child: Center(
                                 child: Text(
                                   'LEFT',
                                   style: TextStyle(
-                                    color: !isRight ? Colors.white : AppColors.buttonYellow,
+                                    color: !context.watch<MainProvider>().isRightBeatMode ? Colors.white : AppColors.buttonYellow,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -104,10 +159,10 @@ class BinauralBeatState extends State<BinauralBeatPage>
                             ),
                           ),
                           SizedBox(width: 6),
-                          GestureDetector(
+                          InkWell(
                             onTap: () {
                               setState(() {
-                                isRight = true;
+                                context.read<MainProvider>().setRightBeatMode(true);
                               });
                             },
                             child: Container(
@@ -116,13 +171,13 @@ class BinauralBeatState extends State<BinauralBeatPage>
                               decoration: BoxDecoration(
                                 border: Border.all(width:1, color: AppColors.buttonYellow),
                                 borderRadius: BorderRadius.all(Radius.circular(8)),
-                                color: isRight ? AppColors.buttonYellow : Colors.transparent,
+                                color: context.watch<MainProvider>().isRightBeatMode ? AppColors.buttonYellow : Colors.transparent,
                               ),
                               child: Center(
                                 child: Text(
                                   'RIGHT',
                                   style: TextStyle(
-                                    color: isRight ? Colors.white : AppColors.buttonYellow,
+                                    color: context.watch<MainProvider>().isRightBeatMode ? Colors.white : AppColors.buttonYellow,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
                                   ),
@@ -341,7 +396,7 @@ class BinauralBeatState extends State<BinauralBeatPage>
           Expanded(
               flex: 7,
               child: FlutterSlider(
-                values: [getValueFromCurrentRecipe(index)],
+                values: [0],
                 max: max,
                 min: 0,
                 handlerWidth: 0,
@@ -442,18 +497,8 @@ class BinauralBeatState extends State<BinauralBeatPage>
     );
   }
 
-  double getValueFromCurrentRecipe(double index) {
-    if(currentRecipe == null) return 0;
-    if(index == 0){
-      return currentRecipe?.tone??0;
-    }else if(index == 1){
-      return currentRecipe?.binauralBeat??0;
-    }
-    return 0;
-  }
 
   void updateCurrentRecipe(BinauralBeatRecipeResponse recipe) {
-    currentRecipe = recipe;
     selectedRecipe = recipe;
   }
 
@@ -554,5 +599,34 @@ class BinauralBeatState extends State<BinauralBeatPage>
       list.add(widget);
     });
     return list;
+  }
+
+
+  Future<void> initSoundController() async {
+    int index = 0;
+     while(mounted){
+       await Future.delayed(const Duration(milliseconds: 500), () async{
+         // if(context.read<BluetoothProvider>().deviceList.isNotEmpty){
+           buildSineWave(index);
+           index +=10;
+           if(index > 300) index = 0;
+           setState(() {});
+         // }
+       });
+     }
+  }
+
+  buildSineWave(int index) {
+    int phaseCnt = index;
+    int sampleRate = 5000;
+    cycleLeft = [];
+    cycleRight = [];
+    for(int i = 0; i < 60; i++){
+      phaseCnt++;
+      if (phaseCnt > sampleRate) phaseCnt = 0;
+      cycleLeft.add((sin(context.read<MainProvider>().frequencyLeft * (2 * pi) * (phaseCnt) / sampleRate) * 100).toInt());
+      cycleRight.add((sin(context.read<MainProvider>().frequencyRight * (2 * pi) * (phaseCnt) / sampleRate) * 100).toInt());
+    }
+    return;
   }
 }

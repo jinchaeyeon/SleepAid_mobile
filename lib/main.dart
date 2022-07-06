@@ -8,6 +8,7 @@ import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
+import 'package:sleepaid/provider/main_provider.dart';
 import 'package:sleepaid/util/app_themes.dart';
 import 'data/local/app_dao.dart';
 import 'util/app_config.dart';
@@ -44,6 +45,7 @@ Future<void> mainInit() async {
   runApp(
       MultiProvider(
         providers: [
+          ChangeNotifierProvider(create: (_) => MainProvider()),
           ChangeNotifierProvider(create: (_) => AuthProvider()),
           ChangeNotifierProvider(create: (_) => BluetoothProvider()),
           ChangeNotifierProvider(create: (_) => DataProvider()),
@@ -83,7 +85,16 @@ class _SleepAIDApp extends State<SleepAIDApp> {
     // SystemChrome.setSystemUIOverlayStyle(
     //     const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     checkDarkMode();
-    return MaterialApp(
+    checkMicrophoneStatus(context);
+    return AppDAO.completeInit
+        ?MaterialApp(
+      // 디버그모드 알림 배너 숨김
+      debugShowCheckedModeBanner: false,
+      //기본 테마
+      theme: _theme,
+      home: Container()
+    )
+        :MaterialApp(
       // 디버그모드 알림 배너 숨김
       debugShowCheckedModeBanner: false,
       //기본 테마
@@ -97,5 +108,9 @@ class _SleepAIDApp extends State<SleepAIDApp> {
         return Routes.generateRoute(settings,context);
       },
     );
+  }
+
+  Future<void> checkMicrophoneStatus(BuildContext context) async {
+    await context.read<MainProvider>().startMicrophoneScan();
   }
 }
