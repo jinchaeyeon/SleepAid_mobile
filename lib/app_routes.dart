@@ -6,6 +6,7 @@ import 'package:sleepaid/page/calendar/calendar_detail_page.dart';
 import 'package:sleepaid/page/calendar/calendar_page.dart';
 import 'package:sleepaid/page/condition_review_page.dart';
 import 'package:sleepaid/page/email_login_page.dart';
+import 'package:sleepaid/page/push_setting_page.dart';
 import 'package:sleepaid/page/realtime_signal_page.dart';
 import 'package:sleepaid/page/electric_stimulation_page.dart';
 import 'package:sleepaid/page/signup/agreement_term_page.dart';
@@ -38,6 +39,8 @@ class Routes{
   static const agreementTerm = AgreementTermPage.ROUTE;
   static const calendar = CalendarPage.ROUTE;
   static const calendarDetail = CalendarDetailPage.ROUTE;
+  static const push = PushSettingPage.ROUTE;
+
 
   static Route<T> fadeThrough<T>(RouteSettings settings, WidgetBuilder page,
       {int duration = 100}) {
@@ -88,6 +91,8 @@ class Routes{
           return const CalendarPage();
         case Routes.calendarDetail:
           return const CalendarDetailPage();
+        case Routes.push:
+          return const PushSettingPage();
         default:
           return const SplashPage();
       }

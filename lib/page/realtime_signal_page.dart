@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
-import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
@@ -15,9 +14,7 @@ import '../app_routes.dart';
 
 class RealtimeSignalPage extends BaseStatefulWidget {
   static const ROUTE = "RealtimeSignal";
-
   const RealtimeSignalPage({Key? key}) : super(key: key);
-
   @override
   RealtimeSignalState createState() => RealtimeSignalState();
 }
@@ -58,10 +55,10 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("$title", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
-                Text("  60", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
-                Text("bpm", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
-                Text(" | 59", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
-                Text("ms", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
+                // Text("  60", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
+                // Text("bpm", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
+                // Text(" | 59", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
+                // Text("ms", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
                 Expanded(child: SizedBox.shrink()),
                 showParameterUI?InkWell(
                     onTap:(){
@@ -114,11 +111,11 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                 onZoomStart: (value){
                   print("zoom: value");
                 },
-                series: <LineSeries<double, int>>[
-                  LineSeries<double, int>(
+                series: <LineSeries<int, int>>[
+                  LineSeries<int, int>(
                     dataSource: isNeckMode?
-                    context.watch<BluetoothProvider>().connectedDeviceForNeck!.ppg:
-                    context.watch<BluetoothProvider>().connectedDeviceForForehead!.ppg,
+                    context.watch<BluetoothProvider>().connectedDeviceForNeck!.getSensorValues(title):
+                    context.watch<BluetoothProvider>().connectedDeviceForForehead!.getSensorValues(title),
                     color: AppColors.mainBlue,
                     xValueMapper: (data, idx) => idx,
                     yValueMapper: (data, idx) => data,
@@ -308,7 +305,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               ),
               SizedBox(height: 12),
               Text(
-                'Actigraphy',
+                'ActigraphyX',
                 textAlign: TextAlign.start,
                 style: TextStyle(
                   color: AppColors.textBlack,
@@ -568,9 +565,11 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                       padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
                       child: Column(
                         children: [
-                          getGraphWidget("PPG"),
-                          getGraphWidget("Actigraphy"),
-                          getGraphWidget("HRV", showParameterUI:true),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[0]),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[1]),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[2]),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[3]),
+                          // getGraphWidget("HRV", showParameterUI:true),
                         ],
                       ),
                     )

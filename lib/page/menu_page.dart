@@ -7,6 +7,7 @@ import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_strings.dart';
 import 'package:sleepaid/util/app_themes.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/custom_switch_button.dart';
@@ -113,12 +114,6 @@ class MenuState extends State<MenuPage>
     return buttons;
   }
 
-  onClickListener(String title) {
-    if(title == AppStrings.menu_bluetooth_connect){
-      Navigator.pushNamed(context,Routes.bluetoothConnect);
-    }
-  }
-
   void initListeners(BuildContext context) {
     listeners = {
       AppStrings.menu_bluetooth_connect: (context) async{
@@ -128,7 +123,7 @@ class MenuState extends State<MenuPage>
 
       },
       AppStrings.menu_push_notificatin: (context)async{
-
+        Navigator.pushNamed(context, Routes.push);
       },
 
       AppStrings.menu_dark_mode: (context) async {

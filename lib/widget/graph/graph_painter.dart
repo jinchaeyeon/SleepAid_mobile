@@ -2,25 +2,27 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:sleepaid/data/local/sensor_data.dart';
 import 'package:sleepaid/util/app_colors.dart';
 
+/// 그래프 그리는 페인터 생성
 class GraphPainter extends CustomPainter {
-  final List<int> oneCycleDataLeft;
-  final List<int> oneCycleDataRight;
   int maxValue = 100;
-  GraphPainter(this.oneCycleDataLeft, this.oneCycleDataRight);
+  List<SensorData> dataList;
+  double zoomLevel;
+  GraphPainter({required this.zoomLevel, required this.dataList});
 
   @override
   void paint(Canvas canvas, Size size) {
     print("size x:${size.width} y:${size.height}");
     var i = 0;
     List<Offset> maxPoints = [];
-    var t = size.width / (oneCycleDataLeft.length - 1);
-    for (var _i = 0, _len = oneCycleDataLeft.length; _i < _len; _i++) {
+    var t = size.width / (dataList.length - 1);
+    for (var _i = 0, _len = dataList.length; _i < _len; _i++) {
       maxPoints.add(Offset(
           t * i,
           size.height / 2 +
-              oneCycleDataLeft[_i].toDouble() / maxValue * size.height / 2));
+              dataList[_i].value.toDouble() / maxValue * size.height / 2));
       i++;
     }
 
@@ -29,28 +31,14 @@ class GraphPainter extends CustomPainter {
       ..strokeWidth = 1
       ..strokeCap = StrokeCap.round;
     canvas.drawPoints(PointMode.polygon, maxPoints, paint);
-
-    i = 0;
-    maxPoints = [];
-    t = size.width / (oneCycleDataRight.length - 1);
-    for (var _i = 0, _len = oneCycleDataRight.length; _i < _len; _i++) {
-      maxPoints.add(Offset(
-          t * i,
-          size.height / 2 +
-              oneCycleDataRight[_i].toDouble() / maxValue * size.height / 2));
-      i++;
-    }
-
-    paint = Paint()
-      ..color = AppColors.mainYellow
-      ..strokeWidth = 1
-      ..strokeCap = StrokeCap.round;
-    canvas.drawPoints(PointMode.polygon, maxPoints, paint);
   }
 
   @override
   bool shouldRepaint(GraphPainter old) {
-    if (oneCycleDataLeft != old.oneCycleDataLeft) {
+    if (dataList != old.dataList) {
+      return true;
+    }
+    if (zoomLevel != old.zoomLevel) {
       return true;
     }
     return false;

@@ -18,7 +18,7 @@ class AuthData{
 
 
   /// 유저 토큰 로컬에 저장
-  Future setUserToken(String token) async {
+  Future setUserToken(String? token) async {
     print("setUserToken: $token");
     await AppDAO.setUserToken(token);
   }

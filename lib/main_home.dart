@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
 import 'package:sleepaid/app_routes.dart';
+import 'package:sleepaid/page/home_page.dart';
 import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
@@ -67,6 +68,7 @@ class SleepAIDApp extends StatefulWidget {
 class _SleepAIDApp extends State<SleepAIDApp> {
   //페이지를 Router를 통하여 관리하기 위한 기본 RouteObserver
   final routeObserver = RouteObserver<PageRoute>();
+
   ThemeData _theme = AppThemes.lightTheme;
 
   void changeTheme(ThemeData themeData) {
@@ -98,7 +100,7 @@ class _SleepAIDApp extends State<SleepAIDApp> {
       debugShowCheckedModeBanner: false,
       //기본 테마
       theme: _theme,
-      initialRoute: SplashPage.ROUTE,
+      initialRoute: HomePage.ROUTE,
       // color: Colors.transparent,
       navigatorObservers: [
         routeObserver

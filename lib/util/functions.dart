@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -158,13 +159,34 @@ showToast(String msg){
   Fluttertoast.showToast(msg: msg, gravity: ToastGravity.BOTTOM);
 }
 
-int bytesToInteger(List<int> bytes) {
-  //byte to Uint8 변환
-  var value = 0;
-  for (var i = 0, length = bytes.length; i < length; i++) {
-    value += (bytes[i] * pow(256, i)).toInt();
+// int bytesToInteger(List<int> bytes) {
+//   //byte to Uint8 변환
+//   var value = 0;
+//   for (var i = 0, length = bytes.length; i < length; i++) {
+//     value += (bytes[i] * pow(256, i)).toInt();
+//   }
+//   return value;
+// }
+
+
+/// 2자리수 센서값은 2개로 3자리수 센서값은 3개로 처리해서 리턴
+int bytesToInteger(List<int> byteArray) {
+  // Python 에서는 temp +="{},".format(int.from_bytes(ba[pos:pos+3],'big',signed=True)); //big 형식으로 처리
+  // 해당
+  // int 3자리 ex  7f ff ff -> 0111 1111  1111 1111  1111 1111    0으로 시작 하는 + 값
+  // int 2자리 ex  fd c5    -> 1111 1101  1100 0101               1로 시작하기 때문에 0000 0010 0011 1010 + 1 값인 -571  - 값
+  int value = 0;
+  if(byteArray.length == 3){
+    value += byteArray[0] << 16;
+    value += byteArray[1] << 8;
+    value += byteArray[2];
+    value = value.toSigned(24);
+  }else if(byteArray.length == 2){
+    value += byteArray[0] << 8;
+    value += byteArray[1];
+    value = value.toSigned(16);
   }
-  return value;
+ return value;
 }
 
 const String validEmail = r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+";

@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/network/get_sleep_condition_service.dart';
+import 'package:sleepaid/network/sleeping_analytics_service.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
@@ -86,6 +90,8 @@ class SplashState extends State<SplashPage>
             return;
           }
           if(await AppDAO.authData.isLoggedIn){
+            /// 로그인 되었으면 로그인 필수 데이터 가져오기
+            await checkSleepCondition();
             Navigator.pushReplacementNamed(context, Routes.home);
           }else{
             Navigator.pushReplacementNamed(context, Routes.loginList);
@@ -106,5 +112,18 @@ class SplashState extends State<SplashPage>
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
     String version = packageInfo.version;
     await AppDAO.setAppVersion(version);
+  }
+
+  checkSleepCondition() async{
+    await context.read<DataProvider>().loadParameters();
+    String yesterday = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(Duration(days:1)));
+    List<String?> result = await AppDAO.getLastSleepCondition();
+    if(yesterday == result[0] && result[1] != null) {
+      await GetSleepConditionDetailService(id: result[1]!).start().then((response){
+        if(response is SleepAnalysisResponse){
+          AppDAO.baseData.sleepConditionAnalysis = response;
+        }
+      });
+    }
   }
 }

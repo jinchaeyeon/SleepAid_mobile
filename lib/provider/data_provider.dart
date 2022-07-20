@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
@@ -8,6 +9,7 @@ import 'package:sleepaid/data/network/auth_response.dart';
 import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/calendar_response.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/email_login_service.dart';
@@ -15,14 +17,13 @@ import 'package:sleepaid/network/get_binaural_beats_service.dart';
 import 'package:sleepaid/network/get_electro_stimulations_service.dart';
 import 'package:sleepaid/network/get_sleep_condition_service.dart';
 import 'package:sleepaid/network/reset_password_service.dart';
+import 'package:sleepaid/network/sleeping_analytics_service.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/util/statics.dart';
 
 class DataProvider with ChangeNotifier{
   bool isLoading = false;
   SleepConditionItemListResponse? sleepConditionItemResponse;
-  //어제 컨디션 리뷰
-  ConditionReview? yesterdayConditionReview;
   /// 비트 출력시 true
   bool isPlayingBeat = false;
 
@@ -39,15 +40,6 @@ class DataProvider with ChangeNotifier{
     }
   }
 
-  String getYesterdayDateTime() {
-    return "2022년 n월 m일";
-    // if(yesterdayConditionReview.getYesterdayStr() !=
-    //     dateFormat.format(DateTime.now().subtract(const Duration(days:1)))) {
-    //
-    // }
-    // return yesterdayConditionReview?.getYesterdayStr()??"";
-  }
-
   ///이메일에 리셋 링크 전송
   Future<Object> sendResetPasswordLinkToEmail(String email) async{
     setLoading(true);
@@ -62,8 +54,8 @@ class DataProvider with ChangeNotifier{
     var response = await PostEmailLoginService(body:params).start();
     if(response is LoginResponse){
       //정상 응답이면 로그인 체크
+      await AppDAO.authData.setUserToken(response.token!);
       if(isAutoLogin){
-        await AppDAO.authData.setUserToken(response.token!);
         await AppDAO.authData.setUserCreated(response.created!);
       }
       return true;
@@ -86,15 +78,29 @@ class DataProvider with ChangeNotifier{
   }
 
   Future loadParameters() async{
+    /// 컨디션 파라미터
     await GetSleepConditionService().start().then((result){
       if(result is List<SleepConditionParameterResponse>){
         AppDAO.baseData.sleepConditionParameters = result;
+
+        if(kDebugMode){
+          AppDAO.baseData.sleepConditionParameters.forEach((parameter) {
+            print("codition parameter:: ${parameter.question}");
+          });
+        }
       }
     });
 
+    /// 전기자극 파라미터
     await GetElectroStimulationsService().start().then((result){
       if(result is List<ElectroStimulationParameterResponse>){
         AppDAO.baseData.electroStimulationParameters = result;
+      }
+
+      if(kDebugMode){
+        AppDAO.baseData.electroStimulationParameters.forEach((parameter) {
+          print("stimulation parameter::${parameter.toJson()}");
+        });
       }
     });
 
@@ -102,7 +108,28 @@ class DataProvider with ChangeNotifier{
       if(result is List<BinauralBeatParameterResponse>){
         AppDAO.baseData.binauralBeatParameters = result;
       }
+
+      if(kDebugMode){
+        AppDAO.baseData.binauralBeatParameters.forEach((parameter) {
+          print("beat parameter::${parameter.toJson()}");
+        });
+      }
     });
+
+    List<String?> lastCondition = await (AppDAO.getLastSleepCondition());
+    if(lastCondition[1] != null){
+      await GetSleepConditionDetailService(id: lastCondition[1]!).start().then((result){
+        if(result is SleepAnalysisResponse){
+          AppDAO.baseData.sleepConditionAnalysis = result;
+        }
+
+        if(kDebugMode){
+          AppDAO.baseData.sleepConditionAnalysis?.itemSet.forEach((parameter) {
+            print("lastCondition item set::${parameter.toJson()}");
+          });
+        }
+      });
+    }
   }
 
 

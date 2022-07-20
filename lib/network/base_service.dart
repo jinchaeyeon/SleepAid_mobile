@@ -34,9 +34,13 @@ abstract class BaseService<T> {
 
   dynamic _extraHeaders() async {
     String? token = await AppDAO.userToken;
-    return withAccessToken
-        ? {'Authorization': 'Bearer Token $token', 'serviceType': 'sleepaid'}
-        : {'serviceType': 'sleepaid'};
+    if(token == null){
+      return {'serviceType': 'sleepaid'};
+    }else{
+      return withAccessToken
+          ? {'Authorization': 'Token $token', 'serviceType': 'sleepaid'}
+          : {'serviceType': 'sleepaid'};
+    }
   }
 
   void setContentType(String contentType){

@@ -1,12 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:app_settings/app_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sleepaid/bluetooth/protocol.dart';
 import 'package:sleepaid/data/ble_device.dart';
+import 'package:sleepaid/data/local/device_sensor_data.dart';
 import 'package:sleepaid/util/functions.dart';
 
 /// 항시 연결상태 체크
@@ -18,9 +20,7 @@ class BluetoothProvider with ChangeNotifier{
   static const List<String> RX_UUID_LIST = ['6e400002-b5a3-f393-e0a9-e50e24dcca9e'];
   static const List<String> TX_UUID_LIST = ['6e400003-b5a3-f393-e0a9-e50e24dcca9e'];
   static const int MTU = 20;
-  static const int PPG_LEN = 40;
-  static const int EEG_LEN = 40;
-  static const int ACT_LEN = 40;
+  static const int SENSOR_LEN = 1000;
   BleManager bleManager = BleManager();
   List<BleDevice> deviceList = []; //전체 검색되는 장치목록
   BleDevice? connectedDeviceForNeck; //목 연결 장치
@@ -125,14 +125,22 @@ class BluetoothProvider with ChangeNotifier{
   ///todo 12 이하에서는 LOCATION 도 필요
   ///todo IOS 는 별도로 체크 한번 더 필요
   ///전체적으로 버전별 체크 한번 필요
-  Future<void> checkBluetoothPermission() async {
+  Future<void> checkBluetoothPermission({int retryCount = 0}) async {
+    print("checkBluetoothPermission $retryCount");
     Map<Permission, PermissionStatus> statuses =
-    await [Permission.location, Permission.bluetooth].request();
+    await [Permission.location, Permission.bluetooth, Permission.bluetoothConnect].request();
+    // await [Permission.location, Permission.bluetoothConnect].request();
     if(
     statuses[Permission.location] == PermissionStatus.denied ||
-        statuses[Permission.bluetooth] == PermissionStatus.denied
+        statuses[Permission.bluetoothConnect] == PermissionStatus.denied
     ){
-      completedExit(null);
+      showToast("앱 설정에서 필수 권한을 설정해주세요");
+      if(retryCount == 1){
+        completedExit(null);
+      }else{
+        await AppSettings.openAppSettings();
+        checkBluetoothPermission(retryCount: 1);
+      }
     }
   }
 
@@ -189,31 +197,28 @@ class BluetoothProvider with ChangeNotifier{
                     TX_UUID_LIST[0],
                     transactionId: "monitor-neck"
                 ).map((characteristic) => characteristic.value);
-
                 _monitoringNeckStreamSubscription = characteristic.listen((Uint8List message) {
-                  print("monitoring messagex:: $message");
+                  // print("monitoring messagex:: $message");
+                  List<Uint8List> responses = divideResponse(message);
 
-                  // String decodeString = utf8.decode(message.toList());
-                  // print("responseData decodeString:$decodeString");
+                  responses.forEach((Uint8List response) {
+                    String batteryValue = Protocol.getBatteryValue(response);
+                    setBatteryValue(connectedDeviceForNeck!, batteryValue);
 
-                  String batteryValue = Protocol.getBatteryValue(message);
-                  setBatteryValue(connectedDeviceForNeck!, batteryValue);
+                    DeviceSensorData sensorData = Protocol.buildSensorData(response);
+                    setDeviceResponse(connectedDeviceForNeck!, sensorData);
 
-                  String brainSignal = Protocol.buildBrainSignal(message);
+                    // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
+                    // setEEGValue(connectedDeviceForNeck!, eegValue);
+                    //
+                    // List<double> actValue = Protocol.getAccelerometerValue(message, sensorData);
+                    // setAccelerometerValue(connectedDeviceForNeck!, actValue);
+                    //
+                    // List<String> pulseValue = Protocol.getPulseSizes(sensorData);
+                    // setPulseValue(connectedDeviceForNeck!, pulseValue);
 
-                  List<String> brainSignalList = Protocol.buildBrainSignalList(brainSignal);
-                  double ppgValue = Protocol.getPPGValue(brainSignalList);
-                  setPPGValue(connectedDeviceForNeck!, ppgValue);
-                  List<double> eegValue = Protocol.getEEGValue(brainSignalList);
-                  setEEGValue(connectedDeviceForNeck!, eegValue);
-
-                  List<double> actValue = Protocol.getAccelerometerValue(message, brainSignal);
-                  setAccelerometerValue(connectedDeviceForNeck!, actValue);
-
-                  List<String> pulseValue = Protocol.getPulseSizes(brainSignal);
-                  setPulseValue(connectedDeviceForNeck!, pulseValue);
-
-                  notifyListeners();
+                    notifyListeners();
+                  });
                 }, onError: (error){
                   dPrint("notifyNeckStream error:: $error");
                   // 기기 연결 이슈가 생겼으므로 재연결 다이얼로그 보여준다
@@ -282,28 +287,53 @@ class BluetoothProvider with ChangeNotifier{
 
                 _monitoringForeheadStreamSubscription = characteristic.listen((Uint8List message) {
                   print("monitoring message:: $message");
+                  List<Uint8List> responses = divideResponse(message);
+                  responses.forEach((Uint8List response) {
+                    String batteryValue = Protocol.getBatteryValue(response);
+                    setBatteryValue(connectedDeviceForForehead!, batteryValue);
 
-                  String decodeString = utf8.decode(message.toList());
-                  print("responseData decodeString:$decodeString");
+                    DeviceSensorData sensorData = Protocol.buildSensorData(response);
 
-                  String batteryValue = Protocol.getBatteryValue(message);
-                  setBatteryValue(connectedDeviceForForehead!, batteryValue);
 
-                  String brainSignal = Protocol.buildBrainSignal(message);
+                    // List<String> brainSignalList = Protocol.buildBrainSignalList(sensorData);
+                    // double ppgValue = Protocol.getPPGValue(brainSignalList);
+                    // setPPGValue(connectedDeviceForNeck!, ppgValue);
+                    // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
+                    // setEEGValue(connectedDeviceForNeck!, eegValue);
+                    //
+                    // List<double> actValue = Protocol.getAccelerometerValue(message, sensorData);
+                    // setAccelerometerValue(connectedDeviceForNeck!, actValue);
+                    //
+                    // List<String> pulseValue = Protocol.getPulseSizes(sensorData);
+                    // setPulseValue(connectedDeviceForNeck!, pulseValue);
 
-                  List<String> brainSignalList = Protocol.buildBrainSignalList(brainSignal);
-                  double ppgValue = Protocol.getPPGValue(brainSignalList);
-                  setPPGValue(connectedDeviceForForehead!, ppgValue);
-                  List<double> eegValue = Protocol.getEEGValue(brainSignalList);
-                  setEEGValue(connectedDeviceForForehead!, eegValue);
+                    notifyListeners();
+                  });
 
-                  List<double> actValue = Protocol.getAccelerometerValue(message, brainSignal);
-                  setAccelerometerValue(connectedDeviceForForehead!, actValue);
+                  // String batteryValue = Protocol.getBatteryValue(message);
+                  // setBatteryValue(connectedDeviceForForehead!, batteryValue);
+                  //
+                  // String brainSignal = Protocol.buildSensorData(message);
+                  //
+                  // List<String> brainSignalList = Protocol.buildBrainSignalList(brainSignal);
+                  // double ppgValue = Protocol.getPPGValue(brainSignalList);
+                  // setPPGValue(connectedDeviceForForehead!, ppgValue);
+                  // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
+                  // setEEGValue(connectedDeviceForForehead!, eegValue);
+                  //
+                  // List<double> actValue = Protocol.getAccelerometerValue(message, brainSignal);
+                  // setAccelerometerValue(connectedDeviceForForehead!, actValue);
+                  //
+                  // List<String> pulseValue = Protocol.getPulseSizes(brainSignal);
+                  // setPulseValue(connectedDeviceForForehead!, pulseValue);
+                  //
+                  // notifyListeners();
 
-                  List<String> pulseValue = Protocol.getPulseSizes(brainSignal);
-                  setPulseValue(connectedDeviceForForehead!, pulseValue);
 
-                  notifyListeners();
+
+
+
+
                 }, onError: (error){
                   dPrint("notifyForeheadStream error:: $error");
                   device.setState(PeripheralConnectionState.disconnected);
@@ -397,54 +427,19 @@ class BluetoothProvider with ChangeNotifier{
 
   /// 장치에 배터리값을 변경
   void setBatteryValue(BleDevice bleDevice, String batteryValue) {
-    dPrint("Battery: $batteryValue");
+    // dPrint("Battery: $batteryValue");
     bleDevice.battery = batteryValue.split(".")[0];
-    dPrint("===setBatteryValue: ${bleDevice.battery}");
+    // dPrint("===setBatteryValue: ${bleDevice.battery}");
     notifyListeners();
   }
 
-  /// ppg 신호 로컬 저장
-  /// todo n개 모으면 서버 전송 처리 추가
-  void setPPGValue(BleDevice bleDevice, double ppgValue) {
-    if(bleDevice.ppg.length > PPG_LEN) {
-      bleDevice.ppg.removeAt(0);
+  /// 기기에서 가져온 데이터 저장
+  void setDeviceResponse(BleDevice bleDevice, DeviceSensorData data) {
+    while(bleDevice.sensors.length > SENSOR_LEN) {
+      bleDevice.sensors.removeRange(0, 100);
     }
-    bleDevice.ppg.add(ppgValue);
-    dPrint("===setPPGValue: ${bleDevice.ppg}");
+    bleDevice.sensors.add(data);
     return;
-  }
-
-  /// ppg 신호 로컬 저장
-  /// todo n개 모으면 서버 전송 처리 추가
-  void setEEGValue(BleDevice bleDevice, List<double> eegValue) {
-    if(bleDevice.eeg.length >  EEG_LEN) {
-      bleDevice.eeg.removeAt(0);
-    }
-    bleDevice.eeg.add(eegValue[0]);
-    bleDevice.eeg.add(eegValue[1]);
-
-    dPrint("===setEEGValue: ${bleDevice.eeg}");
-    return;
-  }
-
-  /// 가속도 신호 로컬 저장
-  void setAccelerometerValue(BleDevice bleDevice, List<double> actValue) {
-    while(bleDevice.actX.length > ACT_LEN) {
-      bleDevice.actX.removeAt(0);
-    }
-    while(bleDevice.actY.length > ACT_LEN) {
-      bleDevice.actY.removeAt(0);
-    }
-    while(bleDevice.actZ.length > ACT_LEN) {
-      bleDevice.actZ.removeAt(0);
-    }
-    bleDevice.actX.add(actValue[0]);
-    bleDevice.actY.add(actValue[1]);
-    bleDevice.actZ.add(actValue[2]);
-
-    dPrint("===setAccelerometerValue Xs: ${bleDevice.actX}");
-    dPrint("===setAccelerometerValue Ys: ${bleDevice.actY}");
-    dPrint("===setAccelerometerValue Zs: ${bleDevice.actZ}");
   }
 
   void setPulseValue(BleDevice bleDevice, List<String> pulseValue) {
@@ -469,6 +464,16 @@ class BluetoothProvider with ChangeNotifier{
   /// 앱 종료시 블루투스 클라이언트 종료
   Future destroyClient() async{
     await bleManager?.destroyClient();
+  }
+
+  /// 5개로 넘어오는 응답을 분리 리턴
+  List<Uint8List> divideResponse(Uint8List message) {
+    List<Uint8List> list = [];
+    for(int i = 0; i < 5; i++){
+      list.add(message.sublist(i * 33,  (i + 1)*33));
+    }
+
+    return list;
   }
 }
 

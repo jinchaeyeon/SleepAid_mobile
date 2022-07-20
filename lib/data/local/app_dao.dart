@@ -1,16 +1,19 @@
 import 'package:headset_connection_event/headset_event.dart';
+import 'package:intl/intl.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/timestamp.dart';
 import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_database.dart';
 import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 
 class AppBaseData {
   List<SleepConditionParameterResponse> sleepConditionParameters = [];
   List<ElectroStimulationParameterResponse> electroStimulationParameters = [];
   List<BinauralBeatParameterResponse> binauralBeatParameters = [];
+  SleepAnalysisResponse? sleepConditionAnalysis;
 }
 
 class DebugData{
@@ -21,7 +24,7 @@ class DebugData{
   bool cancelBlockRotationDevice = false; // 화면 기울임 회전 막아둔 기능 풀기
 
   bool inputTestInputData = true; // 테스트와 관련된 입력값 미리 넣어두기
-  String licenseKey = "gktq1bwr";
+  String licenseKey = "jf0wxfdz";
   String signupEmail = "redlunak89@gmail.com";
   String signupPW = "qwer1234@@";
 }
@@ -52,8 +55,8 @@ class AppDAO{
   static var appVersion = '1.0.0';
   static bool isDarkMode = false;
 
-  static String HOST_PRODUCT = "https://neurotx.lhy.kr/api/";
-  static String DEBUG_PRODUCT = "https://neurotx-dev.lhy.kr/api/";
+  static String HOST_PRODUCT = "https://sleepaid.co.kr/api/";
+  static String DEBUG_PRODUCT = "https://dev.sleepaid.co.kr/api/";
 
 
   static String get baseUrl {
@@ -65,11 +68,24 @@ class AppDAO{
     appVersion = version;
   }
 
-  ///전체 데이터 초기화
+  /// 전체 데이터 초기화
   static Future clearAllData() async{
     await setUserToken(null);
     await setUserType(null);
     await setDarkMode(false);
+  }
+
+  /// 컨디션 작성 날짜
+  /// 어제 기준으로 작성
+  static String getConditionDateString() {
+    if(AppDAO.baseData.sleepConditionAnalysis != null){
+      List<String> dateStrings = AppDAO.baseData.sleepConditionAnalysis!.date.split("-");
+      return "${dateStrings[0]}년 ${dateStrings[0]}월 ${dateStrings[2]}일";
+    }else{
+      var dateFormat = DateFormat("yyyy년 mm월 dd일");
+      var yesterday = DateTime.now().subtract(const Duration(days: 1));
+      return dateFormat.format(yesterday);
+    }
   }
 
   static Future setUserToken(String? token) async{
@@ -121,6 +137,17 @@ class AppDAO{
 
   static Future init() async{
     await userCreated;
+  }
+
+  static Future<void> setLastSleepCondition(String date, int id) async {
+    await _put(key: 'last_sleep_condition_date', value: date);
+    await _put(key: 'last_sleep_condition_id', value: id);
+  }
+
+  static Future<List<String?>> getLastSleepCondition() async{
+    String? lastDate = await _get(key: 'last_sleep_condition_date') as String?;
+    String? lastID = await _get(key: 'last_sleep_condition_id') as String?;
+    return [lastDate, lastID];
   }
 }
 

@@ -29,17 +29,20 @@ class HomeState extends State<HomePage>
   @override
   void initState() {
     WidgetsBinding.instance!.addObserver(this);
+    checkBluetoothState();
     super.initState();
   }
 
   @override
   Future<void> didChangeDependencies() async {
-    // log("didChangeDependencies");
-    if(isInit){
-      context.read<DataProvider>().setLoading(true);
-      await startEveryStateChecker();
-      isInit = false;
-    }
+    log("didChangeDependencies isInit: $isInit");
+    // if(isInit){
+    //   Future.delayed(Duration(milliseconds:200),() async {
+    //     context.read<DataProvider>().setLoading(true);
+    //     await startEveryStateChecker();
+    //     isInit = false;
+    //   });
+    // }
     super.didChangeDependencies();
   }
 
@@ -70,6 +73,12 @@ class HomeState extends State<HomePage>
 
     return Scaffold(
         extendBody: true,
+        floatingActionButton: InkWell(
+          onTap:(){
+          Navigator.pushNamed(context, Routes.bluetoothConnect);
+          },
+          child: Text("TEST")
+        ),
         body: SafeArea(
             child: getBaseWillScope(context, mainContent(), onWillScope: (){
               showExitDialog(context);
@@ -252,7 +261,7 @@ class HomeState extends State<HomePage>
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
                      Text(
-                       context.read<DataProvider>().getYesterdayDateTime(),
+                       AppDAO.getConditionDateString(),
                        style: Theme.of(context).textTheme.bodyText1,
                      ),
                      Text(
@@ -268,11 +277,11 @@ class HomeState extends State<HomePage>
                          ),
                          children: [
                            TextSpan(
-                             text: '09',
+                             text: AppDAO.baseData.sleepConditionParameters.length.toString().padLeft(2,'0'),
                              style: TextStyle(color: AppColors.subTextBlack),
                            ),
                            TextSpan(
-                             text: ' / 09',
+                             text: ' / ${AppDAO.baseData.sleepConditionParameters.length.toString().padLeft(2,'0')}',
                              style: TextStyle(color: AppColors.textGrey),
                            )
                          ],
@@ -434,6 +443,7 @@ class HomeState extends State<HomePage>
   Future<void> checkBluetoothPermission() async{
     await Future.delayed(Duration(milliseconds: 500),() async {
       await context.read<BluetoothProvider>().checkBluetoothPermission();
+
     });
 
   }
@@ -476,4 +486,3 @@ class HomeState extends State<HomePage>
     }
   }
 }
-
