@@ -52,7 +52,7 @@ factory SleepConditionItem.fromJson(Map<String, dynamic> json) =>
     answerType : json['answer_type']??"",
     question: json['question']??"",
     answerBool: json['answer_bool'],
-    isFixed: json['isFixed']??true,
+    isFixed: json['isFixed']??false,
     answerScore: json['answer_score'],
     created: json['created'],
   );

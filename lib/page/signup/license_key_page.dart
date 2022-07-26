@@ -16,7 +16,7 @@ import 'package:sleepaid/widget/sign_in_up_button.dart';
 
 
 class LicenseKeyPage extends BaseStatefulWidget {
-  static const ROUTE = "LicenseKey";
+  static const ROUTE = "/LicenseKey";
 
   const LicenseKeyPage({Key? key}) : super(key: key);
 

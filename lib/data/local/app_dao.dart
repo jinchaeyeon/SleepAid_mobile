@@ -1,4 +1,4 @@
-import 'package:headset_connection_event/headset_event.dart';
+import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/timestamp.dart';
@@ -8,12 +8,18 @@ import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
+import 'package:sleepaid/util/app_themes.dart';
 
 class AppBaseData {
   List<SleepConditionParameterResponse> sleepConditionParameters = [];
   List<ElectroStimulationParameterResponse> electroStimulationParameters = [];
   List<BinauralBeatParameterResponse> binauralBeatParameters = [];
   SleepAnalysisResponse? sleepConditionAnalysis;
+
+  /// 저장되어 있는 어제의 수면 컨디션 숫자
+  int getSleepConditionYesterdayItemSet() {
+    return sleepConditionAnalysis?.itemSet.length??0;
+  }
 }
 
 class DebugData{
@@ -30,6 +36,10 @@ class DebugData{
 }
 
 class AppDAO{
+  static ThemeData theme = AppThemes.lightTheme;
+  static ThemeData darkTheme = AppThemes.darkTheme;
+  static ThemeData lightTheme = AppThemes.lightTheme;
+
   static bool completeInit = false;
 
   static _put({required String key, dynamic value}) async {
@@ -73,6 +83,8 @@ class AppDAO{
     await setUserToken(null);
     await setUserType(null);
     await setDarkMode(false);
+    await setUserCreated(null);
+    await setLastSleepCondition(null, null);
   }
 
   /// 컨디션 작성 날짜
@@ -139,14 +151,19 @@ class AppDAO{
     await userCreated;
   }
 
-  static Future<void> setLastSleepCondition(String date, int id) async {
-    await _put(key: 'last_sleep_condition_date', value: date);
-    await _put(key: 'last_sleep_condition_id', value: id);
+  static Future<void> setLastSleepCondition(String? date, int? id) async {
+    date != null
+        ? await _put(key: 'last_sleep_condition_date', value: date)
+        : await _delete(key: 'last_sleep_condition_date');
+
+    id != null
+        ? await _put(key: 'last_sleep_condition_id', value: id)
+        : await _delete(key: 'last_sleep_condition_id');
   }
 
-  static Future<List<String?>> getLastSleepCondition() async{
+  static Future<List<dynamic>> getLastSleepCondition() async{
     String? lastDate = await _get(key: 'last_sleep_condition_date') as String?;
-    String? lastID = await _get(key: 'last_sleep_condition_id') as String?;
+    int? lastID = await _get(key: 'last_sleep_condition_id') as int?;
     return [lastDate, lastID];
   }
 }

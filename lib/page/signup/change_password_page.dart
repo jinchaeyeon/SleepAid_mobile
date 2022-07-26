@@ -10,7 +10,7 @@ import 'package:sleepaid/widget/sign_in_up_input.dart';
 import 'package:sleepaid/widget/sign_in_up_title.dart';
 
 class ChangePasswordPage extends StatefulWidget {
-  static const ROUTE = "ChangePassword";
+  static const ROUTE = "/ChangePassword";
   const ChangePasswordPage({Key? key}) : super(key: key);
 
   @override

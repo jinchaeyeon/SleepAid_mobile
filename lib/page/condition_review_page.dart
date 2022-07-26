@@ -16,7 +16,7 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 
 
 class ConditionReviewPage extends BaseStatefulWidget {
-  static const ROUTE = "ConditionReview";
+  static const ROUTE = "/ConditionReview";
 
   const ConditionReviewPage({Key? key}) : super(key: key);
 
@@ -116,7 +116,6 @@ class ConditionReviewState extends State<ConditionReviewPage>
   Widget bottomNavigator() {
     return GestureDetector(
       onTap: () async {
-        // Navigator.pop(context);
         /// 먼저 필수 체크 한 후에
         /// 전부 선택했으면
         /// 서버에 저장 요청 후
@@ -184,7 +183,7 @@ class ConditionReviewState extends State<ConditionReviewPage>
           right: 10,
           top: 10,
           child: Text(
-              "필수항목입니다",
+              requiredIndexes.contains(index)?"필수항목입니다":"",
               style: TextStyle(color: AppColors.textBlack, fontSize: 11, fontWeight: FontWeight.w400,)
           ),
         ):SizedBox.shrink(),
@@ -282,7 +281,6 @@ class ConditionReviewState extends State<ConditionReviewPage>
     var rand = Random();
     List<Map<String, dynamic>> list = [];
     updatedIndexes.toList().forEach((index) {
-      // list.add(parameters[index].toSendDataJson());
       list.add(items[index].toSendDataJson());
     });
     var yesterday = DateTime.now().subtract(Duration(days:1));
@@ -298,8 +296,8 @@ class ConditionReviewState extends State<ConditionReviewPage>
     ).start().then((result){
       if(result is SleepAnalysisResponse){
         print("result: ${result.toJson()}");
-        AppDAO.baseData.sleepConditionAnalysis= result;
-        AppDAO.setLastSleepCondition(result.date, result.id);
+        AppDAO.baseData.sleepConditionAnalysis = result;
+        AppDAO.setLastSleepCondition(result.date, result.id,);
       Navigator.pop(context);
       }else{
         showToast("잠시 후 다시 시도해주세요.");

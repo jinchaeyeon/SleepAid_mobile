@@ -436,7 +436,7 @@ class BluetoothProvider with ChangeNotifier{
   /// 기기에서 가져온 데이터 저장
   void setDeviceResponse(BleDevice bleDevice, DeviceSensorData data) {
     while(bleDevice.sensors.length > SENSOR_LEN) {
-      bleDevice.sensors.removeRange(0, 100);
+      bleDevice.sensors.removeRange(0, SENSOR_LEN ~/ 10);
     }
     bleDevice.sensors.add(data);
     return;

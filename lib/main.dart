@@ -67,46 +67,69 @@ class SleepAIDApp extends StatefulWidget {
 class _SleepAIDApp extends State<SleepAIDApp> {
   //페이지를 Router를 통하여 관리하기 위한 기본 RouteObserver
   final routeObserver = RouteObserver<PageRoute>();
-  ThemeData _theme = AppThemes.lightTheme;
 
-  void changeTheme(ThemeData themeData) {
-    _theme = themeData;
+  void changeTheme() {
+    checkDarkMode();
     setState(() {});
   }
 
   checkDarkMode() {
-    _theme = AppDAO.isDarkMode?AppThemes.darkTheme:AppThemes.lightTheme;
+    AppDAO.theme = AppDAO.isDarkMode?AppDAO.darkTheme:AppDAO.lightTheme;
   }
 
   @override
   Widget build(BuildContext context) {
-    // //todo 상태바 숨기기 기능(추후 UI에 따라서 수정)
-    // SystemChrome.setSystemUIOverlayStyle(
-    //     const SystemUiOverlayStyle(statusBarColor: Colors.transparent));
     checkDarkMode();
     checkMicrophoneStatus(context);
-    return AppDAO.completeInit
-        ?MaterialApp(
+    return MaterialApp(
       // 디버그모드 알림 배너 숨김
       debugShowCheckedModeBanner: false,
       //기본 테마
-      theme: _theme,
-      home: Container()
-    )
-        :MaterialApp(
-      // 디버그모드 알림 배너 숨김
-      debugShowCheckedModeBanner: false,
-      //기본 테마
-      theme: _theme,
+      theme: AppDAO.theme,
       initialRoute: SplashPage.ROUTE,
       // color: Colors.transparent,
       navigatorObservers: [
         routeObserver
       ],
+      routes: {
+        '/': (_) => const SplashPage(),
+      },
       onGenerateRoute: (RouteSettings settings){
         return Routes.generateRoute(settings,context);
       },
     );
+    // return AppDAO.completeInit
+    //     ?MaterialApp(
+    //     // 디버그모드 알림 배너 숨김
+    //     debugShowCheckedModeBanner: false,
+    //     //기본 테마
+    //     theme: AppDAO.theme,
+    //     navigatorObservers: [
+    //       routeObserver
+    //     ],
+    //     routes: {
+    //       '/': (_) => const SplashPage(),
+    //     },
+    //     initialRoute: SplashPage.ROUTE,
+    //     // home: Container()
+    //   )
+    //   :MaterialApp(
+    //   // 디버그모드 알림 배너 숨김
+    //   debugShowCheckedModeBanner: false,
+    //   //기본 테마
+    //   theme: AppDAO.theme,
+    //   initialRoute: SplashPage.ROUTE,
+    //   // color: Colors.transparent,
+    //   navigatorObservers: [
+    //     routeObserver
+    //   ],
+    //   routes: {
+    //     '/': (_) => const SplashPage(),
+    //   },
+    //   onGenerateRoute: (RouteSettings settings){
+    //     return Routes.generateRoute(settings,context);
+    //   },
+    // );
   }
 
   Future<void> checkMicrophoneStatus(BuildContext context) async {

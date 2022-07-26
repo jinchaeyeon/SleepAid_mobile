@@ -11,7 +11,7 @@ import 'package:sleepaid/widget/sign_in_up_title.dart';
 class AgreementTermPage extends BaseStatefulWidget {
   const AgreementTermPage({Key? key}) : super(key: key);
 
-  static const ROUTE = "AgreementTerm";
+  static const ROUTE = "/AgreementTerm";
 
   @override
   State<StatefulWidget> createState() => _AgreementTermPage();

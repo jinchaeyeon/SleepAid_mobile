@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:intl/intl.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/data/local/condition_review.dart';
-import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/data/network/auth_response.dart';
 import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/calendar_response.dart';
@@ -82,7 +79,9 @@ class DataProvider with ChangeNotifier{
     await GetSleepConditionService().start().then((result){
       if(result is List<SleepConditionParameterResponse>){
         AppDAO.baseData.sleepConditionParameters = result;
-
+        /// 필수 처리
+        AppDAO.baseData.sleepConditionParameters[0]?.isRequired = true;
+        AppDAO.baseData.sleepConditionParameters[1]?.isRequired = true;
         if(kDebugMode){
           AppDAO.baseData.sleepConditionParameters.forEach((parameter) {
             print("codition parameter:: ${parameter.question}");
@@ -116,9 +115,9 @@ class DataProvider with ChangeNotifier{
       }
     });
 
-    List<String?> lastCondition = await (AppDAO.getLastSleepCondition());
+    List<dynamic> lastCondition = await (AppDAO.getLastSleepCondition());
     if(lastCondition[1] != null){
-      await GetSleepConditionDetailService(id: lastCondition[1]!).start().then((result){
+      await GetSleepConditionDetailService(id: "${lastCondition[1]!}").start().then((result){
         if(result is SleepAnalysisResponse){
           AppDAO.baseData.sleepConditionAnalysis = result;
         }

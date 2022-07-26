@@ -54,9 +54,9 @@ class SleepAnalysisResponse extends BaseResponse{
 
   static buildItemSet(List<dynamic> list) {
     List<SleepConditionItem> itemList = [];
-    list.forEach((element) {
+    for (var element in list) {
       itemList.add(SleepConditionItem.fromJson(element));
-    });
+    }
     return itemList;
   }
 }

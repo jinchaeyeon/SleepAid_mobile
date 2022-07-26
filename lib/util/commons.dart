@@ -134,6 +134,7 @@ Future<bool> showExitDialog(BuildContext context) async {
       false;
 }
 
+/// 미사용, UI만 구현
 Future<bool> showLogoutDialog(BuildContext context) async {
   return await showDialog(
         context: context,

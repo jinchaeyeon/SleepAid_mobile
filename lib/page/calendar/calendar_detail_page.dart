@@ -9,7 +9,7 @@ import 'package:sleepaid/widget/calendar/my_weekly_calendar_widget.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
 
 class CalendarDetailPage extends BaseStatefulWidget {
-  static const ROUTE = "CalendarDetail";
+  static const ROUTE = "/CalendarDetail";
 
   const CalendarDetailPage({Key? key}) : super(key: key);
 

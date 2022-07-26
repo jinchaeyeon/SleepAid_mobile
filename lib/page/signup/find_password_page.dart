@@ -13,7 +13,7 @@ import 'package:sleepaid/widget/sign_in_up_input.dart';
 import '../../app_routes.dart';
 
 class FindPasswordPage extends StatefulWidget {
-  static const ROUTE = "FindPassword";
+  static const ROUTE = "/FindPassword";
   const FindPasswordPage({Key? key}) : super(key: key);
 
   @override

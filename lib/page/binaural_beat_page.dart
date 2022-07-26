@@ -10,13 +10,14 @@ import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/main_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/graph/beat_painter.dart';
 import 'package:surround_sound/surround_sound.dart';
 
 class BinauralBeatPage extends BaseStatefulWidget {
-  static const ROUTE = "BinauralBeat";
+  static const ROUTE = "/BinauralBeat";
 
   const BinauralBeatPage({Key? key}) : super(key: key);
 
@@ -46,16 +47,16 @@ class BinauralBeatState extends State<BinauralBeatPage>
 
   /// 초기값 설정
   void initPage() {
-    Future.delayed(const Duration(milliseconds:100),(){
-      ///테스트에서만 보이는 레시피
-      if(kDebugMode){
-        recipes.add(BinauralBeatRecipeResponse(text:"사용자 맞춤설정", tone:400, binauralBeat: 38));
-        recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피1", tone:400, binauralBeat: 37));
-        recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피2", tone:300, binauralBeat: 28));
-        recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피3", tone:300, binauralBeat: 29));
-        recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피4", tone:300, binauralBeat: 28));
-        setState(() {});
-      }
+    Future.delayed(const Duration(milliseconds:200),(){
+      // ///테스트에서만 보이는 레시피
+      // if(kDebugMode){
+      //   recipes.add(BinauralBeatRecipeResponse(text:"사용자 맞춤설정", tone:400, binauralBeat: 38));
+      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피1", tone:400, binauralBeat: 37));
+      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피2", tone:300, binauralBeat: 28));
+      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피3", tone:300, binauralBeat: 29));
+      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피4", tone:300, binauralBeat: 28));
+      //   setState(() {});
+      // }
       checkDeviceStatus();
     });
   }
@@ -106,8 +107,13 @@ class BinauralBeatState extends State<BinauralBeatPage>
                         children: [
                           SizedBox(width:20),
                           InkWell(
-                            onTap:(){
-                              context.read<MainProvider>().togglePlayingBeatMode(controllerLeft, controllerRight);
+                            onTap:() async {
+                              bool isHeadsetConnected = context.read<MainProvider>().checkHeadsetEvent();
+                              if(isHeadsetConnected){
+                                context.read<MainProvider>().togglePlayingBeatMode(controllerLeft, controllerRight);
+                              }else{
+                                showToast("헤드셋을 연결해주세요.");
+                              }
                             },
                             child: Container(
                               width: 90,
@@ -396,6 +402,7 @@ class BinauralBeatState extends State<BinauralBeatPage>
           Expanded(
               flex: 7,
               child: FlutterSlider(
+                // disabled: context.read<BluetoothProvider>().connectedDeviceForForehead,
                 values: [0],
                 max: max,
                 min: 0,

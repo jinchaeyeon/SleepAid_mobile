@@ -16,7 +16,7 @@ import 'package:provider/provider.dart';
 
 
 class ElectricStimulationPage extends BaseStatefulWidget {
-  static const ROUTE = "SettingRecipe";
+  static const ROUTE = "/SettingRecipe";
 
   const ElectricStimulationPage({Key? key}) : super(key: key);
 

@@ -13,7 +13,7 @@ import 'package:syncfusion_flutter_charts/charts.dart';
 import '../app_routes.dart';
 
 class RealtimeSignalPage extends BaseStatefulWidget {
-  static const ROUTE = "RealtimeSignal";
+  static const ROUTE = "/RealtimeSignal";
   const RealtimeSignalPage({Key? key}) : super(key: key);
   @override
   RealtimeSignalState createState() => RealtimeSignalState();

@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 
 
 class PushSettingPage extends BaseStatefulWidget {
-  static const ROUTE = "PushSetting";
+  static const ROUTE = "/PushSetting";
 
   const PushSettingPage({Key? key}) : super(key: key);
 
@@ -51,6 +51,60 @@ class PushSettingState extends State<PushSettingPage>
                 ),
                 child: Column(
                   children: [
+                    Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                            border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+                        ),
+                        padding: const EdgeInsets.only(left: 20, right: 20),
+                        width: double.maxFinite,
+                        child: Row(
+                            children: [
+                              Text(
+                                "수면정보 알림 ",
+                                style: TextStyle(
+                                  color: Theme.of(context).textSelectionTheme.selectionColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Expanded(child: SizedBox.shrink()),
+                              CustomSwitchButton(
+                                value: isDarkMode,
+                                onChanged: (value) async {
+                                  // await listeners[title]!(context);
+                                },
+                              )
+                            ]
+                        )
+                    ),
+                    Container(
+                        height: 60,
+                        decoration: BoxDecoration(
+                            border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+                        ),
+                        padding: const EdgeInsets.only(left: 20, right: 20),
+                        width: double.maxFinite,
+                        child: Row(
+                            children: [
+                              Text(
+                                "수면 컨디션 작성 알림",
+                                style: TextStyle(
+                                  color: Theme.of(context).textSelectionTheme.selectionColor,
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const Expanded(child: SizedBox.shrink()),
+                              CustomSwitchButton(
+                                value: isDarkMode,
+                                onChanged: (value) async {
+                                  // await listeners[title]!(context);
+                                },
+                              )
+                            ]
+                        )
+                    )
 
                   ],
                 )

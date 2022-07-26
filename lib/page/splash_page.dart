@@ -25,7 +25,7 @@ import 'package:provider/provider.dart';
  * 4. 신규 알림
  */
 class SplashPage extends BaseStatefulWidget {
-  static const ROUTE = "splash";
+  static const ROUTE = "/";
 
   const SplashPage({Key? key}) : super(key: key);
 
@@ -117,9 +117,9 @@ class SplashState extends State<SplashPage>
   checkSleepCondition() async{
     await context.read<DataProvider>().loadParameters();
     String yesterday = DateFormat('yyyy-MM-dd').format(DateTime.now().subtract(Duration(days:1)));
-    List<String?> result = await AppDAO.getLastSleepCondition();
+    List<dynamic> result = await AppDAO.getLastSleepCondition();
     if(yesterday == result[0] && result[1] != null) {
-      await GetSleepConditionDetailService(id: result[1]!).start().then((response){
+      await GetSleepConditionDetailService(id: "${result[1]!}").start().then((response){
         if(response is SleepAnalysisResponse){
           AppDAO.baseData.sleepConditionAnalysis = response;
         }

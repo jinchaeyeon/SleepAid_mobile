@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:headset_connection_event/headset_event.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:surround_sound/surround_sound.dart';
 
 class MainProvider with ChangeNotifier{
   // Instantiate it
   HeadsetEvent headsetPlugin = HeadsetEvent();
   HeadsetState headsetEvent = HeadsetState.DISCONNECT;
-
   double frequencyLeft = 400;
   double frequencyRight = 360;
   bool isPlayingBeatMode = false;
@@ -18,11 +18,21 @@ class MainProvider with ChangeNotifier{
   SoundController controllerLeft = SoundController();
   SoundController controllerRight = SoundController();
 
+  /// 헤드셋 연결 상태 확인
+  bool checkHeadsetEvent() {
+    if(headsetEvent == HeadsetState.CONNECT){
+      return true;
+    }
+    return false;
+  }
+
   startMicrophoneScan() async {
+    print("startHeadsetScan");
     headsetPlugin.getCurrentState.then((_val) async {
       if(headsetEvent == HeadsetState.DISCONNECT && _val == HeadsetState.CONNECT){
         playBeat();
       }else if(headsetEvent == HeadsetState.CONNECT && _val == HeadsetState.DISCONNECT){
+        isPlayingBeatMode = false;
         playBeat();
       }
       headsetEvent = _val??HeadsetState.DISCONNECT;
@@ -32,7 +42,13 @@ class MainProvider with ChangeNotifier{
 
     /// Detect the moment headset is plugged or unplugged
     headsetPlugin.setListener((_val) {
+      if(headsetEvent == HeadsetState.CONNECT && _val == HeadsetState.DISCONNECT){
+        showToast("헤드폰 연결이 해제되었습니다.");
+      }else if(headsetEvent == HeadsetState.DISCONNECT && _val == HeadsetState.CONNECT){
+        showToast("헤드폰이 연결 되었습니다.");
+      }
       headsetEvent = _val;
+      playBeat();
       notifyListeners();
     });
   }
@@ -54,7 +70,7 @@ class MainProvider with ChangeNotifier{
   }
 
   Future<void> playBeat() async{
-    if(isPlayingBeatMode){
+    if(isPlayingBeatMode && checkHeadsetEvent()){
       if(isRightBeatMode){
         await controllerLeft.setFrequency(frequencyLeft);
         await controllerRight.setFrequency(frequencyRight);
@@ -62,8 +78,6 @@ class MainProvider with ChangeNotifier{
         await controllerLeft.setFrequency(frequencyRight);
         await controllerRight.setFrequency(frequencyLeft);
       }
-
-      print("play");
       print("play left: ${controllerLeft.value.freq} ${controllerLeft.value.volume} ${controllerLeft.value.x} ${controllerLeft.value.y}");
       print("play right: ${controllerRight.value.freq} ${controllerRight.value.volume} ${controllerRight.value.x} ${controllerRight.value.y}");
       controllerRight.play();
@@ -93,10 +107,12 @@ class MainProvider with ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> updateSoundControllers(SoundController controllerLeft, SoundController controllerRight) async {
-    this.controllerLeft = controllerLeft;
-    this.controllerRight = controllerRight;
-    await initBeatController();
+  Future<void> updateSoundControllers(SoundController _controllerLeft, SoundController _controllerRight) async {
+    controllerLeft = _controllerLeft;
+    controllerRight = _controllerRight;
+    // await initBeatController();
+    playBeat();
+    notifyListeners();
   }
 }
 

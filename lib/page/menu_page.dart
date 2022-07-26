@@ -15,7 +15,7 @@ import 'package:provider/provider.dart';
 
 
 class MenuPage extends BaseStatefulWidget {
-  static const ROUTE = "Menu";
+  static const ROUTE = "/Menu";
 
   const MenuPage({Key? key}) : super(key: key);
 
@@ -79,35 +79,61 @@ class MenuState extends State<MenuPage>
           },
         );
       }
-      Widget button = InkWell(
-          onTap:() async {
-            if(title != AppStrings.menu_dark_mode){
-              await listeners[title]!(context);
-            }
-          },
-          child: Container(
-              height: 60,
-              decoration: BoxDecoration(
+      Widget button = Container();
+      if(title == AppStrings.menu_dark_mode){
+        button = Container(
+            height: 60,
+            decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
-              ),
-              padding: const EdgeInsets.only(left: 20, right: 20),
-              width: double.maxFinite,
-              child: Row(
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        color: Theme.of(context).textSelectionTheme.selectionColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
+            ),
+            padding: const EdgeInsets.only(left: 20, right: 20),
+            width: double.maxFinite,
+            child: Row(
+                children: [
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Theme.of(context).textSelectionTheme.selectionColor,
+                      fontSize: 14,
+                      fontWeight: FontWeight.bold,
                     ),
-                    const Expanded(child: SizedBox.shrink()),
-                    subWidget
-                  ]
-              )
-          )
-      );
+                  ),
+                  const Expanded(child: SizedBox.shrink()),
+                  subWidget
+                ]
+            )
+        );
+      }else{
+        button = InkWell(
+            onTap:() async {
+              if(title != AppStrings.menu_dark_mode){
+                await listeners[title]!(context);
+              }
+            },
+            child: Container(
+                height: 60,
+                decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+                ),
+                padding: const EdgeInsets.only(left: 20, right: 20),
+                width: double.maxFinite,
+                child: Row(
+                    children: [
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: Theme.of(context).textSelectionTheme.selectionColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const Expanded(child: SizedBox.shrink()),
+                      subWidget
+                    ]
+                )
+            )
+        );
+      }
       buttons.add(button);
     }
 
@@ -130,11 +156,11 @@ class MenuState extends State<MenuPage>
         if (AppDAO.isDarkMode) {
           await AppDAO.setDarkMode(false);
           isDarkMode = false;
-          SleepAIDApp.of(context)?.changeTheme(AppThemes.lightTheme);
+          SleepAIDApp.of(context)?.changeTheme();
         } else{
           await AppDAO.setDarkMode(true);
           isDarkMode = true;
-          SleepAIDApp.of(context)?.changeTheme(AppThemes.darkTheme);
+          SleepAIDApp.of(context)?.changeTheme();
         }
       },
       AppStrings.menu_logout: (BuildContext context) async {

@@ -13,7 +13,7 @@ import 'package:sleepaid/widget/sign_in_up_button.dart';
 
 
 class LoginListPage extends BaseStatefulWidget {
-  static const ROUTE = "Login";
+  static const ROUTE = "/Login";
 
   const LoginListPage({Key? key}) : super(key: key);
 

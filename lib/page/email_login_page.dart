@@ -13,7 +13,7 @@ import 'package:sleepaid/widget/sign_in_up_input.dart';
 import 'package:provider/provider.dart';
 
 class EmailLoginPage extends BaseStatefulWidget {
-  static const ROUTE = "EmailLogin";
+  static const ROUTE = "/EmailLogin";
 
   const EmailLoginPage({Key? key}) : super(key: key);
 

@@ -17,7 +17,7 @@ import 'package:provider/provider.dart';
 
 
 class BluetoothConnectPage extends BaseStatefulWidget {
-  static const ROUTE = "BluetoothConnect";
+  static const ROUTE = "/BluetoothConnect";
 
   const BluetoothConnectPage({Key? key}) : super(key: key);
 

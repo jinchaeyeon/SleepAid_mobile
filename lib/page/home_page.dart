@@ -13,7 +13,7 @@ import '../app_routes.dart';
 
 ///연결중인 장치 있을때와 없을때 구분
 class HomePage extends BaseStatefulWidget {
-  static const ROUTE = "Home";
+  static const ROUTE = "/Home";
 
   const HomePage({Key? key}) : super(key: key);
 
@@ -73,12 +73,6 @@ class HomeState extends State<HomePage>
 
     return Scaffold(
         extendBody: true,
-        floatingActionButton: InkWell(
-          onTap:(){
-          Navigator.pushNamed(context, Routes.bluetoothConnect);
-          },
-          child: Text("TEST")
-        ),
         body: SafeArea(
             child: getBaseWillScope(context, mainContent(), onWillScope: (){
               showExitDialog(context);
@@ -106,7 +100,7 @@ class HomeState extends State<HomePage>
                 child: SizedBox(
                     width: double.maxFinite,
                     height: geteDeviceHeight(context) - 30,
-                    child: homeContent()
+                    child: homeContent(context)
                 )
             )
         )
@@ -119,7 +113,7 @@ class HomeState extends State<HomePage>
     await context.read<BluetoothProvider>().toggleDataCollecting();
   }
 
-  Widget homeContent() {
+  Widget homeContent(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -177,18 +171,18 @@ class HomeState extends State<HomePage>
             children: [
               context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
               context.watch<BluetoothProvider>().connectedDeviceForForehead != null
-              ?contentButton(AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', '', onTap:() {
+              ?contentButton(context,AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', '', onTap:(context) {
                 Navigator.pushNamed(context, Routes.bodySignal);
               })
-              :contentButton(AppImages.bioSignal, '실시간 생체신호', false, '실시간 신호 출력중지', '', onTap:() {
+              :contentButton(context,AppImages.bioSignal, '실시간 생체신호', false, '실시간 신호 출력중지', '', onTap:(context) {
                 Navigator.pushNamed(context, Routes.bodySignal);
               }),
               context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
                   context.watch<BluetoothProvider>().connectedDeviceForForehead != null
-              ?contentButton(AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', '',onTap: (){
+              ?contentButton(context,AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', '',onTap:(context){
                 Navigator.pushNamed(context, Routes.settingRecipe);
               })
-              :contentButton(AppImages.electricalStimulation, '전기자극설정', false, '전기 자극 출력증지', '',onTap: (){
+              :contentButton(context,AppImages.electricalStimulation, '전기자극설정', false, '전기 자극 출력증지', '',onTap:(context){
                 Navigator.pushNamed(context, Routes.settingRecipe);
               }),
             ],
@@ -202,13 +196,13 @@ class HomeState extends State<HomePage>
               ( context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
               context.watch<BluetoothProvider>().connectedDeviceForForehead != null )
               && context.watch<DataProvider>().isPlayingBeat
-              ?contentButton(AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', '',onTap: () {
+              ?contentButton(context,AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', '',onTap:(context) {
                 Navigator.pushNamed(context, Routes.binauralBeat);
               })
-              :contentButton(AppImages.binauralBeat, 'Binaural Beat', false, 'Binaural Beat 출력중지', '',onTap: () {
+              :contentButton(context,AppImages.binauralBeat, 'Binaural Beat', false, 'Binaural Beat 출력중지', '',onTap:(context) {
                 Navigator.pushNamed(context, Routes.binauralBeat);
               }),
-              contentButton(AppImages.sleepAnalysis, '수면분석', false, '새로운 수면 정보 확인', '', onTap: () {
+              contentButton(context,AppImages.sleepAnalysis, '수면분석', false, '새로운 수면 정보 확인', '', onTap:(context) {
                 Navigator.pushNamed(context, Routes.calendar);
               },),
             ],
@@ -219,20 +213,20 @@ class HomeState extends State<HomePage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             context.watch<BluetoothProvider>().connectedDeviceForNeck != null
-            ?contentButton(AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForNeck!.battery}%', '', onTap: () {
+            ?contentButton(context,AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForNeck!.battery}%', '', onTap:(context) {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             })
-            :contentButton(AppImages.bluetoothConnect, '기기 연결 (목)', false, '배터리 잔량 -', '', onTap: () {
+            :contentButton(context,AppImages.bluetoothConnect, '기기 연결 (목)', false, '배터리 잔량 -', '', onTap:(context) {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             }),
             context.watch<BluetoothProvider>().connectedDeviceForForehead != null
-            ?contentButton(AppImages.bluetoothDisconnect, '기기 연결 (이마)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForForehead!.battery}%', '', onTap: () {
+            ?contentButton(context,AppImages.bluetoothDisconnect, '기기 연결 (이마)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForForehead!.battery}%', '', onTap:(context) {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             },)
-            :contentButton(AppImages.bluetoothDisconnect, '기기 연결 (이마)', false, '배터리 잔량 -', '', onTap: () {
+            :contentButton(context,AppImages.bluetoothDisconnect, '기기 연결 (이마)', false, '배터리 잔량 -', '', onTap:(context) {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             },)
@@ -240,8 +234,9 @@ class HomeState extends State<HomePage>
         ),
         const Expanded(child: SizedBox.shrink(),),
        InkWell(
-         onTap: () async {
+         onTap:() async {
            await _action(Routes.conditionReview);
+           setState(() {});
          },
          child:  Container(
            height: 150,
@@ -277,7 +272,7 @@ class HomeState extends State<HomePage>
                          ),
                          children: [
                            TextSpan(
-                             text: AppDAO.baseData.sleepConditionParameters.length.toString().padLeft(2,'0'),
+                             text: AppDAO.baseData.getSleepConditionYesterdayItemSet().toString().padLeft(2,'0'),
                              style: TextStyle(color: AppColors.subTextBlack),
                            ),
                            TextSpan(
@@ -294,7 +289,7 @@ class HomeState extends State<HomePage>
                  bottom: 0,
                  left: (getDeviceWidth(context) / 2) - (52/2) -35,
                  child: GestureDetector(
-                   onTap: () async {
+                   onTap:() async {
                      //todo
                      await toggleCollectingData();
                      // Navigator.pushNamed(context, routeSleepCondition);
@@ -323,12 +318,12 @@ class HomeState extends State<HomePage>
     );
   }
 
-  Widget contentButton(String image, String title, bool isOn, String state, String route, {required Null Function() onTap}) {
+  Widget contentButton(BuildContext context, String image, String title, bool isOn, String state, String route, {required Null Function(BuildContext context) onTap}) {
     return Expanded(
       flex: 1,
       child: InkWell(
-        onTap: (){
-          onTap();
+        onTap:(){
+          onTap(context);
         },
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: 10),
@@ -352,10 +347,12 @@ class HomeState extends State<HomePage>
               Text(
                 title,
                 style: TextStyle(
+                  overflow: TextOverflow.clip,
                   color: Theme.of(context).textSelectionTheme.selectionColor,
-                  fontSize: 14,
+                  fontSize: getFontSize(context, 14),
                   // fontFamily: Util.notoSans,
                   fontWeight: FontWeight.w400,
+
                 ),
               ),
               stateContainer(state, isOn),
@@ -484,5 +481,10 @@ class HomeState extends State<HomePage>
       await context.read<DataProvider>().loadParameters();
       context.read<DataProvider>().setLoading(false);
     }
+  }
+
+  double getFontSize(BuildContext context, double i) {
+    print("fs: ${MediaQuery.of(context).size.width}");
+    return i;
   }
 }

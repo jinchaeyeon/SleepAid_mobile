@@ -8,7 +8,7 @@ class SleepConditionParameterResponse extends BaseResponse {
   String question;
 
   String answerType;
-  bool isRequired = true; //필수항목 임시로 true 항상
+  bool isRequired = false;
   int score = 0; // 0~ 10
   bool? isYes; // null / false / true
 
