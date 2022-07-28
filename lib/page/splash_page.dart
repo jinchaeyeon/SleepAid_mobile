@@ -83,10 +83,6 @@ class SplashState extends State<SplashPage>
     Future.delayed(const Duration(milliseconds: 2000), () async {
       await checkNetworkState().then((connected) async {
         if(connected){
-          // if(AppDAO.debugData.hasDummyUserInfo){
-          //   Navigator.pushReplacementNamed(context, Routes.home);
-          //   return;
-          // }
           if(await AppDAO.isAutoLogin() && await AppDAO.authData.isLoggedIn){
             /// 로그인 되었으면 로그인 필수 데이터 가져오기
             await checkSleepCondition();

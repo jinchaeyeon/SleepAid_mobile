@@ -116,15 +116,5 @@ class MainProvider with ChangeNotifier{
     playBeat();
     notifyListeners();
   }
-
-  void getSleepAnalysisList(DateTime created) {
-    // List<>
-    DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
-    GetSleepConditionsService().start().then((result){
-      if(result is List<SleepAnalysisResponse>){
-        print("result:$result}");
-      }
-    });
-  }
 }
 

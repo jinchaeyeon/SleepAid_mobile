@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/provider/main_provider.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/my_calendar_widget.dart';
@@ -20,6 +21,8 @@ class CalendarPage extends BaseStatefulWidget {
 class CalendarState extends State<CalendarPage>
     with SingleTickerProviderStateMixin{
   bool isLoaded = false;
+
+  Map<String, SleepAnalysisResponse> sleepAnalysisMap = {};
 
 
   void onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime) {
@@ -46,6 +49,7 @@ class CalendarState extends State<CalendarPage>
                 height: double.maxFinite,
                 alignment: Alignment.topCenter,
                 child: isLoaded?MyCalendarWidget(
+                  data: sleepAnalysisMap,
                   onTapCallback: onTapCallback,
                   startDate: AppDAO.authData.created,
                   endDate: DateTime.now().subtract(const Duration(days:1)),
@@ -56,8 +60,8 @@ class CalendarState extends State<CalendarPage>
   }
 
   void loadData() {
-    Future.delayed(const Duration(milliseconds:200),(){
-      context.read<MainProvider>().getSleepAnalysisList(AppDAO.authData.created);
+    Future.delayed(const Duration(milliseconds:200),() async {
+      sleepAnalysisMap = await context.read<DataProvider>().getSleepAnalysisList(AppDAO.authData.created);
       isLoaded = true;
       setState(() {});
     });

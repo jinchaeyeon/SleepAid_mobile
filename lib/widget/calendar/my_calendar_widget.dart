@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:sleepaid/data/network/calendar_response.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
@@ -18,12 +19,14 @@ class MyCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
   final DateTime startDate;
   final DateTime endDate;
+  final Map<String, SleepAnalysisResponse> data;
 
   const MyCalendarWidget(
       {Key? key,
         this.onTapCallback,
         required this.startDate,
         required this.endDate,
+        required this.data,
       }) : super(key: key);
 
   @override
@@ -84,7 +87,8 @@ class MyCalendarState extends State<MyCalendarWidget>{
           title: "${monthString.substring(5)}월",
           onTapCallback: widget.onTapCallback,
           dateBuilder: dateBuilder,
-          weeks: dateBuilder.weeksPerMonth[monthString]??[]
+          weeks: dateBuilder.weeksPerMonth[monthString]??[],
+          data: widget.data,
       ));
     }
     return monthWidgets;

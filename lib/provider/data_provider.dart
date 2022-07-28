@@ -129,6 +129,16 @@ class DataProvider with ChangeNotifier{
     }
   }
 
-
+  Future<Map<String, SleepAnalysisResponse>> getSleepAnalysisList(DateTime created) async{
+    Map<String, SleepAnalysisResponse> map = {};
+    await GetSleepConditionsService().start().then((result){
+      if(result is List<SleepAnalysisResponse>){
+        for (var response in result) {
+          map[response.date] = response;
+        }
+      }
+    });
+    return map;
+  }
 }
 
