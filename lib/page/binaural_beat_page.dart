@@ -1,10 +1,10 @@
 import 'dart:math';
-
 import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:provider/src/provider.dart';
+import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/binarual_beat_recipe_response.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/main_provider.dart';
@@ -38,6 +38,8 @@ class BinauralBeatState extends State<BinauralBeatPage>
   List<int> cycleLeft = [];
   List<int> cycleRight = [];
 
+  bool isDeviceConected = false;
+
   @override
   void initState() {
     initSoundController();
@@ -45,23 +47,30 @@ class BinauralBeatState extends State<BinauralBeatPage>
     super.initState();
   }
 
+  /// 장치 연결상태 체크
+  void checkDeviceStatus() {
+    isDeviceConected = context.read<BluetoothProvider>().checkBluetoothConnection();
+  }
+
   /// 초기값 설정
   void initPage() {
     Future.delayed(const Duration(milliseconds:200),(){
-      // ///테스트에서만 보이는 레시피
-      // if(kDebugMode){
-      //   recipes.add(BinauralBeatRecipeResponse(text:"사용자 맞춤설정", tone:400, binauralBeat: 38));
-      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피1", tone:400, binauralBeat: 37));
-      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피2", tone:300, binauralBeat: 28));
-      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피3", tone:300, binauralBeat: 29));
-      //   recipes.add(BinauralBeatRecipeResponse(text:"자극 레시피4", tone:300, binauralBeat: 28));
-      //   setState(() {});
-      // }
       checkDeviceStatus();
+      var userTargetParameter = AppDAO.baseData.binauralBeatUserTargetParameter;
+      recipes.add(BinauralBeatRecipeResponse(
+          text:userTargetParameter.name,
+          tone:userTargetParameter.toneFrequency,
+          binauralBeat: userTargetParameter.beatFrequency));
+
+      for (var _recipe in AppDAO.baseData.binauralBeatParameters) {
+        if(_recipe.onDisplay){
+          recipes.add(BinauralBeatRecipeResponse(text:_recipe.name,
+              tone:_recipe.toneFrequency, binauralBeat: _recipe.beatFrequency));
+        }
+      }
+      setState(() {});
     });
   }
-
-  void checkDeviceStatus() {}
 
   @override
   Widget build(BuildContext context){
@@ -106,10 +115,12 @@ class BinauralBeatState extends State<BinauralBeatPage>
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
                           SizedBox(width:20),
-                          InkWell(
+                          !isDeviceConected?Container():InkWell(
                             onTap:() async {
                               bool isHeadsetConnected = context.read<MainProvider>().checkHeadsetEvent();
-                              if(isHeadsetConnected){
+                              if(!isDeviceConected){
+                                showToast("장치를 연결 해 주세요.");
+                              }else if(isHeadsetConnected){
                                 context.read<MainProvider>().togglePlayingBeatMode(controllerLeft, controllerRight);
                               }else{
                                 showToast("헤드셋을 연결해주세요.");
@@ -126,7 +137,7 @@ class BinauralBeatState extends State<BinauralBeatPage>
                               child: Center(
                                 child: Text(
                                   context.watch<MainProvider>().isPlayingBeatMode?'STOP':'PLAY',
-                                  style: TextStyle(
+                                  style: const TextStyle(
                                     color: Colors.black,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w400,
@@ -398,11 +409,11 @@ class BinauralBeatState extends State<BinauralBeatPage>
               ),
             ),
           ),
-          SizedBox(width:30),
+          const SizedBox(width:30),
           Expanded(
               flex: 7,
               child: FlutterSlider(
-                // disabled: context.read<BluetoothProvider>().connectedDeviceForForehead,
+                disabled: !isDeviceConected,
                 values: [0],
                 max: max,
                 min: 0,
@@ -512,11 +523,13 @@ class BinauralBeatState extends State<BinauralBeatPage>
   List<Widget> getRecipeWidgets() {
     List<Widget> list = [];
 
-    recipes.forEach((recipe) {
+    for (var recipe in recipes) {
       Widget widget = GestureDetector(
         onTap: () {
-          updateCurrentRecipe(recipe);
-          setState(() {});
+          if(isDeviceConected){
+            updateCurrentRecipe(recipe);
+            setState(() {});
+          }
         },
         child: Container(
           margin:EdgeInsets.only(top:10),
@@ -527,7 +540,9 @@ class BinauralBeatState extends State<BinauralBeatPage>
             right: 16,
             bottom: 26,
           ),
-          decoration: BoxDecoration(
+          decoration: isDeviceConected
+              ?BoxDecoration(color:AppColors.grey)
+              :BoxDecoration(
             color: selectedRecipe == recipe ? Theme
                 .of(context)
                 .cardColor : Theme
@@ -603,8 +618,47 @@ class BinauralBeatState extends State<BinauralBeatPage>
         ),
       );
 
+      bool isFirstRecipe = recipes.indexOf(recipe) == 0;
+      if(isFirstRecipe){
+        widget = Container(
+          margin:const EdgeInsets.only(top:10),
+          width: double.maxFinite,
+          padding: const EdgeInsets.only(
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: 26,
+          ),
+          decoration: BoxDecoration(
+            color:AppColors.backgroundGrey,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(width: 1.5,
+                color: Colors.transparent),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                recipe.text,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .headline6,
+              ),
+              SizedBox(height: 10),
+              Text(
+                "사용자 맞춤 전기 자극 설정은 실시간 생체 신호를 계산하여 인공지능을 통해 최적의 자극 레시피를 산출하는 방법으로 기기 부착 후 사용 가능한 설정입니다.",
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .bodyText2,
+              )
+            ],
+          ),
+        );
+      }
       list.add(widget);
-    });
+    }
     return list;
   }
 

@@ -48,12 +48,12 @@ class MyCalendarState extends State<MyCalendarWidget>{
   void initState() {
     isLoading = true;
     initScrollController();
+    checkData(context);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    checkData(context);
     return getBaseWillScope(
         context,
         Listener(
@@ -104,21 +104,23 @@ class MyCalendarState extends State<MyCalendarWidget>{
   }
 
   Future<void> checkData(BuildContext context) async {
-    if(!isLoading) return;
-    isLoading = false;
-    print("checkData start");
-    context.read<DataProvider>().setLoading(true);
-    List<CalendarDetailResponse> response = await context.read<DataProvider>().loadCalendarData();
-    dateBuilder = CalendarDateBuilder(widget.startDate, widget.endDate, response);
-    setState(() {});
-    context.read<DataProvider>().setLoading(false);
-    if(isInit){
-      await Future.delayed(const Duration(milliseconds:100));
-      print("TEST 001: ${_caledarController.position.maxScrollExtent}");
-      _caledarController.jumpTo(_caledarController.position.maxScrollExtent);
-      isInit = false;
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      if(!isLoading) return;
+      isLoading = false;
+      print("checkData start");
+      context.read<DataProvider>().setLoading(true);
+      List<CalendarDetailResponse> response = await context.read<DataProvider>().loadCalendarData();
+      dateBuilder = CalendarDateBuilder(widget.startDate, widget.endDate, response);
       setState(() {});
-    }
+      context.read<DataProvider>().setLoading(false);
+      if(isInit){
+        await Future.delayed(const Duration(milliseconds:100));
+        print("TEST 001: ${_caledarController.position.maxScrollExtent}");
+        _caledarController.jumpTo(_caledarController.position.maxScrollExtent);
+        isInit = false;
+        setState(() {});
+      }
+    });
   }
 
   Widget mainContent(){

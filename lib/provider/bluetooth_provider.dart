@@ -409,6 +409,13 @@ class BluetoothProvider with ChangeNotifier{
     }
   }
 
+  bool checkBluetoothConnection() {
+    if(connectedDeviceForNeck != null || connectedDeviceForForehead != null){
+      return true;
+    }
+    return false;
+  }
+
   void sendData(BleDevice? device, String requestString) {
     if(device!=null){
       print("requestString:$requestString");

@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:headset_connection_event/headset_event.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/network/sleeping_analytics_service.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:surround_sound/surround_sound.dart';
 
@@ -113,6 +115,16 @@ class MainProvider with ChangeNotifier{
     // await initBeatController();
     playBeat();
     notifyListeners();
+  }
+
+  void getSleepAnalysisList(DateTime created) {
+    // List<>
+    DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
+    GetSleepConditionsService().start().then((result){
+      if(result is List<SleepAnalysisResponse>){
+        print("result:$result}");
+      }
+    });
   }
 }
 

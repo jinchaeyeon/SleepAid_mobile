@@ -13,6 +13,8 @@ import 'package:sleepaid/util/app_themes.dart';
 class AppBaseData {
   List<SleepConditionParameterResponse> sleepConditionParameters = [];
   List<ElectroStimulationParameterResponse> electroStimulationParameters = [];
+  /// 사용자 맞춤설정 우선 랜덤 처리
+  BinauralBeatParameterResponse binauralBeatUserTargetParameter = BinauralBeatParameterResponse(id:0, onDisplay:true, name:"사용자 맞춤 설정", toneFrequency:900, beatFrequency: 40);
   List<BinauralBeatParameterResponse> binauralBeatParameters = [];
   SleepAnalysisResponse? sleepConditionAnalysis;
 
@@ -139,11 +141,13 @@ class AppDAO{
     created != null
         ? await _put(key: 'created', value: Timestamp.fromDateTime(created))
         : await _delete(key: 'created');
+    authData.created = created??DateTime.now().subtract(const Duration(days:1));
   }
 
   static Future<DateTime> get userCreated async {
     Timestamp? timestamp = await _get(key: 'created') as Timestamp?;
-    authData.created = timestamp?.toDateTime()??DateTime.now().subtract(Duration(days:1));
+    print("userCreated: ${timestamp?.toIso8601String()}");
+    authData.created = timestamp?.toDateTime()??DateTime.now().subtract(const Duration(days:1));
     return authData.created!;
   }
 
@@ -165,6 +169,17 @@ class AppDAO{
     String? lastDate = await _get(key: 'last_sleep_condition_date') as String?;
     int? lastID = await _get(key: 'last_sleep_condition_id') as int?;
     return [lastDate, lastID];
+  }
+
+  static Future<void> setAutoLogin(bool isAutoLogin) async{
+    isAutoLogin == true
+        ? await _put(key: 'is_auto_login', value: isAutoLogin)
+        : await _delete(key: 'is_auto_login');
+  }
+
+  static Future<bool> isAutoLogin() async{
+    bool? isAutoLogin = await _get(key: 'is_auto_login') as bool?;
+    return isAutoLogin??false;
   }
 }
 

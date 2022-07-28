@@ -50,4 +50,8 @@ class AuthData{
     return created!;
   }
 
+  Future setAutoLogin(bool isAutoLogin) async {
+    await AppDAO.setAutoLogin(isAutoLogin);
+  }
+
 }

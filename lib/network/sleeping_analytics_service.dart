@@ -3,7 +3,7 @@ import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/network/base_service.dart';
 import 'package:http/http.dart' as http;
 
-class GetSleepConditionsService extends BaseService<bool> {
+class GetSleepConditionsService extends BaseService<List<SleepAnalysisResponse>> {
   GetSleepConditionsService();
 
   @override
@@ -13,12 +13,18 @@ class GetSleepConditionsService extends BaseService<bool> {
 
   @override
   setUrl() {
-    return AppDAO.baseUrl + 'conditions/sleep-conditions';
+    return AppDAO.baseUrl + 'conditions/sleep-analysis';
   }
 
   @override
-  bool success(body){
-    return true;
+  List<SleepAnalysisResponse> success(body){
+    List<SleepAnalysisResponse> list = [];
+    if(body is List<dynamic>){
+      for (var element in body) {
+        list.add(SleepAnalysisResponse.fromJson(element));
+      }
+    }
+    return list;
   }
 }
 

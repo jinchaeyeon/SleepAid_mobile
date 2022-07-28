@@ -3,8 +3,8 @@ import 'base_response.dart';
 class BinauralBeatRecipeResponse extends BaseResponse {
   int state = BaseResponse.STATE_NO_CONNECT;
   String text = "";
-  double tone = 0; //Tone
-  double binauralBeat = 0; //Binaural Beat
+  int tone = 0; //Tone
+  int binauralBeat = 0; //Binaural Beat
 
   BinauralBeatRecipeResponse({
     this.state=BaseResponse.STATE_NO_CONNECT,

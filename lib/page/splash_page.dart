@@ -5,9 +5,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
-import 'package:sleepaid/network/get_sleep_condition_service.dart';
 import 'package:sleepaid/network/sleeping_analytics_service.dart';
-import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
@@ -85,11 +83,11 @@ class SplashState extends State<SplashPage>
     Future.delayed(const Duration(milliseconds: 2000), () async {
       await checkNetworkState().then((connected) async {
         if(connected){
-          if(AppDAO.debugData.hasDummyUserInfo){
-            Navigator.pushReplacementNamed(context, Routes.home);
-            return;
-          }
-          if(await AppDAO.authData.isLoggedIn){
+          // if(AppDAO.debugData.hasDummyUserInfo){
+          //   Navigator.pushReplacementNamed(context, Routes.home);
+          //   return;
+          // }
+          if(await AppDAO.isAutoLogin() && await AppDAO.authData.isLoggedIn){
             /// 로그인 되었으면 로그인 필수 데이터 가져오기
             await checkSleepCondition();
             Navigator.pushReplacementNamed(context, Routes.home);

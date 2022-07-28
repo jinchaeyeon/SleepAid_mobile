@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/util/app_colors.dart';
-import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/provider/main_provider.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/my_calendar_widget.dart';
+import 'package:provider/provider.dart';
 
 class CalendarPage extends BaseStatefulWidget {
   static const ROUTE = "/Calendar";
@@ -19,6 +19,8 @@ class CalendarPage extends BaseStatefulWidget {
 
 class CalendarState extends State<CalendarPage>
     with SingleTickerProviderStateMixin{
+  bool isLoaded = false;
+
 
   void onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime) {
     Navigator.pushNamed(context, Routes.calendarDetail,
@@ -31,6 +33,7 @@ class CalendarState extends State<CalendarPage>
   @override
   void initState() {
     super.initState();
+    loadData();
   }
 
   @override
@@ -42,16 +45,22 @@ class CalendarState extends State<CalendarPage>
                 width: double.maxFinite,
                 height: double.maxFinite,
                 alignment: Alignment.topCenter,
-                child: MyCalendarWidget(
+                child: isLoaded?MyCalendarWidget(
                   onTapCallback: onTapCallback,
-                  // startDate: AppDAO.authData.created,
-                  // endDate: DateTime.now().subtract(const Duration(days:1)),
-                  startDate: DateTime.now().subtract(const Duration(days:200)),
+                  startDate: AppDAO.authData.created,
                   endDate: DateTime.now().subtract(const Duration(days:1)),
-                )
+                ):Container()
             )
         )
     );
+  }
+
+  void loadData() {
+    Future.delayed(const Duration(milliseconds:200),(){
+      context.read<MainProvider>().getSleepAnalysisList(AppDAO.authData.created);
+      isLoaded = true;
+      setState(() {});
+    });
   }
 }
 
