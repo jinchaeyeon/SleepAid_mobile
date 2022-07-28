@@ -29,7 +29,7 @@ class DayCalendarState extends State<DayCalendarWidget>{
     return InkWell(
       onTap: (){
         if(widget.onTapCallback != null){
-          widget.onTapCallback!(widget.dateBuilder, widget.day);
+          widget.onTapCallback!(widget.dateBuilder, widget.day, widget.data);
         }
       },
       child: SizedBox(
@@ -78,7 +78,6 @@ class DayCalendarState extends State<DayCalendarWidget>{
       return true;
     }
   }
-
 
   String getDayString() {
     return DayCalendarWidget.format.format(widget.day);

@@ -114,7 +114,7 @@ class MyCalendarState extends State<MyCalendarWidget>{
       print("checkData start");
       context.read<DataProvider>().setLoading(true);
       List<CalendarDetailResponse> response = await context.read<DataProvider>().loadCalendarData();
-      dateBuilder = CalendarDateBuilder(widget.startDate, widget.endDate, response);
+      dateBuilder = CalendarDateBuilder(widget.startDate, widget.endDate.add(Duration(days:1)), response);
       setState(() {});
       context.read<DataProvider>().setLoading(false);
       if(isInit){

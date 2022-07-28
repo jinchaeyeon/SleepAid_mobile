@@ -58,7 +58,7 @@ class WeekCalendarState extends State<WeekCalendarWidget>{
           Expanded(
             child: DayCalendarWidget(
               dateBuilder:widget.dateBuilder,
-              day:date,onTapCallback:
+              day:date, onTapCallback:
               widget.onTapCallback,
               isSelectedDay: date.day == widget.selectedDate?.day,
               data: widget.data

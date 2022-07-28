@@ -25,11 +25,13 @@ class CalendarState extends State<CalendarPage>
   Map<String, SleepAnalysisResponse> sleepAnalysisMap = {};
 
 
-  void onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime) {
+  void onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime,
+      Map<String, SleepAnalysisResponse> data) {
     Navigator.pushNamed(context, Routes.calendarDetail,
       arguments:{
       "dateBuilder": dateBuilder,
       "selectedDate": dateTime,
+      "data": data,
       });
   }
 
@@ -52,7 +54,7 @@ class CalendarState extends State<CalendarPage>
                   data: sleepAnalysisMap,
                   onTapCallback: onTapCallback,
                   startDate: AppDAO.authData.created,
-                  endDate: DateTime.now().subtract(const Duration(days:1)),
+                  endDate: DateTime.now(),
                 ):Container()
             )
         )

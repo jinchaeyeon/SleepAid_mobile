@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/page/calendar/calendar_detail_sub_page.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
-import 'package:sleepaid/widget/calendar/my_weekly_calendar_widget.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
 
 class CalendarDetailPage extends BaseStatefulWidget {
@@ -25,6 +26,8 @@ class CalendarDetailState extends State<CalendarDetailPage>
 
   PageController pageController = PageController(initialPage: 0);
   PageController weekController = PageController(initialPage: 0);
+
+  Map<String, SleepAnalysisResponse> data = const {};
   @override
   void initState() {
     super.initState();
@@ -36,6 +39,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
       args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
       dateBuilder = args!["dateBuilder"];
       selectedDate = args!["selectedDate"];
+      data = args!["data"] ?? const {};
       initPageController();
     }
 
@@ -59,18 +63,22 @@ class CalendarDetailState extends State<CalendarDetailPage>
                   children: [
                     _actionbar(),
                     Container(
-                      height:90,
+                      height:96,
                       width:double.maxFinite,
                       child:PageView.builder(
                         controller:weekController,
                         itemCount :_getWeekPageCount(),
                         itemBuilder: (context, index){
+                          showToast("index:$index");
                           return Container(
                             width:double.maxFinite,
                             height:double.maxFinite,
-                            color:Colors.blue,
+                            color:Colors.transparent,
                             padding: const EdgeInsets.all(2),
-                            child: WeekCalendarWidget(dateBuilder: dateBuilder!, week: dateBuilder!.getWeek(selectedDate!))
+                            child: WeekCalendarWidget(dateBuilder: dateBuilder!,
+                                week: dateBuilder!.getWeek(selectedDate!),
+                                data: data
+                            )
                           );
                         }
 
