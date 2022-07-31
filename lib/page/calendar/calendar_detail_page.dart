@@ -4,7 +4,6 @@ import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/page/calendar/calendar_detail_sub_page.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
@@ -32,6 +31,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
   int pageIndex = 0;
   int weekIndex = 0;
 
+  bool dateControllerSwipeLeft = false;
   bool weekControllerSwipeLeft = false;
 
   onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime,
@@ -88,7 +88,6 @@ class CalendarDetailState extends State<CalendarDetailPage>
                           }else{
                             weekControllerSwipeLeft = true;
                           }
-
                         },
                         itemBuilder: (context, index){
                           return Container(
@@ -100,7 +99,8 @@ class CalendarDetailState extends State<CalendarDetailPage>
                                 onTapCallback: onTapCallback,
                                 dateBuilder: dateBuilder!,
                                 week: dateBuilder!.getWeekWithIndex(index, withOtherMonth: true),
-                                data: data
+                                data: data,
+                                selectedDate: selectedDate,
                             )
                           );
                         }
@@ -114,6 +114,16 @@ class CalendarDetailState extends State<CalendarDetailPage>
                           color: AppColors.white,
                           child: PageView.builder(
                             controller:dateViewController,
+                              onPageChanged: (int page){
+                                if(page.toDouble() > dateViewController.page!.toDouble()){
+                                  // selectedDate = selectedDate!.add(Duration(days: 1));
+                                  dateControllerSwipeLeft = false;
+                                }else{
+                                  // selectedDate = selectedDate!.subtract(Duration(days: 1));
+                                  dateControllerSwipeLeft = true;
+                                }
+                                setState(() {});
+                              },
                             itemCount: dateBuilder?.getDayGap()??0,
                             itemBuilder: (context, index){
                               return CalendarDetailSubPage(
@@ -162,7 +172,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
                   width: 200,
                   height: 60,
                   alignment: Alignment.centerLeft,
-                  child: Text("${selectedDate!.month}월", style: TextStyle(height: 1, fontSize: 22,color: AppColors.textBlack, fontWeight: FontWeight.bold)
+                  child: Text("${selectedDate?.month??0}월", style: TextStyle(height: 1, fontSize: 22,color: AppColors.textBlack, fontWeight: FontWeight.bold)
                   ),
                 ),
               ),
@@ -180,14 +190,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
 
     /// 날짜 좌우 스와이프시, 해당하는 주 위젯을 불러온다
     dateViewController.addListener(() {
-      selectedDate = dateBuilder!.dates[dateViewController.page!.toInt()];
-      print("selDate: ${selectedDate!.toIso8601String()}!!");
-      print("dateViewController1: ${selectedDate?.weekday}");
-      if(selectedDate?.weekday == 1 || selectedDate?.weekday == 7){
-        print("dateViewController: ${dateBuilder!.getWeekIndex(selectedDate)}");
-        weekViewController.jumpToPage(dateBuilder!.getWeekIndex(selectedDate));
-        setState(() {});
-      }
+      swipeListenrer("date");
     });
 
     weekIndex = dateBuilder?.getWeekIndex(selectedDate)??0;
@@ -195,12 +198,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
       initialPage: weekIndex,
     );
     weekViewController.addListener((){
-      if(weekControllerSwipeLeft){
-        selectedDate = dateBuilder!.getWeekWithIndex(weekViewController?.page?.toInt()??0, withOtherMonth: true).last;
-      }else{
-        selectedDate = dateBuilder!.getWeekWithIndex(weekViewController?.page?.toInt()??0, withOtherMonth: true).first;
-      }
-      setState(() {});
+      swipeListenrer("week");
     });
   }
 
@@ -208,6 +206,21 @@ class CalendarDetailState extends State<CalendarDetailPage>
   // 금토
   int _getWeekPageCount() {
     return dateBuilder?.getWeeksSize()??0;
+  }
+
+  void swipeListenrer(String type) {
+    if(type == "date"){
+      selectedDate = dateBuilder!.dates[dateViewController.page!.toInt()];
+      weekViewController.jumpToPage(dateBuilder!.getWeekIndex(selectedDate));
+      selectedDate = dateBuilder!.dates[dateViewController.page!.toInt()];
+    }else{
+      if(weekControllerSwipeLeft){
+        selectedDate = dateBuilder!.getWeekWithIndex(weekViewController?.page?.toInt()??0, withOtherMonth: true).last;
+      }else{
+        selectedDate = dateBuilder!.getWeekWithIndex(weekViewController?.page?.toInt()??0, withOtherMonth: true).first;
+      }
+    }
+    setState(() {});
   }
 }
 

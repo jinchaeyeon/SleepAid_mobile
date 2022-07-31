@@ -43,6 +43,7 @@ class CalendarState extends State<CalendarPage>
 
   @override
   Widget build(BuildContext context) {
+    AppDAO.authData.created = AppDAO.authData.created.subtract(Duration(days:100));
     return Scaffold(
         extendBody: true,
         body: SafeArea(
@@ -53,7 +54,6 @@ class CalendarState extends State<CalendarPage>
                 child: isLoaded?MyCalendarWidget(
                   data: sleepAnalysisMap,
                   onTapCallback: onTapCallback,
-                  // startDate: AppDAO.authData.created,
                   startDate: AppDAO.authData.created,
                   endDate: DateTime.now(),
                 ):Container()

@@ -29,7 +29,6 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
       height: double.maxFinite,
       child: SingleChildScrollView(
         child:Container(
-          color:Colors.red,
           height: 2000,
           width: double.maxFinite,
           child:Text(widget.selectedDate.toIso8601String())
