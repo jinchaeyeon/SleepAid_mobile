@@ -24,10 +24,23 @@ class CalendarDetailState extends State<CalendarDetailPage>
   CalendarDateBuilder? dateBuilder;
   DateTime? selectedDate = DateTime.now();
 
-  PageController pageController = PageController(initialPage: 0);
-  PageController weekController = PageController(initialPage: 0);
+  PageController dateViewController = PageController(initialPage: 0);
+  PageController weekViewController = PageController(initialPage: 0);
 
   Map<String, SleepAnalysisResponse> data = const {};
+
+  int pageIndex = 0;
+  int weekIndex = 0;
+
+  bool weekControllerSwipeLeft = false;
+
+  onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime,
+      Map<String, SleepAnalysisResponse> data) {
+    selectedDate = dateTime;
+    dateViewController.jumpToPage(dateBuilder.getDayGap(selectedDate:selectedDate));
+    setState(() {});
+  }
+
   @override
   void initState() {
     super.initState();
@@ -40,6 +53,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
       dateBuilder = args!["dateBuilder"];
       selectedDate = args!["selectedDate"];
       data = args!["data"] ?? const {};
+      print("CalendarDetailPage | ${selectedDate?.toIso8601String()}");
       initPageController();
     }
 
@@ -66,17 +80,26 @@ class CalendarDetailState extends State<CalendarDetailPage>
                       height:96,
                       width:double.maxFinite,
                       child:PageView.builder(
-                        controller:weekController,
+                        controller:weekViewController,
                         itemCount :_getWeekPageCount(),
+                        onPageChanged: (int page){
+                          if(page.toDouble() > weekViewController.page!.toDouble()){
+                            weekControllerSwipeLeft = false;
+                          }else{
+                            weekControllerSwipeLeft = true;
+                          }
+
+                        },
                         itemBuilder: (context, index){
-                          showToast("index:$index");
                           return Container(
                             width:double.maxFinite,
                             height:double.maxFinite,
                             color:Colors.transparent,
                             padding: const EdgeInsets.all(2),
-                            child: WeekCalendarWidget(dateBuilder: dateBuilder!,
-                                week: dateBuilder!.getWeek(selectedDate!),
+                            child: WeekCalendarWidget(
+                                onTapCallback: onTapCallback,
+                                dateBuilder: dateBuilder!,
+                                week: dateBuilder!.getWeekWithIndex(index, withOtherMonth: true),
                                 data: data
                             )
                           );
@@ -90,11 +113,11 @@ class CalendarDetailState extends State<CalendarDetailPage>
                           height:double.maxFinite,
                           color: AppColors.white,
                           child: PageView.builder(
-                            controller:pageController,
+                            controller:dateViewController,
                             itemCount: dateBuilder?.getDayGap()??0,
                             itemBuilder: (context, index){
                               return CalendarDetailSubPage(
-                                selectedDate: dateBuilder!.startDate.add(Duration(days:index))
+                                  selectedDate: selectedDate??dateBuilder!.startDate.add(Duration(days:index))
                               );
                             }
                           )
@@ -150,19 +173,41 @@ class CalendarDetailState extends State<CalendarDetailPage>
   }
 
   void initPageController() {
-    pageController = PageController(
-      initialPage: 0,
+    pageIndex = dateBuilder?.getDayGap(selectedDate:selectedDate)??0;
+    dateViewController = PageController(
+      initialPage: pageIndex,
     );
+
+    /// 날짜 좌우 스와이프시, 해당하는 주 위젯을 불러온다
+    dateViewController.addListener(() {
+      selectedDate = dateBuilder!.dates[dateViewController.page!.toInt()];
+      print("selDate: ${selectedDate!.toIso8601String()}!!");
+      print("dateViewController1: ${selectedDate?.weekday}");
+      if(selectedDate?.weekday == 1 || selectedDate?.weekday == 7){
+        print("dateViewController: ${dateBuilder!.getWeekIndex(selectedDate)}");
+        weekViewController.jumpToPage(dateBuilder!.getWeekIndex(selectedDate));
+        setState(() {});
+      }
+    });
+
+    weekIndex = dateBuilder?.getWeekIndex(selectedDate)??0;
+    weekViewController = PageController(
+      initialPage: weekIndex,
+    );
+    weekViewController.addListener((){
+      if(weekControllerSwipeLeft){
+        selectedDate = dateBuilder!.getWeekWithIndex(weekViewController?.page?.toInt()??0, withOtherMonth: true).last;
+      }else{
+        selectedDate = dateBuilder!.getWeekWithIndex(weekViewController?.page?.toInt()??0, withOtherMonth: true).first;
+      }
+      setState(() {});
+    });
   }
 
 
   // 금토
   int _getWeekPageCount() {
-    if(dateBuilder == null || dateBuilder!.getDayGap() == 0){
-      return 0;
-    }
-    int size = dateBuilder!.getDayGap() ~/ 7;
-    return size;
+    return dateBuilder?.getWeeksSize()??0;
   }
 }
 

@@ -33,13 +33,6 @@ class WeekCalendarState extends State<WeekCalendarWidget>{
       ),
       child: Column(
         children: [
-          // Container(
-          //     margin: const EdgeInsets.symmetric(vertical: 0, horizontal: 20),
-          //     height:2,
-          //     width: double.maxFinite,
-          //     color: AppColors.backgroundGrey,
-          //     child: SizedBox.shrink()
-          // ),
           Row(
             children: [...getDaysWidget()],
           )
@@ -50,7 +43,7 @@ class WeekCalendarState extends State<WeekCalendarWidget>{
 
   getDaysWidget() {
     List<Widget> days = [];
-    widget.week.forEach((date) {
+    for (var date in widget.week) {
       if(date == null){
         days.add(Expanded(child: Container()));
       }else{
@@ -60,13 +53,13 @@ class WeekCalendarState extends State<WeekCalendarWidget>{
               dateBuilder:widget.dateBuilder,
               day:date, onTapCallback:
               widget.onTapCallback,
-              isSelectedDay: date.day == widget.selectedDate?.day,
+              isSelectedDay: date == widget.selectedDate,
               data: widget.data
             )
           )
         );
       }
-    });
+    }
     return days;
   }
 }

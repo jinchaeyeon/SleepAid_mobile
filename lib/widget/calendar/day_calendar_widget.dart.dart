@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/util/app_colors.dart';
+import 'package:sleepaid/util/extensions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 
@@ -32,9 +33,10 @@ class DayCalendarState extends State<DayCalendarWidget>{
           widget.onTapCallback!(widget.dateBuilder, widget.day, widget.data);
         }
       },
-      child: SizedBox(
+      child: Container(
           width: double.maxFinite,
           height: 90,
+          color: widget.day.isToday()?Colors.grey.withOpacity(0.1):Colors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [

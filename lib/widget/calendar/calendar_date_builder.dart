@@ -17,6 +17,8 @@ class CalendarDateBuilder{
   Map<String, List<DateTime>> monthDays = {};
   // 각 주별 날짜모음, weeks["2022-01"]에는 {1주차,2주차,3주차,4주차} 데이터가 존재
   Map<String, List<List<DateTime?>>> weeksPerMonth = {};
+  // 전체 주
+  List<List<DateTime?>> weeks = [];
 
   /// from to 입력 시, 캘린더를 위한 날짜 데이터 분리
   CalendarDateBuilder(this.startDate, this.endDate, this.datelist){
@@ -47,7 +49,6 @@ class CalendarDateBuilder{
     }
     monthStrings = monthStrings.toSet().toList();
     print("monthStrings: $monthStrings");
-
     /// 각달에 주 데이터를 저장
     /// weekday 1월요일 ... 7 일요일
     /// 여기서는 일요일부터 시작이라서
@@ -62,14 +63,26 @@ class CalendarDateBuilder{
       monthDays[monthString]?.forEach((DateTime date) {
         if(date.weekday != 6){
           iWeeks[date.weekday % 7] = date;
-        }else if(date.weekday == 6 && date != monthDays[monthString]!.last){
+        // }else if(date.weekday == 6 && date != monthDays[monthString]!.last){
+        }else if(date.weekday == 6){
           iWeeks[date.weekday] = date;
           weeksPerMonth[monthString]!.add(List.from(iWeeks));
+          weeks.add(List.from(iWeeks));
           iWeeks = [null, null, null, null, null, null, null];
         }
 
         if(monthDays[monthString]!.last == date){
-          weeksPerMonth[monthString]!.add(List.from(iWeeks));
+          if( iWeeks[0] == null &&
+              iWeeks[1] == null &&
+              iWeeks[2] == null &&
+              iWeeks[3] == null &&
+              iWeeks[4] == null &&
+              iWeeks[5] == null &&
+              iWeeks[6] == null ){
+          }else{
+            weeksPerMonth[monthString]!.add(List.from(iWeeks));
+            weeks.add(List.from(iWeeks));
+          }
           iWeeks = [null, null, null, null, null, null, null];
         }
       });
@@ -128,24 +141,75 @@ class CalendarDateBuilder{
   /// 여기서는 일요일부터 시작이라서
   /// 7 1 2 3 4 5 6 반복
   /// 0 1 2 3 4 5 6
-  getWeek(DateTime date) {
-    print("dates: $dates");
+  List<DateTime?> getWeek(int weekIndex, {bool withOtherMonth=false}) {
     List<DateTime?> iWeeks = [];
-    int startGap = date.weekday % 7;
-    DateTime selectedDate = date.subtract(Duration(days:startGap));
-    for(int i=0; i<7; i++){
-      if(dates.contains(selectedDate)){
-        print("startDate: $selectedDate");
-        iWeeks.add(DateTime(selectedDate.year, selectedDate.month, selectedDate.day));
-      }else{
-        iWeeks.add(null);
+    iWeeks.addAll(weeks[weekIndex]);
+    ///with Other month 가 있으면 앞뒤로 다른 달의 데이터가 있을 때 가져와서 추가한다
+    if(withOtherMonth){
+      List<DateTime?> otherWeeks = [];
+      if(iWeeks[0] == null){
+        /// 전주 데이터 체크
+        if(weekIndex > 0 && weeks[weekIndex-1].isNotEmpty){
+          otherWeeks.addAll(weeks[weekIndex-1]);
+        }
+      }else if(iWeeks[6] == null){
+        /// 다음주 데이터 체크
+        if(weekIndex+1 < weeks.length && weeks[weekIndex+1].isNotEmpty){
+          otherWeeks.addAll(weeks[weekIndex+1]);
+        }
       }
-      selectedDate = selectedDate.add(const Duration(days:1));
+      if(otherWeeks.isNotEmpty){
+        for(int i = 0; i < 7; i++){
+          if(iWeeks[i] == null && otherWeeks[i] != null){
+            iWeeks[i] = otherWeeks[i];
+          }
+        }
+      }
     }
     return iWeeks;
   }
 
-  int getDayGap() {
-    return endDate.difference(startDate).inDays;
+  /// 주별 index 값으로 주 데이터 리턴
+  List<DateTime?> getWeekWithIndex(int index, {bool withOtherMonth = false}) {
+    return getWeek(index, withOtherMonth: withOtherMonth);
+  }
+
+  /// 선택된 날의 week index 리턴
+  int getWeekIndex(DateTime? selectedDate) {
+    bool isReturn = false;
+
+    selectedDate ??= startDate;
+    int index = 0;
+    weeksPerMonth.forEach((key, list) {
+      print("===KEY:${key}");
+      for (var week in list) {
+        print("====week: ${week.first?.toIso8601String()} ~ ${week.last?.toIso8601String()} | index[${index}]");
+        if(week.contains(selectedDate)){
+          isReturn = true;
+        }
+        if(!isReturn) {
+          index += 1;
+        }
+      }
+
+      print("=====index:${index}");
+    });
+    print("getWeekIndex(${selectedDate.toIso8601String()}) : index: $index");
+    return index;
+  }
+
+  /// 날짜차이
+  int getDayGap({DateTime? selectedDate}) {
+    selectedDate ??= endDate;
+    return selectedDate.difference(startDate).inDays;
+  }
+
+  /// 캘린더의 주 사이즈
+  int getWeeksSize() {
+    int weekSize = 0;
+    weeksPerMonth.forEach((key, list) {
+      weekSize += list.length;
+    });
+    return weekSize;
   }
 }

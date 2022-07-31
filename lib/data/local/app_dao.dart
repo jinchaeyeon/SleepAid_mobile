@@ -139,7 +139,8 @@ class AppDAO{
 
   static Future setUserCreated(DateTime? created) async{
     created != null
-        ? await _put(key: 'created', value: Timestamp.fromDateTime(created))
+        // ? await _put(key: 'created', value: Timestamp.fromDateTime(created))
+        ? await _put(key: 'created', value: Timestamp.fromDateTime(created.subtract(Duration(days:90))))
         : await _delete(key: 'created');
     authData.created = created??DateTime.now().subtract(const Duration(days:1));
   }
@@ -149,6 +150,7 @@ class AppDAO{
     print("userCreated: ${timestamp?.toIso8601String()}");
     authData.created = timestamp?.toDateTime()??DateTime.now().subtract(const Duration(days:1));
     return authData.created!;
+    // return authData.created!.subtract(Duration(days: 30));
   }
 
   static Future init() async{
