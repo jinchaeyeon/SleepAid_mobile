@@ -17,6 +17,11 @@ String format(String value) {
   return formatValue;
 }
 
+String formatPercent(String value) {
+  String formatValue = value.toString().substring(0, value.toString().length - 2);
+  return "$formatValue%";
+}
+
 String formatHz(String value) {
   String formatValue = value.toString().substring(0, value.toString().length - 2);
   return "$formatValue Hz";

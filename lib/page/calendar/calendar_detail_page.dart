@@ -127,7 +127,8 @@ class CalendarDetailState extends State<CalendarDetailPage>
                             itemCount: dateBuilder?.getDayGap()??0,
                             itemBuilder: (context, index){
                               return CalendarDetailSubPage(
-                                  selectedDate: selectedDate??dateBuilder!.startDate.add(Duration(days:index))
+                                data:data,
+                                selectedDate: selectedDate??dateBuilder!.startDate.add(Duration(days:index))
                               );
                             }
                           )
@@ -201,7 +202,6 @@ class CalendarDetailState extends State<CalendarDetailPage>
       swipeListenrer("week");
     });
   }
-
 
   // 금토
   int _getWeekPageCount() {

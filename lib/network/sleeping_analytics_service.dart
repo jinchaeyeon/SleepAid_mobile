@@ -29,7 +29,7 @@ class GetSleepConditionsService extends BaseService<List<SleepAnalysisResponse>>
 }
 
 
-class GetSleepConditionDetailService extends BaseService<bool> {
+class GetSleepConditionDetailService extends BaseService<SleepAnalysisResponse> {
   String id;
   GetSleepConditionDetailService({required this.id});
 
@@ -44,8 +44,9 @@ class GetSleepConditionDetailService extends BaseService<bool> {
   }
 
   @override
-  bool success(body){
-    return true;
+  SleepAnalysisResponse success(body){
+    SleepAnalysisResponse responose = SleepAnalysisResponse.fromJson(body);
+    return responose;
   }
 }
 

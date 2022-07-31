@@ -117,13 +117,8 @@ class DataProvider with ChangeNotifier{
     if(lastCondition[1] != null){
       await GetSleepConditionDetailService(id: "${lastCondition[1]!}").start().then((result){
         if(result is SleepAnalysisResponse){
+          print("lastCondition: ${lastCondition[1]}");
           AppDAO.baseData.sleepConditionAnalysis = result;
-        }
-
-        if(kDebugMode){
-          AppDAO.baseData.sleepConditionAnalysis?.itemSet.forEach((parameter) {
-            print("lastCondition item set::${parameter.toJson()}");
-          });
         }
       });
     }

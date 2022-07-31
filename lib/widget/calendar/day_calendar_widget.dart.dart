@@ -36,7 +36,6 @@ class DayCalendarState extends State<DayCalendarWidget>{
       child: Container(
           width: double.maxFinite,
           height: 90,
-          color: widget.day.isToday()?Colors.grey.withOpacity(0.1):Colors.transparent,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -45,8 +44,12 @@ class DayCalendarState extends State<DayCalendarWidget>{
                 width:30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: widget.isSelectedDay?AppColors.buttonYellow:Colors.transparent,
-                  borderRadius: BorderRadius.circular(15)
+                  color: widget.day.isToday()?AppColors.mainGreen:Colors.transparent,
+                  borderRadius: BorderRadius.circular(15),
+                  border: Border.all(
+                    color:widget.isSelectedDay?Colors.black:Colors.transparent,
+                    width: 2,
+                  )
                 ),
                 alignment: Alignment.center,
                 child: Text("${getWeekDayString(widget.day.weekday)}", style: const TextStyle(color: Colors.black, fontSize: 13, fontWeight: FontWeight.bold)),

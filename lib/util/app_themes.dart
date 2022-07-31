@@ -31,7 +31,7 @@ class AppThemes{
       ),
       bodyText2: TextStyle(
         color: Color(0xFF3d3d3d),
-        fontSize: 14,
+        fontSize: 11,
         // fontFamily: Util.notoSans,
         fontWeight: FontWeight.w400,
       ),
@@ -153,7 +153,7 @@ class AppThemes{
       ),
       bodyText2: TextStyle(
         color: Color(0xFFf1f1f1),
-        fontSize: 14,
+        fontSize: 11,
         // fontFamily: Util.notoSans,
         fontWeight: FontWeight.w400,
       ),
