@@ -91,13 +91,14 @@ class AppDAO{
 
   /// 컨디션 작성 날짜
   /// 어제 기준으로 작성
-  static String getConditionDateString({SleepAnalysisResponse? response}) {
-    response ??= AppDAO.baseData.sleepConditionAnalysis;
+  static String getConditionDateString({SleepAnalysisResponse? response, DateTime? selectedDate}) {
+    var dateFormat = DateFormat("yyyy년 MM월 dd일");
     if(response != null){
       List<String> dateStrings = response.date.split("-");
-      return "${dateStrings[0]}년 ${dateStrings[0]}월 ${dateStrings[2]}일";
+      return "${dateStrings[0]}년 ${dateStrings[1]}월 ${dateStrings[2]}일";
+    }else if(selectedDate != null){
+      return dateFormat.format(selectedDate);
     }else{
-      var dateFormat = DateFormat("yyyy년 mm월 dd일");
       var yesterday = DateTime.now().subtract(const Duration(days: 1));
       return dateFormat.format(yesterday);
     }

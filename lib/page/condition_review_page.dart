@@ -36,6 +36,7 @@ class ConditionReviewState extends State<ConditionReviewPage>
   Map<String, dynamic>? args;
 
   SleepAnalysisResponse? data;
+  DateTime? selectedDate;
 
   @override
   void initState() {
@@ -65,6 +66,7 @@ class ConditionReviewState extends State<ConditionReviewPage>
     if(args == null){
       args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
       data = args?["data"];
+      selectedDate = args?["selectedDate"];
     }
 
     return Scaffold(
@@ -327,11 +329,14 @@ class ConditionReviewState extends State<ConditionReviewPage>
   }
 
   String getDateStringForAPI() {
-    if(data == null){
+    if(data != null){
+      return data!.date;
+
+    }else if(selectedDate != null){
+      return DateFormat('yyyy-MM-dd').format(selectedDate!);
+    }else{
       DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
       return DateFormat('yyyy-MM-dd').format(yesterday);
-    }else{
-      return data!.date;
     }
   }
 }

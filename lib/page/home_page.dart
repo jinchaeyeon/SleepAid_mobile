@@ -256,7 +256,7 @@ class HomeState extends State<HomePage>
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
                      Text(
-                       AppDAO.getConditionDateString(),
+                       AppDAO.getConditionDateString(response: AppDAO.baseData.sleepConditionAnalysis),
                        style: Theme.of(context).textTheme.bodyText1,
                      ),
                      Text(

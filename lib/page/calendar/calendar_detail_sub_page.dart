@@ -2,17 +2,15 @@ import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
-import 'package:provider/src/provider.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
-import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
-import 'package:sleepaid/widget/graph/sleep_analysis_graph_painter.dart';
 import 'package:sleepaid/widget/graph/sleep_analysis_graph_widget.dart';
 import '../../app_routes.dart';
+import '../../util/extensions.dart';
 
 class CalendarDetailSubPage extends BaseStatefulWidget {
   final DateTime selectedDate;
@@ -46,18 +44,6 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
           height: 100,
           child: CircularProgressIndicator()
         )
-      ):
-      data == null?
-      Center(
-          child:Container(
-            width: 100,
-            height: 100,
-            child: Column(
-              children: const [
-                Text("수면 정보 없음", textAlign: TextAlign.center, style:TextStyle(fontSize: 15, color: AppColors.grey))
-              ]
-            )
-          )
       )
       :Container(
         width: double.maxFinite,
@@ -87,131 +73,9 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
       child:Column(
         children: [
           SizedBox(height: 20),
-          Row(
-            children: [
-              SizedBox(width: 20),
-              Text(
-                '수면단계 분석',
-                style: Theme.of(context).textTheme.headline1,
-              ),
-              GestureDetector(
-                onTap: () {
-                  showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.black.withOpacity(0.3),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(20)),
-                    ),
-                    builder: (context) => SingleChildScrollView(
-                      child: Container(
-                        padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                        child: infoBottomSheet(),
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  width: 24,
-                  height: 24,
-                  margin: EdgeInsets.only(left: 10),
-                  child: Image.asset(AppImages.info, fit: BoxFit.fill),
-                ),
-              )
-            ],
-          ),
-          SizedBox(height: 40),
-          Container(
-            width: double.maxFinite,
-            height: 200,
-            child: SleepAnalysisGraph(),
-          ),
+          ...homeSleepAnalysisContent(),
           SizedBox(height: 20),
-          buildSliderControlWidget("Awake", data!.awake, data!.getSleepAnalisysPercent(0)),
-          buildSliderControlWidget("REM", data!.rem, data!.getSleepAnalisysPercent(1)),
-          buildSliderControlWidget("Light", data!.light, data!.getSleepAnalisysPercent(2)),
-          buildSliderControlWidget("Deep", data!.deep, data!.getSleepAnalisysPercent(3)),
-          SizedBox(height: 20),
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(left: 20),
-            child: Text(
-              '수면 질 점수',
-              style: Theme.of(context).textTheme.headline1,
-            ),
-          ),
-          buildSliderControlWidget("", "", data!.quality.toDouble(), isNoTitle: true),
-          SizedBox(height: 20),
-          Container(
-            alignment: Alignment.centerLeft,
-            padding: EdgeInsets.only(left: 20),
-            child: Text(
-              '수면 컨디션',
-              style: Theme.of(context).textTheme.headline1,
-            ),
-          ),
-          SizedBox(height: 20),
-          InkWell(
-              onTap:() async {
-                var result = await Navigator.pushNamed(context, Routes.conditionReview, arguments: {"data": data});
-                if(result is SleepAnalysisResponse){
-                  data = result;
-                  setState(() {});
-                }
-
-              },
-              child: Container(
-                height: 120,
-                width: double.maxFinite,
-                padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
-                child: Container(
-                  width: double.maxFinite,
-                  height: 120,
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: AppColors.mainGreen,
-                      width: 2,
-                    )
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        AppDAO.getConditionDateString(response: data),
-                        style: Theme.of(context).textTheme.bodyText1,
-                      ),
-                      Text(
-                        '수면컨디션을 작성해주세요.',
-                        style: Theme.of(context).textTheme.bodyText1,
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          style: const TextStyle(
-                            fontSize: 14,
-                            // fontFamily: Util.notoSans,
-                            fontWeight: FontWeight.w400,
-                          ),
-                          children: [
-                            TextSpan(
-                              text: data!.itemSet.length.toString().padLeft(2,'0'),
-                              style: TextStyle(color: AppColors.subTextBlack),
-                            ),
-                            TextSpan(
-                              text: ' / ${AppDAO.baseData.sleepConditionParameters.length.toString().padLeft(2,'0')}',
-                              style: TextStyle(color: AppColors.textGrey),
-                            )
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-          ),
-          SizedBox(height: 20),
+          ...sleepConditionContents(),
 
         ]
       )
@@ -349,6 +213,188 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
       result = "0M";
     }
     return result;
+  }
+
+  List<Widget> homeSleepAnalysisContent() {
+    if(data == null){
+      return [
+        Row(
+          children: [
+            SizedBox(width: 20),
+            Text(
+              '수면단계 분석',
+              style: Theme.of(context).textTheme.headline1,
+            ),
+            GestureDetector(
+              onTap: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  backgroundColor: Colors.black.withOpacity(0.3),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(20)),
+                  ),
+                  builder: (context) => SingleChildScrollView(
+                    child: Container(
+                      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                      child: infoBottomSheet(),
+                    ),
+                  ),
+                );
+              },
+              child: Container(
+                width: 24,
+                height: 24,
+                margin: EdgeInsets.only(left: 10),
+                child: Image.asset(AppImages.info, fit: BoxFit.fill),
+              ),
+            ),
+          ],
+        ),
+        Container(
+          height: 300,
+          width:double.maxFinite,
+        ),
+        SizedBox(height: 40),
+      ];
+    }
+    return [
+      Row(
+        children: [
+          SizedBox(width: 20),
+          Text(
+            '수면단계 분석',
+            style: Theme.of(context).textTheme.headline1,
+          ),
+          GestureDetector(
+            onTap: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                backgroundColor: Colors.black.withOpacity(0.3),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(Radius.circular(20)),
+                ),
+                builder: (context) => SingleChildScrollView(
+                  child: Container(
+                    padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                    child: infoBottomSheet(),
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              width: 24,
+              height: 24,
+              margin: EdgeInsets.only(left: 10),
+              child: Image.asset(AppImages.info, fit: BoxFit.fill),
+            ),
+          )
+        ],
+      ),
+      SizedBox(height: 40),
+      Container(
+        width: double.maxFinite,
+        height: 200,
+        child: SleepAnalysisGraph(),
+      ),
+      SizedBox(height: 20),
+      buildSliderControlWidget("Awake", data!.awake, data!.getSleepAnalisysPercent(0)),
+      buildSliderControlWidget("REM", data!.rem, data!.getSleepAnalisysPercent(1)),
+      buildSliderControlWidget("Light", data!.light, data!.getSleepAnalisysPercent(2)),
+      buildSliderControlWidget("Deep", data!.deep, data!.getSleepAnalisysPercent(3)),
+      SizedBox(height: 20),
+      Container(
+        alignment: Alignment.centerLeft,
+        padding: EdgeInsets.only(left: 20),
+        child: Text(
+          '수면 질 점수',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+      ),
+      buildSliderControlWidget("", "", data?.quality.toDouble()??0, isNoTitle: true),
+    ];
+  }
+
+  List<Widget> sleepConditionContents() {
+    if(widget.selectedDate.isToday()) {
+      return [
+        const SizedBox(height: 20)
+      ];
+    }
+    return [
+      Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        child: Text(
+          '수면 컨디션',
+          style: Theme.of(context).textTheme.headline1,
+        ),
+      ),
+      SizedBox(height: 20),
+      InkWell(
+          onTap:() async {
+            var result = await Navigator.pushNamed(context, Routes.conditionReview,
+                arguments: {"data": data, "selectedDate": widget.selectedDate});
+            if(result is SleepAnalysisResponse){
+              data = result;
+              setState(() {});
+            }
+
+          },
+          child: Container(
+            height: 120,
+            width: double.maxFinite,
+            padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
+            child: Container(
+              width: double.maxFinite,
+              height: 120,
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 22),
+              decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppColors.mainGreen,
+                    width: 2,
+                  )
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppDAO.getConditionDateString(response: data, selectedDate: widget.selectedDate),
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  Text(
+                    '수면컨디션을 작성해주세요.',
+                    style: Theme.of(context).textTheme.bodyText1,
+                  ),
+                  RichText(
+                    text: TextSpan(
+                      style: const TextStyle(
+                        fontSize: 14,
+                        // fontFamily: Util.notoSans,
+                        fontWeight: FontWeight.w400,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: data == null?'00':data!.itemSet.length.toString().padLeft(2,'0'),
+                          style: TextStyle(color: AppColors.subTextBlack),
+                        ),
+                        TextSpan(
+                          text: ' / ${AppDAO.baseData.sleepConditionParameters.length.toString().padLeft(2,'0')}',
+                          style: TextStyle(color: AppColors.textGrey),
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          )
+      ),
+      SizedBox(height: 20)
+    ];
   }
 }
 
