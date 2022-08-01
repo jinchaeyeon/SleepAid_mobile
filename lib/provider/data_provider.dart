@@ -24,6 +24,8 @@ class DataProvider with ChangeNotifier{
   /// 비트 출력시 true
   bool isPlayingBeat = false;
 
+  var sleepAnalysisMap;
+
   void setLoading(bool showLoading) {
     isLoading = showLoading;
     print("--isLoading: $isLoading");
@@ -124,12 +126,14 @@ class DataProvider with ChangeNotifier{
     }
   }
 
-  Future<Map<String, SleepAnalysisResponse>> getSleepAnalysisList(DateTime created) async{
+  Future<Map<String, SleepAnalysisResponse>> getSleepAnalysisList() async{
     Map<String, SleepAnalysisResponse> map = {};
     await GetSleepConditionsService().start().then((result){
       if(result is List<SleepAnalysisResponse>){
         for (var response in result) {
           map[response.date] = response;
+          sleepAnalysisMap = map;
+          notifyListeners();
         }
       }
     });

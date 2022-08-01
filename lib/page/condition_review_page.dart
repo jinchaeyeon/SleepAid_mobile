@@ -1,14 +1,15 @@
 import 'dart:math';
-
 import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/src/provider.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/sleeping_analytics_service.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
@@ -32,6 +33,10 @@ class ConditionReviewState extends State<ConditionReviewPage>
   List<int> requiredIndexes = []; /// 필수 항목 인덱스
   Set<int> updatedIndexes = {}; /// 수정(값이 유저로부터 받아져 온 인덱스)
 
+  Map<String, dynamic>? args;
+
+  SleepAnalysisResponse? data;
+
   @override
   void initState() {
     parameters.addAll(List.from(AppDAO.baseData.sleepConditionParameters));
@@ -51,13 +56,17 @@ class ConditionReviewState extends State<ConditionReviewPage>
             answerType: parameter.answerType,
             question: parameter.question, isFixed: true, answerBool: null));
       }
-
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    if(args == null){
+      args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+      data = args?["data"];
+    }
+
     return Scaffold(
         appBar: appBar(context, ''),
         extendBody: true,
@@ -88,7 +97,7 @@ class ConditionReviewState extends State<ConditionReviewPage>
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text("2022년 n m.", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),),
+                            Text(getDateString(), style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),),
                             Text("${updatedIndexes.length.toString().padLeft(2, '0')}/${items.length.toString().padLeft(2, '0')}", style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),),
                           ],
                         )
@@ -279,30 +288,51 @@ class ConditionReviewState extends State<ConditionReviewPage>
   /// 수면 컨디션 데이터를 서버에 전송한다
   sendConditionData() async{
     var rand = Random();
+    int arRandVal = rand.nextInt(25);
+    int ldRandVal = rand.nextInt(25);
     List<Map<String, dynamic>> list = [];
     updatedIndexes.toList().forEach((index) {
       list.add(items[index].toSendDataJson());
     });
-    var yesterday = DateTime.now().subtract(Duration(days:1));
     await PostSleepConditionService(
       id: 0,
-      date: DateFormat('yyyy-MM-dd').format(yesterday),
-      awake: rand.nextInt(9),
-      rem: rand.nextInt(9),
-      light: rand.nextInt(9),
-      deep: rand.nextInt(9),
-      quality: rand.nextInt(9),
+      date: getDateStringForAPI(),
+      /// todo 임의값 부여
+      awake: 25+arRandVal,
+      rem: 25-arRandVal,
+      light: 25+ldRandVal,
+      deep: 25-ldRandVal,
+      quality: rand.nextInt(99),
       itemSet:list
-    ).start().then((result){
+    ).start().then((result) async {
       if(result is SleepAnalysisResponse){
-        print("result: ${result.toJson()}");
         AppDAO.baseData.sleepConditionAnalysis = result;
         AppDAO.setLastSleepCondition(result.date, result.id,);
-      Navigator.pop(context);
+        await context.read<DataProvider>().getSleepAnalysisList();
+        Navigator.pop(context, result);
       }else{
         showToast("잠시 후 다시 시도해주세요.");
       }
     });
+  }
+
+  String getDateString() {
+    if(data == null){
+      DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+      return "${yesterday.year}년 ${yesterday.month}월 ${yesterday.day}일";
+    }else{
+      List<String> split = data!.date.split("-");
+      return "${split[0]}년 ${split[1]}월 ${split[2]}일";
+    }
+  }
+
+  String getDateStringForAPI() {
+    if(data == null){
+      DateTime yesterday = DateTime.now().subtract(const Duration(days: 1));
+      return DateFormat('yyyy-MM-dd').format(yesterday);
+    }else{
+      return data!.date;
+    }
   }
 }
 

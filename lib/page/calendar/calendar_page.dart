@@ -22,9 +22,6 @@ class CalendarState extends State<CalendarPage>
     with SingleTickerProviderStateMixin{
   bool isLoaded = false;
 
-  Map<String, SleepAnalysisResponse> sleepAnalysisMap = {};
-
-
   void onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime,
       Map<String, SleepAnalysisResponse> data) {
     Navigator.pushNamed(context, Routes.calendarDetail,
@@ -52,7 +49,7 @@ class CalendarState extends State<CalendarPage>
                 height: double.maxFinite,
                 alignment: Alignment.topCenter,
                 child: isLoaded?MyCalendarWidget(
-                  data: sleepAnalysisMap,
+                  data: context.watch<DataProvider>().sleepAnalysisMap,
                   onTapCallback: onTapCallback,
                   startDate: AppDAO.authData.created,
                   endDate: DateTime.now(),
@@ -64,7 +61,7 @@ class CalendarState extends State<CalendarPage>
 
   void loadData() {
     Future.delayed(const Duration(milliseconds:200),() async {
-      sleepAnalysisMap = await context.read<DataProvider>().getSleepAnalysisList(AppDAO.authData.created);
+      await context.read<DataProvider>().getSleepAnalysisList();
       isLoaded = true;
       setState(() {});
     });

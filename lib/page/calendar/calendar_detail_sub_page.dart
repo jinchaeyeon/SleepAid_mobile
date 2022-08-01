@@ -2,8 +2,10 @@ import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/src/provider.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/statics.dart';
@@ -45,7 +47,19 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
           child: CircularProgressIndicator()
         )
       ):
-      Container(
+      data == null?
+      Center(
+          child:Container(
+            width: 100,
+            height: 100,
+            child: Column(
+              children: const [
+                Text("수면 정보 없음", textAlign: TextAlign.center, style:TextStyle(fontSize: 15, color: AppColors.grey))
+              ]
+            )
+          )
+      )
+      :Container(
         width: double.maxFinite,
         height: double.maxFinite,
         child: SingleChildScrollView(
@@ -113,10 +127,10 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
             child: SleepAnalysisGraph(),
           ),
           SizedBox(height: 20),
-          buildSliderControlWidget("Awake", "31M", 9),
-          buildSliderControlWidget("REM", "1H 56M", 22),
-          buildSliderControlWidget("Light", "4H 50M", 43),
-          buildSliderControlWidget("Deep", "3H 60M", 28),
+          buildSliderControlWidget("Awake", data!.awake, data!.getSleepAnalisysPercent(0)),
+          buildSliderControlWidget("REM", data!.rem, data!.getSleepAnalisysPercent(1)),
+          buildSliderControlWidget("Light", data!.light, data!.getSleepAnalisysPercent(2)),
+          buildSliderControlWidget("Deep", data!.deep, data!.getSleepAnalisysPercent(3)),
           SizedBox(height: 20),
           Container(
             alignment: Alignment.centerLeft,
@@ -126,7 +140,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
               style: Theme.of(context).textTheme.headline1,
             ),
           ),
-          buildSliderControlWidget("", "", 28, isNoTitle: true),
+          buildSliderControlWidget("", "", data!.quality.toDouble(), isNoTitle: true),
           SizedBox(height: 20),
           Container(
             alignment: Alignment.centerLeft,
@@ -139,9 +153,12 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
           SizedBox(height: 20),
           InkWell(
               onTap:() async {
-                // await checkParameters();
-                Navigator.pushNamed(context, Routes.conditionReview);
-                setState(() {});
+                var result = await Navigator.pushNamed(context, Routes.conditionReview, arguments: {"data": data});
+                if(result is SleepAnalysisResponse){
+                  data = result;
+                  setState(() {});
+                }
+
               },
               child: Container(
                 height: 120,
@@ -163,7 +180,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        AppDAO.getConditionDateString(),
+                        AppDAO.getConditionDateString(response: data),
                         style: Theme.of(context).textTheme.bodyText1,
                       ),
                       Text(
@@ -179,7 +196,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
                           ),
                           children: [
                             TextSpan(
-                              text: AppDAO.baseData.getSleepConditionYesterdayItemSet().toString().padLeft(2,'0'),
+                              text: data!.itemSet.length.toString().padLeft(2,'0'),
                               style: TextStyle(color: AppColors.subTextBlack),
                             ),
                             TextSpan(
@@ -224,7 +241,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
                 ),
                 SizedBox(height:5),
                 Text(
-                  timeString,
+                  getTimeString(timeString),
                   style: const TextStyle(
                     color: AppColors.subTextGrey,
                     fontSize: 12,
@@ -317,6 +334,21 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
         ],
       ),
     );
+  }
+
+  String getTimeString(String timeString) {
+    String result = "";
+    List<String> splits = timeString.split(':');
+    if(splits[0]!="00"){
+      result += splits[0] + "H";
+    }
+    if(splits[1]!="00"){
+      result += splits[1] + "M";
+    }
+    if(result == ""){
+      result = "0M";
+    }
+    return result;
   }
 }
 

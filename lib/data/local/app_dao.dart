@@ -91,9 +91,10 @@ class AppDAO{
 
   /// 컨디션 작성 날짜
   /// 어제 기준으로 작성
-  static String getConditionDateString() {
-    if(AppDAO.baseData.sleepConditionAnalysis != null){
-      List<String> dateStrings = AppDAO.baseData.sleepConditionAnalysis!.date.split("-");
+  static String getConditionDateString({SleepAnalysisResponse? response}) {
+    response ??= AppDAO.baseData.sleepConditionAnalysis;
+    if(response != null){
+      List<String> dateStrings = response.date.split("-");
       return "${dateStrings[0]}년 ${dateStrings[0]}월 ${dateStrings[2]}일";
     }else{
       var dateFormat = DateFormat("yyyy년 mm월 dd일");

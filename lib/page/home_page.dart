@@ -467,7 +467,7 @@ class HomeState extends State<HomePage>
   Future _action(String actionType) async {
     if(actionType == Routes.conditionReview){
       await checkParameters();
-      Navigator.pushNamed(context, Routes.conditionReview);
+      await Navigator.pushNamed(context, Routes.conditionReview);
     }
   }
 
