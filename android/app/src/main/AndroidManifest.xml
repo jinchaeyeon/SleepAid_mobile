@@ -1,24 +1,54 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-            package="neurotx.kr.sleepaid.sleepaid">
+    package="neurotx.kr.sleepaid.sleepaid"
+    >
+
+
+
+
+
+    <!-- required for API 18 - 30 -->
+    <uses-permission
+        android:name="android.permission.BLUETOOTH"
+        android:maxSdkVersion="30" />
+    <uses-permission
+        android:name="android.permission.BLUETOOTH_ADMIN"
+        android:maxSdkVersion="30" />
+
+    <!-- required for API 23 - 30 -->
+    <uses-permission-sdk-23
+        android:name="android.permission.ACCESS_COARSE_LOCATION"
+        android:maxSdkVersion="30" />
+    <uses-permission-sdk-23
+        android:name="android.permission.ACCESS_FINE_LOCATION"
+        android:maxSdkVersion="30" />
+
+    <!-- API 31+ -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <!-- add android:usesPermissionFlags="neverForLocation" when you can strongly assert that
+         your app never derives physical location from Bluetooth scan results. -->
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+
+
+
+
+
+
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />-->
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" android:maxSdkVersion="30" />-->
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
-    <!--BLUETOOTH PERMISSION-->
-    <!-- Request legacy Bluetooth permissions on older devices. -->
-    <uses-permission android:name="android.permission.BLUETOOTH" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <!-- Needed only if your app looks for Bluetooth devices.
-             If your app doesn't use Bluetooth scan results to derive physical
-             location information, you can strongly assert that your app
-             doesn't derive physical location. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN"/>
     <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES"/>
     <!-- Needed only if your app makes the device discoverable to Bluetooth
       devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" />
     <!-- Needed only if your app communicates with already-paired Bluetooth
            devices. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+<!--    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />-->
     <!--bibo01 : hardware option-->
     <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
@@ -66,7 +96,7 @@
               android:name="io.flutter.embedding.android.SplashScreenDrawable"
               android:resource="@drawable/launch_background"
               />
-            <intent-filter >
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>

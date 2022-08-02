@@ -18,7 +18,9 @@ dependencies:
   provider: ^6.0.2
   #  flutter_reactive_ble: ^5.0.2 # 완전 새로 짜도 된다고 하면 이걸 쓰는게 나을 것 같은데 좀 더 체크 필요
   #  flutter_ble_lib: ^2.3.2 # 기존 프로젝트에서 사용되던 패키지, but 업데이트 1년 반 전에 종료되어서 신규 IOS, ANDROID 미지원 상태(앞으로도 문제될듯)
-  flutter_ble_lib_ios_15: ^2.5.2 # 일단 IOS 15는 지원하는 버전(안드로이드 12 불확실)
+#  flutter_ble_lib_ios_15: ^2.5.2 # 일단 IOS 15는 지원하는 버전(안드로이드 12 미지원)
+  flutter_reactive_ble: ^5.0.2 # 안드로이드 12 지원
+
   intl: ^0.17.0
   logger: ^1.1.0
   animations: ^2.0.2
@@ -26,7 +28,8 @@ dependencies:
   path_provider: 2.0.4
   http: ^0.13.4
   fluttertoast: 8.0.4
-  package_info_plus: 1.2.0
+#  package_info_plus: 1.2.0
+  package_info_plus: ^1.4.2
   another_xlider: 1.0.0
 #  syncfusion_officechart: ^20.1.60-beta
   surround_sound: ^0.3.2
@@ -36,7 +39,7 @@ dependencies:
 #  flutter_naver_login: 1.6.0
   flutter_naver_login: 1.2.4
   headset_connection_event: ^2.1.1
-  app_settings: ^4.1.6
+  app_settings: ^4.1.8
 
 #  firebase_core: 1.10.0
 #  firebase_messaging: 11.1.0

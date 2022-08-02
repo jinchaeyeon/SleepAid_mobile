@@ -1,4 +1,3 @@
-import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
 import 'package:sleepaid/data/local/device_sensor_data.dart';
 
 enum BODY_TYPE {
@@ -11,23 +10,15 @@ class BleDevice {
   static List<String> realtimeSesorTypes = ["PPG", "Actigraphy X", "Actigraphy Y", "Actigraphy Z",];
 
   String deviceName;
-  Peripheral peripheral;
+  // Peripheral peripheral;
   int rssi;
-  AdvertisementData advertisementData;
-  PeripheralConnectionState state = PeripheralConnectionState.disconnected;
+  var id;
+  // AdvertisementData advertisementData;
+  // PeripheralConnectionState state = PeripheralConnectionState.disconnected;
 
 
-  BleDevice(this.deviceName, this.rssi, this.peripheral, this.advertisementData);
-
-  /// 장치 상태 보여준다. 같은 상태라면 변경없이 false리턴
-  bool setState(PeripheralConnectionState connectionState) {
-    print("Peripheral ${peripheral.identifier} connection state is $connectionState");
-    if(state == connectionState){
-      return false;
-    }
-    state = connectionState;
-    return true;
-  }
+  // BleDevice(this.deviceName, this.rssi, this.peripheral, this.advertisementData);
+  BleDevice(this.deviceName, this.rssi, this.id);
 
   String battery = "-";
   String pulseSize = "";

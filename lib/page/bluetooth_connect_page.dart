@@ -1,15 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
-import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/ble_device.dart';
-import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
-import 'package:sleepaid/util/app_images.dart';
-import 'package:sleepaid/util/app_strings.dart';
-import 'package:sleepaid/util/app_styles.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
@@ -267,18 +261,20 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
   }
 
   String _getDeviceStatusText(BODY_TYPE bodyType, BleDevice device) {
-    if(bodyType == BODY_TYPE.NONE){
-      return "연결안됨";
-    }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connected){
-      return "연결됨";
-    }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connected){
-      return "연결됨";
-    }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connecting){
-      return "연결중";
-    }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connecting){
-      return "연결중";
-    }else{
-      return "연결안됨";
-    }
+    ///todo fix it
+    return "리빌딩";
+    // if(bodyType == BODY_TYPE.NONE){
+    //   return "연결안됨";
+    // }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connected){
+    //   return "연결됨";
+    // }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connected){
+    //   return "연결됨";
+    // }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connecting){
+    //   return "연결중";
+    // }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connecting){
+    //   return "연결중";
+    // }else{
+    //   return "연결안됨";
+    // }
   }
 }

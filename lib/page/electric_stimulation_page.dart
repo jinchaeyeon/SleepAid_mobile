@@ -2,7 +2,6 @@ import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
-import 'package:flutter_ble_lib_ios_15/flutter_ble_lib.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
@@ -675,18 +674,19 @@ class SettingRecipeState extends State<ElectricStimulationPage>
 
   /// 컨트롤 가능 상태인지 알림
   bool getControllableState(BuildContext context, bool isNeckMode) {
-    if(isNeckMode){
-      if( context.read<BluetoothProvider>().connectedDeviceForNeck != null &&
-          context.read<BluetoothProvider>().connectedDeviceForNeck!.state == PeripheralConnectionState.connected){
-        return true;
-      }
-    }
-    if(!isNeckMode){
-      if( context.read<BluetoothProvider>().connectedDeviceForForehead != null &&
-          context.read<BluetoothProvider>().connectedDeviceForForehead!.state == PeripheralConnectionState.connected){
-        return true;
-      }
-    }
+    ///todo fix here
+    // if(isNeckMode){
+    //   if( context.read<BluetoothProvider>().connectedDeviceForNeck != null &&
+    //       context.read<BluetoothProvider>().connectedDeviceForNeck!.state == PeripheralConnectionState.connected){
+    //     return true;
+    //   }
+    // }
+    // if(!isNeckMode){
+    //   if( context.read<BluetoothProvider>().connectedDeviceForForehead != null &&
+    //       context.read<BluetoothProvider>().connectedDeviceForForehead!.state == PeripheralConnectionState.connected){
+    //     return true;
+    //   }
+    // }
 
     return false;
   }
