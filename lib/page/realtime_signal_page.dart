@@ -8,8 +8,6 @@ import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-
 import '../app_routes.dart';
 
 class RealtimeSignalPage extends BaseStatefulWidget {
@@ -107,27 +105,27 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               width: double.maxFinite,
               height: double.maxFinite,
               // child: SizedBox.shrink()
-              child: SfCartesianChart(
-                onZoomStart: (value){
-                  print("zoom: value");
-                },
-                series: <LineSeries<int, int>>[
-                  LineSeries<int, int>(
-                    dataSource: isNeckMode?
-                    context.watch<BluetoothProvider>().connectedDeviceForNeck!.getSensorValues(title):
-                    context.watch<BluetoothProvider>().connectedDeviceForForehead!.getSensorValues(title),
-                    color: AppColors.mainBlue,
-                    xValueMapper: (data, idx) => idx,
-                    yValueMapper: (data, idx) => data,
-                  )
-                ],
-                primaryXAxis: NumericAxis(
-                  isVisible: false,
-                ),
-                primaryYAxis: NumericAxis(
-                  isVisible: false,
-                ),
-              )
+              // child: SfCartesianChart(
+              //   onZoomStart: (value){
+              //     print("zoom: value");
+              //   },
+              //   series: <LineSeries<int, int>>[
+              //     LineSeries<int, int>(
+              //       dataSource: isNeckMode?
+              //       context.watch<BluetoothProvider>().connectedDeviceForNeck!.getSensorValues(title):
+              //       context.watch<BluetoothProvider>().connectedDeviceForForehead!.getSensorValues(title),
+              //       color: AppColors.mainBlue,
+              //       xValueMapper: (data, idx) => idx,
+              //       yValueMapper: (data, idx) => data,
+              //     )
+              //   ],
+              //   primaryXAxis: NumericAxis(
+              //     isVisible: false,
+              //   ),
+              //   primaryYAxis: NumericAxis(
+              //     isVisible: false,
+              //   ),
+              // )
             )
           )
         ]

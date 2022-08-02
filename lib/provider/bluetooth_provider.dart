@@ -284,20 +284,17 @@ class BluetoothProvider with ChangeNotifier{
                     TX_UUID_LIST[0],
                     transactionId: "monitor-forehead"
                 ).map((characteristic) => characteristic.value);
-
                 _monitoringForeheadStreamSubscription = characteristic.listen((Uint8List message) {
-                  print("monitoring message:: $message");
+                  // print("monitoring messagex:: $message");
                   List<Uint8List> responses = divideResponse(message);
+
                   responses.forEach((Uint8List response) {
                     String batteryValue = Protocol.getBatteryValue(response);
                     setBatteryValue(connectedDeviceForForehead!, batteryValue);
 
                     DeviceSensorData sensorData = Protocol.buildSensorData(response);
+                    setDeviceResponse(connectedDeviceForForehead!, sensorData);
 
-
-                    // List<String> brainSignalList = Protocol.buildBrainSignalList(sensorData);
-                    // double ppgValue = Protocol.getPPGValue(brainSignalList);
-                    // setPPGValue(connectedDeviceForNeck!, ppgValue);
                     // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
                     // setEEGValue(connectedDeviceForNeck!, eegValue);
                     //
@@ -309,33 +306,9 @@ class BluetoothProvider with ChangeNotifier{
 
                     notifyListeners();
                   });
-
-                  // String batteryValue = Protocol.getBatteryValue(message);
-                  // setBatteryValue(connectedDeviceForForehead!, batteryValue);
-                  //
-                  // String brainSignal = Protocol.buildSensorData(message);
-                  //
-                  // List<String> brainSignalList = Protocol.buildBrainSignalList(brainSignal);
-                  // double ppgValue = Protocol.getPPGValue(brainSignalList);
-                  // setPPGValue(connectedDeviceForForehead!, ppgValue);
-                  // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
-                  // setEEGValue(connectedDeviceForForehead!, eegValue);
-                  //
-                  // List<double> actValue = Protocol.getAccelerometerValue(message, brainSignal);
-                  // setAccelerometerValue(connectedDeviceForForehead!, actValue);
-                  //
-                  // List<String> pulseValue = Protocol.getPulseSizes(brainSignal);
-                  // setPulseValue(connectedDeviceForForehead!, pulseValue);
-                  //
-                  // notifyListeners();
-
-
-
-
-
-
                 }, onError: (error){
                   dPrint("notifyForeheadStream error:: $error");
+                  // 기기 연결 이슈가 생겼으므로 재연결 다이얼로그 보여준다
                   device.setState(PeripheralConnectionState.disconnected);
                 } ,cancelOnError: true);
               });
@@ -350,7 +323,7 @@ class BluetoothProvider with ChangeNotifier{
             {
               //해제됨
               dPrint("disconnected!");
-              connectedDeviceForForehead?.resetData();
+              connectedDeviceForNeck?.resetData();
             }
             break;
           case PeripheralConnectionState.disconnecting:
@@ -363,21 +336,136 @@ class BluetoothProvider with ChangeNotifier{
         }
       });
 
-      notifyForeheadStream?.onDone(() {
+      notifyNeckStream?.onDone(() {
         showToast("DONE TRY RECONNECT");
       });
-      notifyForeheadStream?.onError((handleError) {
+      notifyNeckStream?.onError((handleError) {
         dPrint("error:"+handleError.toString());
         showToast("ERRROR TRY RECONNECT");
       });
-
-      _monitoringForeheadStreamSubscription?.onDone(() {
+      _monitoringNeckStreamSubscription?.onDone(() {
         showToast("DONE TRY RECONNECT2");
       });
-      _monitoringForeheadStreamSubscription?.onError((handleError){
+      _monitoringNeckStreamSubscription?.onError((handleError){
         showToast("ERRROR TRY RECONNECT2");
       });
+
     }
+    // else if(type == BODY_TYPE.FOREHEAD){
+    //   notifyForeheadStream = peripheral
+    //       .observeConnectionState(emitCurrentValue: true)
+    //       .listen((PeripheralConnectionState connectionState) {
+    //     device.setState(connectionState);
+    //     switch (connectionState) {
+    //       case PeripheralConnectionState.connected:
+    //         {
+    //           //연결됨
+    //           connectedDeviceForForehead = device;
+    //           peripheral.discoverAllServicesAndCharacteristics().whenComplete(() {
+    //             /// 기존 연결장치 해제
+    //             // await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
+    //             /// 장치 변수에 할당
+    //             connectedDeviceForForehead?.peripheral = peripheral;
+    //
+    //             Stream<Uint8List> characteristic = peripheral.monitorCharacteristic(
+    //                 SERVICE_UUID_LIST[0],
+    //                 TX_UUID_LIST[0],
+    //                 transactionId: "monitor-forehead"
+    //             ).map((characteristic) => characteristic.value);
+    //
+    //             _monitoringForeheadStreamSubscription = characteristic.listen((Uint8List message) {
+    //               print("monitoring message:: $message");
+    //               List<Uint8List> responses = divideResponse(message);
+    //               responses.forEach((Uint8List response) {
+    //                 String batteryValue = Protocol.getBatteryValue(response);
+    //                 setBatteryValue(connectedDeviceForForehead!, batteryValue);
+    //
+    //                 DeviceSensorData sensorData = Protocol.buildSensorData(response);
+    //
+    //
+    //                 // List<String> brainSignalList = Protocol.buildBrainSignalList(sensorData);
+    //                 // double ppgValue = Protocol.getPPGValue(brainSignalList);
+    //                 // setPPGValue(connectedDeviceForNeck!, ppgValue);
+    //                 // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
+    //                 // setEEGValue(connectedDeviceForNeck!, eegValue);
+    //                 //
+    //                 // List<double> actValue = Protocol.getAccelerometerValue(message, sensorData);
+    //                 // setAccelerometerValue(connectedDeviceForNeck!, actValue);
+    //                 //
+    //                 // List<String> pulseValue = Protocol.getPulseSizes(sensorData);
+    //                 // setPulseValue(connectedDeviceForNeck!, pulseValue);
+    //
+    //                 notifyListeners();
+    //               });
+    //
+    //               // String batteryValue = Protocol.getBatteryValue(message);
+    //               // setBatteryValue(connectedDeviceForForehead!, batteryValue);
+    //               //
+    //               // String brainSignal = Protocol.buildSensorData(message);
+    //               //
+    //               // List<String> brainSignalList = Protocol.buildBrainSignalList(brainSignal);
+    //               // double ppgValue = Protocol.getPPGValue(brainSignalList);
+    //               // setPPGValue(connectedDeviceForForehead!, ppgValue);
+    //               // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
+    //               // setEEGValue(connectedDeviceForForehead!, eegValue);
+    //               //
+    //               // List<double> actValue = Protocol.getAccelerometerValue(message, brainSignal);
+    //               // setAccelerometerValue(connectedDeviceForForehead!, actValue);
+    //               //
+    //               // List<String> pulseValue = Protocol.getPulseSizes(brainSignal);
+    //               // setPulseValue(connectedDeviceForForehead!, pulseValue);
+    //               //
+    //               // notifyListeners();
+    //
+    //
+    //
+    //
+    //
+    //
+    //             }, onError: (error){
+    //               dPrint("notifyForeheadStream error:: $error");
+    //               device.setState(PeripheralConnectionState.disconnected);
+    //             } ,cancelOnError: true);
+    //           });
+    //         }
+    //         break;
+    //       case PeripheralConnectionState.connecting:
+    //         {
+    //           //  setBLEState('connecting');
+    //         } //연결중
+    //         break;
+    //       case PeripheralConnectionState.disconnected:
+    //         {
+    //           //해제됨
+    //           dPrint("disconnected!");
+    //           connectedDeviceForForehead?.resetData();
+    //         }
+    //         break;
+    //       case PeripheralConnectionState.disconnecting:
+    //         {
+    //           // setBLEState('disconnecting');
+    //         } //해제중
+    //         break;
+    //       default:{}
+    //       break;
+    //     }
+    //   });
+    //
+    //   notifyForeheadStream?.onDone(() {
+    //     showToast("DONE TRY RECONNECT");
+    //   });
+    //   notifyForeheadStream?.onError((handleError) {
+    //     dPrint("error:"+handleError.toString());
+    //     showToast("ERRROR TRY RECONNECT");
+    //   });
+    //
+    //   _monitoringForeheadStreamSubscription?.onDone(() {
+    //     showToast("DONE TRY RECONNECT2");
+    //   });
+    //   _monitoringForeheadStreamSubscription?.onError((handleError){
+    //     showToast("ERRROR TRY RECONNECT2");
+    //   });
+    // }
 
     bool isConnected = await peripheral.isConnected();
     if (isConnected) {

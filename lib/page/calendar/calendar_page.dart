@@ -40,7 +40,7 @@ class CalendarState extends State<CalendarPage>
 
   @override
   Widget build(BuildContext context) {
-    AppDAO.authData.created = AppDAO.authData.created.subtract(Duration(days:100));
+    // AppDAO.authData.created = AppDAO.authData.created.subtract(Duration(days:100));
     return Scaffold(
         extendBody: true,
         body: SafeArea(
@@ -53,7 +53,13 @@ class CalendarState extends State<CalendarPage>
                   onTapCallback: onTapCallback,
                   startDate: AppDAO.authData.created,
                   endDate: DateTime.now(),
-                ):Container()
+                ):const Center(
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: CircularProgressIndicator()
+                  )
+                )
             )
         )
     );

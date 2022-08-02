@@ -9,8 +9,6 @@ import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
-
 import 'month_calendar_widget.dart.dart';
 
 /// 가입일을 기준으로 데이터 목록을 불러온다
@@ -118,7 +116,7 @@ class MyCalendarState extends State<MyCalendarWidget>{
       setState(() {});
       context.read<DataProvider>().setLoading(false);
       if(isInit){
-        await Future.delayed(const Duration(milliseconds:100));
+        await Future.delayed(const Duration(milliseconds:10));
         print("TEST 001: ${_caledarController.position.maxScrollExtent}");
         _caledarController.jumpTo(_caledarController.position.maxScrollExtent);
         isInit = false;
@@ -208,7 +206,6 @@ class MyCalendarState extends State<MyCalendarWidget>{
 
   void jumtPosition(DIRECTION_TYPE direction) {
     double position = dateBuilder.getCurrentScrollPosition(direction, _caledarController.offset);
-    print("TEST 002: ${position}");
     _caledarController.animateTo(position, duration: const Duration(milliseconds:300), curve: Curves.fastOutSlowIn);
   }
 }

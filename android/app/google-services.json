@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "492902760774",
+    "project_id": "sleepaid-1eae8",
+    "storage_bucket": "sleepaid-1eae8.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492902760774:android:90756f26996bc95b4fe547",
+        "android_client_info": {
+          "package_name": "neurotx.kr.sleepaid.sleepaid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "492902760774-nmorqp5ribtah4n7c2la382002amnct8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "neurotx.kr.sleepaid.sleepaid",
+            "certificate_hash": "38376e8aaba2833693107df70e654b6c442d3e16"
+          }
+        },
+        {
+          "client_id": "492902760774-ek3p5ektvik9dgs8pefguv4bqebpk351.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAFDeW4erT-KBCQSnAeV-z6gYvjXdycxys"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "492902760774-ek3p5ektvik9dgs8pefguv4bqebpk351.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
