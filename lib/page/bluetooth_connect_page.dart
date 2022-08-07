@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
+import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_scanner.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
@@ -25,7 +27,9 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
   @override
   void initState() {
     super.initState();
-    startScanning();
+    Future.delayed(const Duration(milliseconds: 100), (){
+      startScanning();
+    });
   }
 
   @override
@@ -46,14 +50,40 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                 child: Column(
                   children: [
                     searchingStatusButton(context),
+                    context.watch<BluetoothProvider>().deviceNeck == null ?Container()
+                    : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceNeck),
+                    context.watch<BluetoothProvider>().deviceForehead == null ?Container()
+                        : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceForehead),
                     Expanded(
-                      child: ListView.builder(
-                        itemCount: context.watch<BluetoothProvider>().deviceList.length,
-                        itemBuilder: (_context, index){
-                          return _bluetoothDeviceListItemWidget(
-                              context.read<BluetoothProvider>().deviceList, index);
-                        },
+                      child: StreamBuilder<BleScannerState>(
+                        stream: context.watch<BluetoothProvider>().scanner.state.asBroadcastStream(),
+                        builder: (
+                            BuildContext context,
+                            AsyncSnapshot<BleScannerState> snapshot,
+                        ){
+                          if(snapshot.data != null){
+                            return ListView.builder(
+                                itemCount: snapshot.data!.discoveredDevices.length,
+                                itemBuilder: (_context, index){
+                                  // 연결된 기기는 숨기기
+                                  if(BODY_TYPE.NONE != context.watch<BluetoothProvider>().isConnectedDevice(snapshot.data?.discoveredDevices[index].id)){
+                                    return Container();
+                                  }
+                                  return _bluetoothDeviceListItemWidget(snapshot: snapshot, index: index);
+                                },
+                              );
+                          }else{
+                            return Container();
+                          }
+                        }
                       )
+                      // child: ListView.builder(
+                      //   itemCount: context.watch<BluetoothProvider>().scanner.,
+                      //   itemBuilder: (_context, index){
+                      //     return _bluetoothDeviceListItemWidget(
+                      //         context.read<BluetoothProvider>().deviceList, index);
+                      //   },
+                      // )
                     )
                   ],
                 ),
@@ -113,12 +143,25 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     );
   }
 
-  Widget _bluetoothDeviceListItemWidget(List<BleDevice> deviceList, int index) {
-    BleDevice device = deviceList[index];
-    BODY_TYPE bodyType = context.watch<BluetoothProvider>().isConnectedDevice(device);
+  Widget _bluetoothDeviceListItemWidget({BleDevice? device, AsyncSnapshot? snapshot, int? index}) {
+    String selectedDeviceId = "";
+    String name = "";
+    if(device != null){
+      selectedDeviceId = device.id;
+    }else if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
+      selectedDeviceId = snapshot.data!.deviceId;
+    }else if(snapshot is AsyncSnapshot<BleScannerState>){
+      selectedDeviceId = snapshot.data!.discoveredDevices[index!].id;
+    }
+    BODY_TYPE bodyType = context.watch<BluetoothProvider>().isConnectedDevice(selectedDeviceId);
+    if(device != null){
+      name = _getDeviceName(bodyType, null, index: index, name: device.deviceName);
+    }else{
+      name = _getDeviceName(bodyType, snapshot!, index: index);
+    }
     return InkWell(
         onTap:() async {
-          await showBodyTypeDialog(context, device);
+          await showBodyTypeDialog(context, device: device, snapshot: snapshot, index: index);
         },
         child: Container(
             height: 70,
@@ -130,7 +173,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
             child: Row(
                 children: [
                   Text(
-                    _getDeviceName(bodyType,device),
+                    name,
                     style: TextStyle(
                       color: Theme.of(context).textSelectionTheme.selectionColor,
                       fontSize: 14,
@@ -139,7 +182,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                   ),
                   const Expanded(child: SizedBox.shrink()),
                   Text(
-                    _getDeviceStatusText(bodyType, device),
+                    _getDeviceStatusText(bodyType, selectedDeviceId),
                     style: TextStyle(
                       color: Theme.of(context).textSelectionTheme.selectionColor,
                       fontSize: 14,
@@ -165,7 +208,14 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     super.dispose();
   }
 
-  Future<void> showBodyTypeDialog(BuildContext context, BleDevice device) async{
+  Future<void> showBodyTypeDialog(BuildContext context, {int? index, AsyncSnapshot? snapshot, BleDevice? device}) async{
+    String name = "";
+    if(snapshot != null){
+      name = snapshot.connectionState.name;
+    }else if(device != null){
+      name = device!.deviceName;
+    }
+
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -190,7 +240,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                       height: 50,
                       width: double.maxFinite,
                       alignment: Alignment.center,
-                      child: Text(device.deviceName,
+                      child: Text(name,
                           textAlign:TextAlign.center,
                           style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold,
                               color: AppColors.textBlack))
@@ -208,7 +258,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                             onTap:() async {
                               Navigator.pop(context);
                               context.read<DataProvider>().setLoading(true);
-                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, device);
+                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, snapshot: snapshot, index: index, device: device);
                               context.read<DataProvider>().setLoading(false);
                             },
                             child:Container(
@@ -228,7 +278,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                             onTap:() async {
                               Navigator.pop(context);
                               context.read<DataProvider>().setLoading(true);
-                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, device);
+                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, snapshot: snapshot, device: device);
                               context.read<DataProvider>().setLoading(false);
                             },
                             child:Container(
@@ -248,33 +298,39 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     );
   }
 
-  String _getDeviceName(BODY_TYPE bodyType, BleDevice device) {
-    if(bodyType == BODY_TYPE.NONE){
-      return device.deviceName;
-    }else if(bodyType == BODY_TYPE.NECK){
-      return "${device.deviceName}(목)";
+  String _getDeviceName(BODY_TYPE bodyType, AsyncSnapshot? snapshot, {int? index, String? name}) {
+    String name = "";
+    if(bodyType == BODY_TYPE.NECK){
+      name = context.watch<BluetoothProvider>().connectorNeck.connectedDeviceName;
     }else if(bodyType == BODY_TYPE.FOREHEAD){
-      return "${device.deviceName}(이마)";
+      name = context.watch<BluetoothProvider>().connectorForehead.connectedDeviceName;
     }else{
-      return device.deviceName;
+      if(snapshot is AsyncSnapshot<BleScannerState>){
+        name = snapshot.data?.discoveredDevices[index!].name??"";
+      }
+    }
+
+    if(bodyType == BODY_TYPE.NONE){
+      return name;
+    }else if(bodyType == BODY_TYPE.NECK){
+      return "${name}(목)";
+    }else if(bodyType == BODY_TYPE.FOREHEAD){
+      return "${name}(이마)";
+    }else{
+      return name;
     }
   }
 
-  String _getDeviceStatusText(BODY_TYPE bodyType, BleDevice device) {
-    ///todo fix it
-    return "리빌딩";
-    // if(bodyType == BODY_TYPE.NONE){
-    //   return "연결안됨";
-    // }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connected){
-    //   return "연결됨";
-    // }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connected){
-    //   return "연결됨";
-    // }else if(bodyType == BODY_TYPE.NECK && device.state == PeripheralConnectionState.connecting){
-    //   return "연결중";
-    // }else if(bodyType == BODY_TYPE.FOREHEAD && device.state == PeripheralConnectionState.connecting){
-    //   return "연결중";
-    // }else{
-    //   return "연결안됨";
-    // }
+  String _getDeviceStatusText(BODY_TYPE bodyType, String deviceId) {
+    if(bodyType == BODY_TYPE.NONE){
+      return "연결안됨";
+    }else if(
+      deviceId == context.read<BluetoothProvider>().connectorNeck.connectedDeviceId ||
+      deviceId == context.read<BluetoothProvider>().connectorForehead.connectedDeviceId
+    ){
+      return "연결됨";
+    }else{
+      return "연결안됨";
+    }
   }
 }

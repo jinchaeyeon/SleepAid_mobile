@@ -10,15 +10,9 @@ class BleDevice {
   static List<String> realtimeSesorTypes = ["PPG", "Actigraphy X", "Actigraphy Y", "Actigraphy Z",];
 
   String deviceName;
-  // Peripheral peripheral;
-  int rssi;
   var id;
-  // AdvertisementData advertisementData;
-  // PeripheralConnectionState state = PeripheralConnectionState.disconnected;
 
-
-  // BleDevice(this.deviceName, this.rssi, this.peripheral, this.advertisementData);
-  BleDevice(this.deviceName, this.rssi, this.id);
+  BleDevice(this.deviceName, this.id);
 
   String battery = "-";
   String pulseSize = "";

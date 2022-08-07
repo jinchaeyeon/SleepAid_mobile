@@ -553,7 +553,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                 )
             ),
             // context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
-            if(isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForNeck == null?
+            if(isNeckMode)context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId == ""?
             Expanded(
                 child: getRecommandConnectWidget()
             ):
@@ -573,7 +573,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                     )
                 )
             ),
-            if(!isNeckMode)context.watch<BluetoothProvider>().connectedDeviceForForehead == null?
+            if(!isNeckMode)context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId == ""?
             Expanded(
                 child: getRecommandConnectWidget()
             ):

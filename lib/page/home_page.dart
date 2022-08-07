@@ -169,16 +169,16 @@ class HomeState extends State<HomePage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
-              context.watch<BluetoothProvider>().connectedDeviceForForehead != null
+              context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != "" ||
+              context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != ""
               ?contentButton(context,AppImages.bioSignal, '실시간 생체신호', true, '실시간 신호 출력중', '', onTap:(context) {
                 Navigator.pushNamed(context, Routes.bodySignal);
               })
               :contentButton(context,AppImages.bioSignal, '실시간 생체신호', false, '실시간 신호 출력중지', '', onTap:(context) {
                 Navigator.pushNamed(context, Routes.bodySignal);
               }),
-              context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
-                  context.watch<BluetoothProvider>().connectedDeviceForForehead != null
+              context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != "" ||
+                  context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != ""
               ?contentButton(context,AppImages.electricalStimulation, '전기자극설정', true, '전기 자극 출력증', '',onTap:(context){
                 Navigator.pushNamed(context, Routes.settingRecipe);
               })
@@ -193,8 +193,8 @@ class HomeState extends State<HomePage>
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              ( context.watch<BluetoothProvider>().connectedDeviceForNeck != null ||
-              context.watch<BluetoothProvider>().connectedDeviceForForehead != null )
+              ( context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != "" ||
+                  context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != "" )
               && context.watch<DataProvider>().isPlayingBeat
               ?contentButton(context,AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', '',onTap:(context) {
                 Navigator.pushNamed(context, Routes.binauralBeat);
@@ -212,8 +212,8 @@ class HomeState extends State<HomePage>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            context.watch<BluetoothProvider>().connectedDeviceForNeck != null
-            ?contentButton(context,AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForNeck!.battery}%', '', onTap:(context) {
+            context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != ""
+            ?contentButton(context,AppImages.bluetoothConnect, '기기 연결 (목)', true, '배터리 잔량 ${"90"}%', '', onTap:(context) {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             })
@@ -221,8 +221,8 @@ class HomeState extends State<HomePage>
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             }),
-            context.watch<BluetoothProvider>().connectedDeviceForForehead != null
-            ?contentButton(context,AppImages.bluetoothDisconnect, '기기 연결 (이마)', true, '배터리 잔량 ${context.watch<BluetoothProvider>().connectedDeviceForForehead!.battery}%', '', onTap:(context) {
+            context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != ""
+            ?contentButton(context,AppImages.bluetoothDisconnect, '기기 연결 (이마)', true, '배터리 잔량 ${"90"}%', '', onTap:(context) {
               //todo
               // Navigator.pushNamed(context, routeSleepAnalysis);
             },)
@@ -438,9 +438,10 @@ class HomeState extends State<HomePage>
   }
 
   Future<void> checkBluetoothPermission() async{
-    await Future.delayed(Duration(milliseconds: 500),() async {
-      await context.read<BluetoothProvider>().checkBluetoothPermission();
-
+    await Future.delayed(const Duration(milliseconds: 200),() async {
+      if(mounted){
+        await context.read<BluetoothProvider>().checkBluetoothPermission();
+      }
     });
 
   }
@@ -484,7 +485,6 @@ class HomeState extends State<HomePage>
   }
 
   double getFontSize(BuildContext context, double i) {
-    print("fs: ${MediaQuery.of(context).size.width}");
     return i;
   }
 }

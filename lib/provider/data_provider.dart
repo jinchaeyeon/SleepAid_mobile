@@ -75,45 +75,46 @@ class DataProvider with ChangeNotifier{
   }
 
   Future loadParameters() async{
-    /// 컨디션 파라미터
-    await GetSleepConditionService().start().then((result){
-      if(result is List<SleepConditionParameterResponse>){
-        AppDAO.baseData.sleepConditionParameters = result;
-        /// 필수 처리
-        AppDAO.baseData.sleepConditionParameters[0]?.isRequired = true;
-        AppDAO.baseData.sleepConditionParameters[1]?.isRequired = true;
+    if(AppDAO.baseData.sleepConditionParameters.isEmpty){
+      /// 컨디션 파라미터
+      await GetSleepConditionService().start().then((result){
+        if(result is List<SleepConditionParameterResponse>){
+          AppDAO.baseData.sleepConditionParameters = result;
+          /// 필수 처리
+          AppDAO.baseData.sleepConditionParameters[0]?.isRequired = true;
+          AppDAO.baseData.sleepConditionParameters[1]?.isRequired = true;
+          if(kDebugMode){
+            AppDAO.baseData.sleepConditionParameters.forEach((parameter) {
+              print("codition parameter:: ${parameter.question}");
+            });
+          }
+        }
+      });
+    }
+
+    if(AppDAO.baseData.electroStimulationParameters.isEmpty){
+      /// 전기자극 파라미터
+      await GetElectroStimulationsService().start().then((result){
+        if(result is List<ElectroStimulationParameterResponse>){
+          AppDAO.baseData.electroStimulationParameters = result;
+        }
+
         if(kDebugMode){
-          AppDAO.baseData.sleepConditionParameters.forEach((parameter) {
-            print("codition parameter:: ${parameter.question}");
+          AppDAO.baseData.electroStimulationParameters.forEach((parameter) {
+            print("stimulation parameter::${parameter.toJson()}");
           });
         }
-      }
-    });
+      });
+    }
 
-    /// 전기자극 파라미터
-    await GetElectroStimulationsService().start().then((result){
-      if(result is List<ElectroStimulationParameterResponse>){
-        AppDAO.baseData.electroStimulationParameters = result;
-      }
+    if(AppDAO.baseData.binauralBeatParameters.isEmpty){
+      await GetBinauralBeatsService().start().then((result){
+        if(result is List<BinauralBeatParameterResponse>){
+          AppDAO.baseData.binauralBeatParameters = result;
+        }
+      });
+    }
 
-      if(kDebugMode){
-        AppDAO.baseData.electroStimulationParameters.forEach((parameter) {
-          print("stimulation parameter::${parameter.toJson()}");
-        });
-      }
-    });
-
-    await GetBinauralBeatsService().start().then((result){
-      if(result is List<BinauralBeatParameterResponse>){
-        AppDAO.baseData.binauralBeatParameters = result;
-      }
-
-      if(kDebugMode){
-        AppDAO.baseData.binauralBeatParameters.forEach((parameter) {
-          print("beat parameter::${parameter.toJson()}");
-        });
-      }
-    });
 
     List<dynamic> lastCondition = await (AppDAO.getLastSleepCondition());
     if(lastCondition[1] != null){

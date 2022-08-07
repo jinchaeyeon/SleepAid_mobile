@@ -6,7 +6,6 @@ import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:provider/provider.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/page/home_page.dart';
-import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/provider/main_provider.dart';

@@ -6,8 +6,6 @@ import 'package:sleepaid/main.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_strings.dart';
-import 'package:sleepaid/util/app_themes.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/custom_switch_button.dart';
@@ -173,11 +171,11 @@ class MenuState extends State<MenuPage>
 
   String _getConnectedDeviceText(BuildContext context) {
     String text = "";
-    if(context.watch<BluetoothProvider>().connectedDeviceForNeck!=null){
-      text = "${context.watch<BluetoothProvider>().connectedDeviceForNeck!.deviceName}(목) ";
+    if(context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != ""){
+      text = "${context.watch<BluetoothProvider>().connectorNeck.connectedDeviceName}(목) ";
     }
-    if(context.watch<BluetoothProvider>().connectedDeviceForForehead!=null){
-      text = text + "${context.watch<BluetoothProvider>().connectedDeviceForForehead!.deviceName}(이마) ";
+    if(context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != ""){
+      text = text + "${context.watch<BluetoothProvider>().connectorForehead.connectedDeviceName}(이마) ";
     }
     return text;
   }

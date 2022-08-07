@@ -1,12 +1,17 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
-import 'package:app_settings/app_settings.dart';
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_reactive_ble/flutter_reactive_ble.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:sleepaid/bluetooth/protocol.dart';
+import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_connector.dart';
+import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_interactor.dart';
+import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_logger.dart';
+import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_scanner.dart';
+import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_status_monitor.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/local/device_sensor_data.dart';
 import 'package:sleepaid/util/functions.dart';
@@ -22,20 +27,35 @@ class BluetoothProvider with ChangeNotifier{
   static const int MTU = 20;
   static const int SENSOR_LEN = 1000;
 
-  final flutterReactiveBle = FlutterReactiveBle();
+  static FlutterReactiveBle flutterReactiveBle = FlutterReactiveBle();
 
-  List<BleDevice> deviceList = []; //전체 검색되는 장치목록
-  BleDevice? connectedDeviceForNeck; //목 연결 장치
-  BleDevice? connectedDeviceForForehead;
+  static BleLogger bleLogger = BleLogger();
+  final scanner = BleScanner(ble: flutterReactiveBle, logMessage: bleLogger.addToLog);
+  final monitor = BleStatusMonitor(flutterReactiveBle);
+  final connectorNeck = BleDeviceConnector(
+    ble: flutterReactiveBle,
+    logMessage: bleLogger.addToLog,
+  );
+  final connectorForehead = BleDeviceConnector(
+    ble: flutterReactiveBle,
+    logMessage: bleLogger.addToLog,
+  );
+  final serviceDiscoverer = BleDeviceInteractor(
+    bleDiscoverServices: flutterReactiveBle.discoverServices,
+    readCharacteristic: flutterReactiveBle.readCharacteristic,
+    writeWithResponse: flutterReactiveBle.writeCharacteristicWithResponse,
+    writeWithOutResponse: flutterReactiveBle.writeCharacteristicWithoutResponse,
+    subscribeToCharacteristicNeck: flutterReactiveBle.subscribeToCharacteristic,
+    subscribeToCharacteristicForehead: flutterReactiveBle.subscribeToCharacteristic,
+    logMessage: bleLogger.addToLog,
+  );
 
-  ///todo
-  get isDeviceScanning => (){
-    return true;
-  };
+  bool isDeviceScanning = false;
 
-  get isDataSending => (){
-    return true;
-  }; //이마 연결장치
+  BleDevice? deviceNeck;
+  BleDevice? deviceForehead;
+
+  bool get isDataSending => true;//이마 연결장치
 
   /// 로그아웃시, 블루투스 관련 데이터 초기화
   Future<void> clearBluetooth() async{
@@ -56,69 +76,21 @@ class BluetoothProvider with ChangeNotifier{
 
   ///블루투스 장치 스캔(회사목록만)
   Future<void> startDeviceScanning() async {
-    // isDeviceScanning = true;
-    dPrint("startDeviceScanning");
-
-    flutterReactiveBle.scanForDevices(
-        withServices: [Uuid.parse(SERVICE_UUID_LIST[0])],
-        scanMode: ScanMode.lowLatency).listen((DiscoveredDevice scanResult) {
-      //실시간 스캔
-      //같은 id를 가졌으면 추가하지 않는다
-      bool isAleadyExist = false;
-      for (var device in deviceList) {
-        // if(device.peripheral.identifier == scanResult.peripheral.identifier){
-        if(device.id == scanResult.id){
-          isAleadyExist = true;
-          //중복이면 업데이트
-
-          // device.peripheral = scanResult.peripheral;
-          // device.advertisementData = scanResult.advertisementData;
-
-          notifyListeners();
-        }
-      }
-      if(!isAleadyExist){
-        //중복 아니면 추가
-        var name = scanResult.name;
-
-        if (name.contains("NEUROTX")) {
-          flutterReactiveBle.connectToDevice(
-            id: scanResult.id,
-            servicesWithCharacteristicsToDiscover: {
-              Uuid.parse(SERVICE_UUID_LIST[0]): [
-                Uuid.parse(RX_UUID_LIST[0]),
-                Uuid.parse(TX_UUID_LIST[0])
-              ]
-            },
-            connectionTimeout: const Duration(seconds: 20),
-          ).listen((connectionState) {
-            stopDeviceScanning();
-            // notifyListeners();
-          }, onError: (Object error) {
-            // Handle a possible error
-            stopDeviceScanning();
-            print("err:${error}");
-          });
-
-          // deviceList.add(BleDevice(name,scanResult.rssi, scanResult.peripheral, scanResult.advertisementData));
-          // notifyListeners();
-        }
-      }
-      notifyListeners();
-
-    }, onError: () {
-      //code for handling error
-      print("Ble Error");
-    });
+    print("startDeviceScanning");
+    isDeviceScanning = true;
+    scanner.startScan([Uuid.parse(SERVICE_UUID_LIST[0])]);
+    /// 계속 검색 시, OS 단에서 몇분~ 몇십분 검색 안하도록 처리할 수 있어서 1회당 20초 제한
+    Future.delayed(const Duration(seconds: 20), stopDeviceScanning);
+    // scanner.startScan([]); //전체 블루투스 검색 디바이스 목록
+    notifyListeners();
   }
 
   ///스캔 끝나면 꼭 stop처리
   Future<void> stopDeviceScanning() async {
-    dPrint("stopDeviceScanning");
-    // isDeviceScanning = false;
-    // deviceList.clear();
-    // bleManager.stopPeripheralScan();
-    // notifyListeners();
+    print("stopDeviceScanning");
+    isDeviceScanning = false;
+    scanner.stopScan();
+    notifyListeners();
   }
 
   /// AOS 12대응
@@ -138,29 +110,106 @@ class BluetoothProvider with ChangeNotifier{
   Future<void> checkBluetoothPermission({int retryCount = 0}) async {
     print("checkBluetoothPermission $retryCount");
     Map<Permission, PermissionStatus> statuses =
-    await [Permission.location, Permission.bluetooth, Permission.bluetoothConnect].request();
+    await [Permission.location, Permission.bluetooth, Permission.bluetoothConnect, Permission.bluetoothScan].request();
     // await [Permission.location, Permission.bluetoothConnect].request();
     if(
-    statuses[Permission.location] == PermissionStatus.denied ||
+    // statuses[Permission.location] == PermissionStatus.denied ||
         statuses[Permission.bluetoothConnect] == PermissionStatus.denied
     ){
       showToast("앱 설정에서 필수 권한을 설정해주세요");
       if(retryCount == 1){
         completedExit(null);
       }else{
-        await AppSettings.openAppSettings();
         checkBluetoothPermission(retryCount: 1);
       }
     }
   }
 
+  /// 블루투스 꺼져있는지 체크 후, turn on 또는 알림 처리
+  Future<void> requestBleTurnOn() async{
+    print("requestBleTurnOn");
+    if(Platform.isAndroid){
+      AndroidIntent intent = const AndroidIntent(
+        action: 'android.bluetooth.adapter.action.REQUEST_ENABLE');
+      await intent.launch();
+
+
+    }else if(Platform.isIOS){
+      //ios는 해당 블루투스 바로 전환하기가 없으므로 pass
+      showToast("블루투스 설정을 켜주세요.");
+    }
+  }
+
   /// 신체 연결 다이얼로그 노출 및 선택 시 해당 파트 기기 연결 처리
-  /// 1. 기 연결 기기가 있음면 연결 취소 처리
+  /// 1. 기 연결 기기가 있으면 연결 취소 처리
   /// 2. 신규 기기 연결 시도
   /// 3. 연결 실패하면 연결에 실패하였습니다
   /// 4. 연결 성공하면 업데이트
-  Future<void> choiceBodyPosition(BODY_TYPE type,BleDevice device) async {
-    /// 또는 현재 연결중인 기기중에 현재 선택 기기가 있으면 연결 취소 처리
+  /// 또는 현재 연결중인 기기중에 현재 선택 기기가 있으면 연결 취소 처리
+  Future<void> choiceBodyPosition(BODY_TYPE type, {int? index, AsyncSnapshot? snapshot, BleDevice? device}) async {
+    String? selectedDeviceId = "";
+
+    if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
+      selectedDeviceId = snapshot.data!.deviceId;
+    }else if(snapshot is AsyncSnapshot<BleScannerState>){
+      selectedDeviceId = snapshot.data!.discoveredDevices[index??0].id;
+    }
+
+    if(connectorNeck.connectedDeviceId == selectedDeviceId){
+      await connectorNeck.disconnect(connectorNeck.connectedDeviceId);
+    }
+    if(connectorForehead.connectedDeviceId == selectedDeviceId){
+      await connectorForehead.disconnect(connectorForehead.connectedDeviceId);
+    }
+
+    if(selectedDeviceId != null){
+      await flutterReactiveBle.requestMtu(deviceId: selectedDeviceId, mtu: MTU);
+
+      if(type == BODY_TYPE.NECK){
+        await connectorNeck.connect(selectedDeviceId).then((value){
+          final characteristic = QualifiedCharacteristic(
+              serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
+              characteristicId: Uuid.parse(TX_UUID_LIST[0]),
+              deviceId: selectedDeviceId!);
+
+          serviceDiscoverer.subScribeToCharacteristicNeck(characteristic).asBroadcastStream().listen((data) {
+            deviceNeck ??= BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceName);
+            print("data neck :${data}");
+          },onDone: (){
+            // showToast("on done");
+            deviceNeck = null;
+            notifyListeners();
+          }, onError: (dynamic error) {
+            deviceNeck = null;
+            notifyListeners();
+          });
+
+        },onError:(err){
+          showToast("error");
+        });
+      }else if(type == BODY_TYPE.FOREHEAD){
+        await connectorForehead.connect(selectedDeviceId).then((value){
+          final characteristic = QualifiedCharacteristic(
+              serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
+              characteristicId: Uuid.parse(TX_UUID_LIST[0]),
+              deviceId: selectedDeviceId!);
+
+          serviceDiscoverer.subScribeToCharacteristicForehead(characteristic).asBroadcastStream().listen((data) {
+            deviceForehead ??= BleDevice(connectorForehead.connectedDeviceName, connectorForehead.connectedDeviceName);
+            print("data forehead:${data}");
+          },onDone: (){
+            deviceForehead = null;
+          }, onError: (dynamic error) {
+            deviceForehead = null;
+          });
+
+        },onError:(err){
+          showToast("error");
+        });
+      }
+    }
+
+
     // if(connectedDeviceForNeck?.id == device.id){
     //   await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
     //   await notifyNeckStream?.cancel();
@@ -372,46 +421,53 @@ class BluetoothProvider with ChangeNotifier{
   }
 
   Future<void> toggleDeviceScanning() async{
-    // if(isDeviceScanning){
-    //   stopDeviceScanning();
-    // }else{
-    //   startDeviceScanning();
-    // }
-  }
-
-  BODY_TYPE isConnectedDevice(BleDevice device) {
-    if(device.id == connectedDeviceForNeck?.id){
-      return BODY_TYPE.NECK;
-    }else if(device.id == connectedDeviceForForehead?.id){
-      return BODY_TYPE.FOREHEAD;
+    print("toggleDeviceScanning");
+    if(isDeviceScanning){
+      stopDeviceScanning();
     }else{
-      return BODY_TYPE.NONE;
+      startDeviceScanning();
     }
   }
 
+  BODY_TYPE isConnectedDevice(String? deviceId) {
+    BODY_TYPE type = BODY_TYPE.NONE;
+    if(deviceId == connectorNeck.connectedDeviceId){
+      type = BODY_TYPE.NECK;
+    }else if(deviceId == connectorForehead.connectedDeviceId){
+      type = BODY_TYPE.FOREHEAD;
+    }
+    print("isConnectedDevice: ${deviceId} | ${type}");
+    return type;
+  }
+
   bool checkBluetoothConnection() {
-    if(connectedDeviceForNeck != null || connectedDeviceForForehead != null){
+    if(connectorNeck.connectedDeviceId != "" || connectorForehead.connectedDeviceId != ""){
       return true;
     }
     return false;
   }
 
-  Future<void> sendData(BleDevice? device, String requestString) async {
-    if(device!=null){
-      print("requestString:$requestString");
-      List<int> list = utf8.encode(requestString);
-      /*print("request list:$list");
-      Uint8List bytes = Uint8List.fromList(list);
-      print("sendData: $bytes");*/
-      // device.peripheral.writeCharacteristic(SERVICE_UUID_LIST[0], RX_UUID_LIST[0], bytes, true);
-
-      final characteristic = QualifiedCharacteristic(
-          serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
-          characteristicId: Uuid.parse(TX_UUID_LIST[0]),
-          deviceId: device.id);
-
-      await flutterReactiveBle.writeCharacteristicWithResponse(characteristic, value: list);
+  Future<void> sendData(BODY_TYPE bodyType, String requestString) async {
+    String connectedDeviceId = "";
+    if(bodyType == BODY_TYPE.NECK){
+      connectedDeviceId = connectorNeck.connectedDeviceId;
+    }else if(bodyType == BODY_TYPE.FOREHEAD){
+      connectedDeviceId = connectorForehead.connectedDeviceId;
     }
+    if(connectedDeviceId == ""){
+      return;
+    }
+
+    List<int> list = utf8.encode(requestString);
+    final characteristic = QualifiedCharacteristic(
+        serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
+        characteristicId: Uuid.parse(RX_UUID_LIST[0]),
+        deviceId: connectedDeviceId);
+
+    await flutterReactiveBle.writeCharacteristicWithResponse(characteristic, value: list)
+        .asStream().asBroadcastStream().listen((event) {
+          print("write c w r ");
+    });
   }
 
   String getBatteryValue(int batteryValue) {

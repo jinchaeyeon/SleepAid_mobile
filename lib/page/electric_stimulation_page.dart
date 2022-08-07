@@ -428,7 +428,6 @@ class SettingRecipeState extends State<ElectricStimulationPage>
                   children: [
                     if(!isControllable)getExplaationWidget(),
                     ...getRecipeWidgets(),
-                    getDebugWidget(context)
                   ],
                 ),
               ),
@@ -652,12 +651,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
    */
   void updateCurrentRecipe(ElectroStimulationParameterResponse recipe) {
     selectedRecipe = recipe;
-    BleDevice? device = isNeckMode?
-    context.read<BluetoothProvider>().connectedDeviceForNeck:
-    context.read<BluetoothProvider>().connectedDeviceForForehead;
-    if(device!=null){
-      sendDataToDevice(device);
-    }
+    sendDataToDevice();
   }
 
   double getValueFromCurrentRecipe(double index) {
@@ -674,20 +668,16 @@ class SettingRecipeState extends State<ElectricStimulationPage>
 
   /// 컨트롤 가능 상태인지 알림
   bool getControllableState(BuildContext context, bool isNeckMode) {
-    ///todo fix here
-    // if(isNeckMode){
-    //   if( context.read<BluetoothProvider>().connectedDeviceForNeck != null &&
-    //       context.read<BluetoothProvider>().connectedDeviceForNeck!.state == PeripheralConnectionState.connected){
-    //     return true;
-    //   }
-    // }
-    // if(!isNeckMode){
-    //   if( context.read<BluetoothProvider>().connectedDeviceForForehead != null &&
-    //       context.read<BluetoothProvider>().connectedDeviceForForehead!.state == PeripheralConnectionState.connected){
-    //     return true;
-    //   }
-    // }
-
+    if(isNeckMode){
+      if( context.read<BluetoothProvider>().connectorNeck.connectedDeviceId !=""){
+        return true;
+      }
+    }
+    if(!isNeckMode){
+      if( context.read<BluetoothProvider>().connectorForehead.connectedDeviceId !=""){
+        return true;
+      }
+    }
     return false;
   }
 
@@ -730,45 +720,12 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     setState(() {});
   }
 
-  void sendDataToDevice(BleDevice device) {
+  void sendDataToDevice() {
     var recipe = selectedRecipe;
-    context.read<BluetoothProvider>().sendData(device, "102|" + ((recipe?.intensity??10 / 10 * 200).round()).toString() + "\n");
-    context.read<BluetoothProvider>().sendData(device,"104|" + ((recipe?.height??10 / 10 * 200).round()).toString() + "\n");
-    context.read<BluetoothProvider>().sendData(device,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
-    context.read<BluetoothProvider>().sendData(device,"109|1\n");
-    context.read<BluetoothProvider>().sendData(device,"909|1\n");
-  }
-
-  Widget getDebugWidget(BuildContext context) {
-    BleDevice? device = isNeckMode?
-    context.read<BluetoothProvider>().connectedDeviceForNeck:
-    context.read<BluetoothProvider>().connectedDeviceForForehead;
-    if(kDebugMode){
-      return Row(
-        children: [
-          Expanded(
-              child:InkWell(
-                  onTap: () {
-                    context.read<BluetoothProvider>().sendData(device,"912|-1\n");
-                  },
-                  child: Container(
-                      child: Text("배터리 전압 출력")
-                  )
-              )
-          ),
-          Expanded(
-              child:InkWell(
-                  onTap: () {
-                    context.read<BluetoothProvider>().sendData(device,"911|-1\n");
-                  },
-                  child: Container(
-                      child: Text("현상태 출력")
-                  )
-              )
-          ),
-        ]
-      );
-    }
-    return Container();
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + ((recipe?.intensity??10 / 10 * 200).round()).toString() + "\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + ((recipe?.height??10 / 10 * 200).round()).toString() + "\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
   }
 }
