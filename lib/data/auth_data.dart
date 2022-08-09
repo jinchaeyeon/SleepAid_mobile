@@ -1,3 +1,6 @@
+import 'package:flutter/src/services/text_input.dart';
+import 'package:sleepaid/data/local/condition_review.dart';
+
 import 'local/app_dao.dart';
 
 class AuthData{
@@ -15,6 +18,10 @@ class AuthData{
   };
 
   DateTime created = DateTime.now().subtract(const Duration(days: 1));
+
+  String get temporarySNSPW{
+    return "${temporarySNSType}${dateFormat.format(DateTime.now())}";
+  }
 
 
   /// 유저 토큰 로컬에 저장

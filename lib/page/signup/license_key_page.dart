@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
-import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/base_response.dart';
-import 'package:sleepaid/data/network/license_response.dart';
 import 'package:sleepaid/provider/auth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
-import 'package:sleepaid/util/app_strings.dart';
-import 'package:sleepaid/util/app_styles.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:provider/provider.dart';
-import 'package:sleepaid/widget/sign_in_up_button.dart';
 
 
 class LicenseKeyPage extends BaseStatefulWidget {

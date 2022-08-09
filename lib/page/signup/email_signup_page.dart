@@ -39,7 +39,7 @@ class EmailSignUpState extends State<EmailSignUpPage>
       text:AppDAO.debugData.inputTestInputData?AppDAO.debugData.signupPW:""
   );
   FocusNode _checkPasswordNode = FocusNode();
-
+  bool isShowingPasswordNodes = true;
   @override
   void initState() {
     super.initState();
@@ -58,6 +58,10 @@ class EmailSignUpState extends State<EmailSignUpPage>
 
   @override
   Widget build(BuildContext context) {
+    if(AppDAO.authData.temporarySNSType != AuthData.userTypes["email"]){
+      /// SNS로그인은 비밀번호 안보이도록 처리
+      isShowingPasswordNodes = false;
+    }
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
@@ -105,7 +109,7 @@ class EmailSignUpState extends State<EmailSignUpPage>
               hintText: '이메일 아이디',
             ),
           ),
-          Container(
+          isShowingPasswordNodes?Container(
             padding: const EdgeInsets.only(left: 36.0, right: 36.0),
             margin: const EdgeInsets.only(bottom: 30),
             child: SignInUpInput(
@@ -117,8 +121,8 @@ class EmailSignUpState extends State<EmailSignUpPage>
               hintText: '비밀번호',
               isPassword: true,
             ),
-          ),
-          Container(
+          ):Container(),
+          isShowingPasswordNodes?Container(
               padding: const EdgeInsets.only(left: 36.0, right: 36.0),
               margin: const EdgeInsets.only(bottom: 30),
               child: SignInUpInput(
@@ -130,7 +134,7 @@ class EmailSignUpState extends State<EmailSignUpPage>
                 hintText: '비밀번호 확인',
                 isPassword: true,
               )
-          ),
+          ):Container(),
           Container(
             padding: const EdgeInsets.only(left: 36.0, right: 36.0),
             child: GestureDetector(
@@ -173,6 +177,9 @@ class EmailSignUpState extends State<EmailSignUpPage>
     ///회원가입 서버와 통신 이후에, 이슈 있으면 재시도 메세지, 이슈 없으면 메인화면
     String email = _emailController.text;
     String password = _passwordController.text;
+    if(AppDAO.authData.temporarySNSType != AuthData.userTypes["email"]){
+      password = AppDAO.authData.temporarySNSPW;
+    }
     context.read<DataProvider>().setLoading(true);
     int response = await context.read<AuthProvider>().signup(email, password);
     context.read<DataProvider>().setLoading(false);

@@ -103,7 +103,7 @@ class LoginState extends State<LoginListPage>
                     ),
                     InkWell(
                       onTap: () async {
-                        await _actionSNSLogin(AuthData.userTypes["google"]);
+                        await _actionSNSLogin(AuthData.userTypes["facebook"]);
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 30),
@@ -130,7 +130,7 @@ class LoginState extends State<LoginListPage>
                     ),
                     InkWell(
                       onTap: () async {
-                        await _actionSNSLogin(AuthData.userTypes["facebook"]);
+                        await _actionSNSLogin(AuthData.userTypes["google"]);
                       },
                       child: Container(
                         margin: const EdgeInsets.symmetric(horizontal: 30),

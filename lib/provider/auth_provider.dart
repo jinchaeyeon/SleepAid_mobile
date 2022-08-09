@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/auth_data.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
@@ -67,7 +68,8 @@ class AuthProvider with ChangeNotifier{
   /// 소셜 인증체크
   ///
   Future checkSNSLogin(BuildContext context, String? userType) async{
-    if(userType == null) return;
+    print("userType: ${userType}");
+      if(userType == null) return;
     String? uid;
     if(userType == AuthData.userTypes["naver"]){
       NaverLoginResult res = await FlutterNaverLogin.logIn();
@@ -76,23 +78,39 @@ class AuthProvider with ChangeNotifier{
       print("Naver result: ${res.accessToken}");
       print("Naver result: ${res.account.id}");
       print("Naver result: ${res.account.email}");
-    }
-    if(userType == AuthData.userTypes["facebook"]){
+    }else if(userType == AuthData.userTypes["facebook"]){
+      GoogleSignIn _googleSignIn = GoogleSignIn(
+        // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
+        scopes: <String>[
+          'email',
+          'https://www.googleapis.com/auth/contacts.readonly',
+        ],
+      );
+      _googleSignIn.sign
 
-
-    }
-    if(userType == AuthData.userTypes["google"]){
-
+    }else if(userType == AuthData.userTypes["google"]){
+      print("!! google !!");
+      GoogleSignIn _googleSignIn = GoogleSignIn(
+        // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
+        scopes: <String>[
+          'email',
+          'https://www.googleapis.com/auth/contacts.readonly',
+        ],
+      );
+      await _googleSignIn.signIn().then((GoogleSignInAccount? account){
+        print("google result: ${account?.id}");
+        uid = account?.id;
+      });
 
     }
     if(uid == null){
       showToast("인증 실패. 다시 시도해주세요.");
       return;
     }
-    var result = await PostSNSLoginService(type: userType!, uid: uid).start();
+    var result = await PostSNSLoginService(type: userType!, uid: uid!).start();
     if(result is LoginResponse){
       //로그인 완료 홈화면 이동
-      print("로그인 성공");
+      showToast("로그인 성공");
     }
 
     if(result is ServiceError){
@@ -100,8 +118,10 @@ class AuthProvider with ChangeNotifier{
       if(result.code == ServiceError.NON_FIELD_ERRORS && result.message == PostSNSLoginService.NO_SIGNED_USER_MESSAGGE){
         //소셜가입이 되어있지 않으면 가입 시작
         AppDAO.authData.temporarySNSType = userType;
-        AppDAO.authData.temporarySNSUID = uid;
+        AppDAO.authData.temporarySNSUID = uid!;
         Navigator.pushNamed(context, Routes.licenseKey);
+      }else{
+        showToast("잠시 후 다시 시도해주세요.");
       }
     }
   }
