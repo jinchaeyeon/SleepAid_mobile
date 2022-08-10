@@ -9,6 +9,7 @@ import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/auth_response.dart';
 import 'package:sleepaid/data/network/base_response.dart';
 import 'package:sleepaid/data/network/license_response.dart';
+import 'package:sleepaid/network/email_login_service.dart';
 import 'package:sleepaid/network/license_service.dart';
 import 'package:sleepaid/network/signup_email_service.dart';
 import 'package:sleepaid/network/signup_sns_service.dart';
@@ -44,6 +45,7 @@ class AuthProvider with ChangeNotifier{
         uid : snsUID,
         email:email,
         licenseKey: licenseKey,
+        password: pw,
       ).start();
     }else{
       var params = {'email': email, 'password':pw, 'license_key':AppDAO.authData.temporaryLicenseKey};
@@ -66,6 +68,23 @@ class AuthProvider with ChangeNotifier{
     }
   }
 
+  Future<bool> login(String email, String pw, {bool isAutoLogin = false}) async{
+    var params = {'email': email, 'password':pw};
+    var response = await PostEmailLoginService(body:params).start();
+    if(response is LoginResponse){
+      //정상 응답이면 로그인 체크
+      await AppDAO.authData.setUserToken(response.token!);
+      await AppDAO.authData.setUserCreated(response.created!);
+      await AppDAO.authData.setAutoLogin(isAutoLogin);
+      return true;
+    }else if(response is ServiceError){
+      Fluttertoast.showToast(msg:response.message??ServiceError.UNKNOWN_ERROR);
+    }else{
+      return false;
+    }
+    return false;
+  }
+
   /// 소셜 인증체크
   ///
   Future checkSNSLogin(BuildContext context, String? userType) async{
@@ -80,13 +99,6 @@ class AuthProvider with ChangeNotifier{
       print("Naver result: ${res.account.id}");
       print("Naver result: ${res.account.email}");
     }else if(userType == AuthData.userTypes["facebook"]){
-      GoogleSignIn _googleSignIn = GoogleSignIn(
-        // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
-        scopes: <String>[
-          'email',
-          'https://www.googleapis.com/auth/contacts.readonly',
-        ],
-      );
       // Create an instance of FacebookLogin
       final _fb = FacebookLogin();
       final _res = await _fb.logIn(permissions: [
@@ -129,7 +141,10 @@ class AuthProvider with ChangeNotifier{
     var result = await PostSNSLoginService(type: userType!, uid: uid!).start();
     if(result is LoginResponse){
       //로그인 완료 홈화면 이동
-      showToast("로그인 성공");
+      await AppDAO.authData.setUserToken(result.token!);
+      await AppDAO.authData.setUserCreated(result.created!);
+      await AppDAO.authData.setAutoLogin(true);
+      Navigator.pushNamedAndRemoveUntil(context, Routes.home, (route) => false);
     }
 
     if(result is ServiceError){

@@ -9,9 +9,10 @@ class PostSignUpSNSService extends BaseService<LoginResponse> {
   String uid;
   String email;
   String licenseKey;
+  String password;
 
   PostSignUpSNSService({required this.type, required this.uid,
-    required this.email, required this.licenseKey});
+    required this.email, required this.licenseKey, required this.password});
 
   @override
   Future<http.Response?> request() async {
@@ -19,7 +20,8 @@ class PostSignUpSNSService extends BaseService<LoginResponse> {
       "social_type": type,
       "uniq_id": uid,
       "email": email,
-      "license_key": licenseKey
+      "license_key": licenseKey,
+      "password": password
     });
   }
 

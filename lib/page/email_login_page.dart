@@ -12,6 +12,8 @@ import 'package:sleepaid/widget/custom_checkbox.dart';
 import 'package:sleepaid/widget/sign_in_up_input.dart';
 import 'package:provider/provider.dart';
 
+import '../provider/auth_provider.dart';
+
 class EmailLoginPage extends BaseStatefulWidget {
   static const ROUTE = "/EmailLogin";
 
@@ -196,7 +198,7 @@ class EmailLoginState extends State<EmailLoginPage>
     FocusManager.instance.primaryFocus?.unfocus();
     context.read<DataProvider>().setLoading(true);
     if(!isAutoLogin) await AppDAO.authData.setUserToken(null);
-    bool isSuccess = await context.read<DataProvider>().login(id, pw, isAutoLogin: isAutoLogin);
+    bool isSuccess = await context.read<AuthProvider>().login(id, pw, isAutoLogin: isAutoLogin);
     context.read<DataProvider>().setLoading(false);
     if(isSuccess){
       Navigator.pushReplacementNamed(context, Routes.home);

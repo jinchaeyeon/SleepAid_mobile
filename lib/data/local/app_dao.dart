@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
+import 'package:flutter_naver_login/flutter_naver_login.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:intl/intl.dart';
 import 'package:sembast/sembast.dart';
 import 'package:sembast/timestamp.dart';
@@ -86,6 +89,7 @@ class AppDAO{
     await setUserType(null);
     await setDarkMode(false);
     await setUserCreated(null);
+    await resetSNSLogin();
     await setLastSleepCondition(null, null);
   }
 
@@ -184,6 +188,32 @@ class AppDAO{
   static Future<bool> isAutoLogin() async{
     bool? isAutoLogin = await _get(key: 'is_auto_login') as bool?;
     return isAutoLogin??false;
+  }
+
+  static resetSNSLogin() async{
+    GoogleSignIn _googleSignIn = GoogleSignIn(
+      scopes: <String>[
+        'email',
+        'https://www.googleapis.com/auth/contacts.readonly',
+      ],
+    );
+    try{
+      if(await _googleSignIn.isSignedIn()){
+        await _googleSignIn.signOut();
+      }
+
+      final _fb = FacebookLogin();
+      if(await _fb.isLoggedIn){
+        await _fb.logOut();
+      }
+
+      if(await FlutterNaverLogin.isLoggedIn){
+        await FlutterNaverLogin.logOutAndDeleteToken();
+      }
+    }catch(e){
+      print("err: $e");
+    }
+
   }
 }
 

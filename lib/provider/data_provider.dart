@@ -47,24 +47,6 @@ class DataProvider with ChangeNotifier{
     return result;
   }
 
-  Future<bool> login(String email, String pw, {bool isAutoLogin = false}) async{
-    debugPrint("login: $email | $pw | $isAutoLogin");
-    var params = {'email': email, 'password':pw};
-    var response = await PostEmailLoginService(body:params).start();
-    if(response is LoginResponse){
-      //정상 응답이면 로그인 체크
-      await AppDAO.authData.setUserToken(response.token!);
-      await AppDAO.authData.setUserCreated(response.created!);
-      await AppDAO.authData.setAutoLogin(isAutoLogin);
-      return true;
-    }else if(response is ServiceError){
-      Fluttertoast.showToast(msg:response.message??ServiceError.UNKNOWN_ERROR);
-    }else{
-      return false;
-    }
-    return false;
-  }
-
   Future<List<CalendarDetailResponse>> loadCalendarData() async{
     return [];
   }
