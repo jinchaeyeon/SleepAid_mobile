@@ -1,4 +1,5 @@
 import 'package:flutter/widgets.dart';
+import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_naver_login/flutter_naver_login.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -86,10 +87,28 @@ class AuthProvider with ChangeNotifier{
           'https://www.googleapis.com/auth/contacts.readonly',
         ],
       );
-      _googleSignIn.sign
-
+      // Create an instance of FacebookLogin
+      final _fb = FacebookLogin();
+      final _res = await _fb.logIn(permissions: [
+        FacebookPermission.publicProfile,
+        FacebookPermission.email,
+      ]);
+      switch (_res.status) {
+        case FacebookLoginStatus.success:
+          final FacebookAccessToken? accessToken = _res.accessToken;
+          print('Access token: ${accessToken?.token}');
+          _fb.getUserProfile().then((FacebookUserProfile? _profile){
+            uid = _profile?.userId;
+            print("fb result: ${uid}");
+          });
+          break;
+        case FacebookLoginStatus.cancel:
+          break;
+        case FacebookLoginStatus.error:
+          showToast('Error while log in: ${_res.error}');
+          break;
+      }
     }else if(userType == AuthData.userTypes["google"]){
-      print("!! google !!");
       GoogleSignIn _googleSignIn = GoogleSignIn(
         // clientId: '479882132969-9i9aqik3jfjd7qhci1nqf0bm2g71rm1u.apps.googleusercontent.com',
         scopes: <String>[
