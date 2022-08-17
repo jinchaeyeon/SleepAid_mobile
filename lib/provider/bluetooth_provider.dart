@@ -158,10 +158,10 @@ class BluetoothProvider with ChangeNotifier{
 
     /// 기연결 상태면 연결 해제
     if(deviceNeck?.id == selectedDeviceId){
-      await connectorNeck?.disconnect(connectorNeck.connectedDeviceId);
+      disconnect(BODY_TYPE.NECK);
     }
     if(deviceForehead?.id == selectedDeviceId){
-      await connectorForehead?.disconnect(connectorForehead.connectedDeviceId);
+      disconnect(BODY_TYPE.FOREHEAD);
     }
 
     /// 연결 시작
@@ -184,14 +184,18 @@ class BluetoothProvider with ChangeNotifier{
         },onDone: (){
           // showToast("on done");
           deviceNeck = null;
+          connectorNeck?.init();
           notifyListeners();
         }, onError: (dynamic error) {
           deviceNeck = null;
+          connectorNeck?.init();
           notifyListeners();
         });
 
       },onError:(err){
-        showToast("error");
+        deviceNeck = null;
+        connectorNeck?.init();
+        notifyListeners();
       });
     }else if(type == BODY_TYPE.FOREHEAD){
       await connectorForehead.connect(selectedDeviceId, selectedDeviceName).then((value){
@@ -213,12 +217,16 @@ class BluetoothProvider with ChangeNotifier{
           notifyListeners();
         },onDone: (){
           deviceForehead = null;
+          connectorForehead?.init();
         }, onError: (dynamic error) {
           deviceForehead = null;
+          connectorForehead?.init();
         });
 
       },onError:(err){
-        showToast("error");
+        deviceForehead = null;
+        connectorForehead?.init();
+        notifyListeners();
       });
     }
 
@@ -527,6 +535,17 @@ class BluetoothProvider with ChangeNotifier{
     }
 
     return list;
+  }
+
+  Future<void> disconnect(BODY_TYPE type) async {
+    if(type == BODY_TYPE.NECK && deviceNeck != null){
+      await connectorNeck?.disconnect(deviceNeck!.id);
+      deviceNeck = null;
+    }else if(type == BODY_TYPE.FOREHEAD && deviceForehead != null){
+      await connectorForehead?.disconnect(deviceForehead!.id);
+      deviceForehead = null;
+    }
+    notifyListeners();
   }
 }
 

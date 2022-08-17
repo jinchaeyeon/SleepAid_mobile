@@ -48,11 +48,12 @@ class CalendarState extends State<CalendarPage>
                 width: double.maxFinite,
                 height: double.maxFinite,
                 alignment: Alignment.topCenter,
-                child: isLoaded?MyCalendarWidget(
-                  data: context.watch<DataProvider>().sleepAnalysisMap,
-                  onTapCallback: onTapCallback,
-                  startDate: AppDAO.authData.created,
-                  endDate: DateTime.now(),
+                child: isLoaded
+                    ?MyCalendarWidget(
+                      data: context.watch<DataProvider>().sleepAnalysisMap,
+                      onTapCallback: onTapCallback,
+                      startDate: AppDAO.authData.created,
+                      endDate: DateTime.now(),
                 ):const Center(
                   child: SizedBox(
                     width: 100,

@@ -66,7 +66,10 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                                 itemCount: snapshot.data!.discoveredDevices.length,
                                 itemBuilder: (_context, index){
                                   // 연결된 기기는 숨기기
-                                  if(BODY_TYPE.NONE != context.watch<BluetoothProvider>().isConnectedDevice(snapshot.data?.discoveredDevices[index].id)){
+                                  if(snapshot.data?.discoveredDevices[index].id == context.watch<BluetoothProvider>().deviceNeck?.id){
+                                    return Container();
+                                  }
+                                  if(snapshot.data?.discoveredDevices[index].id == context.watch<BluetoothProvider>().deviceForehead?.id){
                                     return Container();
                                   }
                                   return _bluetoothDeviceListItemWidget(device: snapshot.data!.discoveredDevices[index], index: index);
@@ -362,8 +365,8 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     if(bodyType == BODY_TYPE.NONE){
       return "연결안됨";
     }else if(
-      deviceId == context.read<BluetoothProvider>().connectorNeck.connectedDeviceId ||
-      deviceId == context.read<BluetoothProvider>().connectorForehead.connectedDeviceId
+      deviceId == context.watch<BluetoothProvider>().deviceNeck?.id ||
+      deviceId == context.watch<BluetoothProvider>().deviceForehead?.id
     ){
       return "연결됨";
     }else{

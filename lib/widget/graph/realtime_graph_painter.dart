@@ -25,12 +25,12 @@ class RealtimeGraphPainter extends CustomPainter {
     var x1 = size.width / (dataList.length - 1);
     var y1 = size.height / BleDevice.getMaxYFromType(type);
 
-    for (var _i = 0, _len = dataList.length; _i < _len; _i++) {
+    for (var _i = 0, _len = dataList.length ; _i < _len; _i++) {
       i++;
       maxPoints.add(
           Offset(
             x1 * i,
-            (y1 * dataList[_i]?.getDataByType(type)?.toDouble()??0 * zoomLevel).clamp(0, size.height)
+            (y1 * dataList[_i]?.getDataByType(type)?.toDouble()??0).clamp(0, size.height)
           )
       );
     }

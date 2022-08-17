@@ -61,6 +61,8 @@ class EmailSignUpState extends State<EmailSignUpPage>
     if(AppDAO.authData.temporarySNSType != AuthData.userTypes["email"]){
       /// SNS로그인은 비밀번호 안보이도록 처리
       isShowingPasswordNodes = false;
+    }else{
+      isShowingPasswordNodes = true;
     }
     return Scaffold(
       resizeToAvoidBottomInset: false,

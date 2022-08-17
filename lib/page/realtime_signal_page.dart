@@ -107,7 +107,9 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               height: double.maxFinite,
               child: RealtimeGraphWidget(
                 type: title,
-                data: context.watch<BluetoothProvider>().deviceNeck?.sensors
+                data: isNeckMode
+                    ?context.watch<BluetoothProvider>().deviceNeck?.sensors
+                    :context.watch<BluetoothProvider>().deviceForehead?.sensors
               )
             )
           )
@@ -550,6 +552,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                           getGraphWidget(BleDevice.realtimeSesorTypes[1]),
                           getGraphWidget(BleDevice.realtimeSesorTypes[2]),
                           getGraphWidget(BleDevice.realtimeSesorTypes[3]),
+                          getGraphWidget("HRV", showParameterUI:true),
                           // getGraphWidget("HRV", showParameterUI:true),
                         ],
                       ),
@@ -566,8 +569,10 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                       padding: const EdgeInsets.only(left: 30, right: 30, top: 0, bottom: 0),
                       child: Column(
                         children: [
-                          getGraphWidget("PPG"),
-                          getGraphWidget("Actigraphy"),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[0]),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[1]),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[2]),
+                          getGraphWidget(BleDevice.realtimeSesorTypes[3]),
                           getGraphWidget("HRV", showParameterUI:true),
                         ],
                       ),

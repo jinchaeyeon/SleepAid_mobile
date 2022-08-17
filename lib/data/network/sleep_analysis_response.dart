@@ -30,11 +30,11 @@ class SleepAnalysisResponse extends BaseResponse{
     return SleepAnalysisResponse(
       id : json['id'],
       date : json['date'],
-      awake : json['awake'],
-      rem : json['rem'],
-      light : json['light'],
-      deep : json['deep'],
-      quality : json['quality'],
+      awake : json['awake']??"0",
+      rem : json['rem']??"0",
+      light : json['light']??"0",
+      deep : json['deep']??"0",
+      quality : json['quality']??0,
       itemSet : buildItemSet(json['item_set'] as List<dynamic>),
     );
   }

@@ -541,7 +541,7 @@ class BinauralBeatState extends State<BinauralBeatPage>
             bottom: 26,
           ),
           decoration: isDeviceConected
-              ?BoxDecoration(color:AppColors.grey)
+              ?BoxDecoration(color:AppColors.borderGrey, borderRadius: BorderRadius.circular(14),)
               :BoxDecoration(
             color: selectedRecipe == recipe ? Theme
                 .of(context)

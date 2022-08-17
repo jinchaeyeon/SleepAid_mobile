@@ -17,7 +17,7 @@ class MyCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
   final DateTime startDate;
   final DateTime endDate;
-  final Map<String, SleepAnalysisResponse> data;
+  final Map<String, SleepAnalysisResponse>? data;
 
   const MyCalendarWidget(
       {Key? key,
@@ -55,6 +55,40 @@ class MyCalendarState extends State<MyCalendarWidget>{
 
   @override
   Widget build(BuildContext context) {
+    if(widget.data == null){
+      return Container(
+          child: Stack(
+            children: [
+              Positioned(
+                top: 0, left: 0, right: 0,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        alignment: Alignment.center,
+                        child: Image.asset(
+                          AppImages.back, color: Theme.of(context).primaryIconTheme.color,
+                          fit: BoxFit.contain, width: 12, height: 21,
+
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Center(
+                  child: Text("생성 된 수면 데이터가 없습니다", style: TextStyle(height: 1, fontSize: 22,color: AppColors.textBlack, fontWeight: FontWeight.bold)
+                  )
+              )
+            ],
+          ));
+    }
     return getBaseWillScope(
         context,
         Listener(
@@ -73,8 +107,7 @@ class MyCalendarState extends State<MyCalendarWidget>{
             _lastPosition = 0;
           },
           child: mainContent()
-        )
-
+        ),
     );
   }
 
@@ -86,7 +119,7 @@ class MyCalendarState extends State<MyCalendarWidget>{
           onTapCallback: widget.onTapCallback,
           dateBuilder: dateBuilder,
           weeks: dateBuilder.weeksPerMonth[monthString]??[],
-          data: widget.data,
+          data: widget.data??{},
       ));
     }
     return monthWidgets;
