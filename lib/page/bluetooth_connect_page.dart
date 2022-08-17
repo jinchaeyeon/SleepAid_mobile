@@ -51,9 +51,9 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                   children: [
                     searchingStatusButton(context),
                     context.watch<BluetoothProvider>().deviceNeck == null ?Container()
-                    : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceNeck),
+                    : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceNeck!.discoveredDevice!),
                     context.watch<BluetoothProvider>().deviceForehead == null ?Container()
-                        : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceForehead),
+                        : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceForehead!.discoveredDevice!),
                     Expanded(
                       child: StreamBuilder<BleScannerState>(
                         stream: context.watch<BluetoothProvider>().scanner.state.asBroadcastStream(),
@@ -69,7 +69,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                                   if(BODY_TYPE.NONE != context.watch<BluetoothProvider>().isConnectedDevice(snapshot.data?.discoveredDevices[index].id)){
                                     return Container();
                                   }
-                                  return _bluetoothDeviceListItemWidget(snapshot: snapshot, index: index);
+                                  return _bluetoothDeviceListItemWidget(device: snapshot.data!.discoveredDevices[index], index: index);
                                 },
                               );
                           }else{
@@ -143,25 +143,14 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     );
   }
 
-  Widget _bluetoothDeviceListItemWidget({BleDevice? device, AsyncSnapshot? snapshot, int? index}) {
-    String selectedDeviceId = "";
-    String name = "";
-    if(device != null){
-      selectedDeviceId = device.id;
-    }else if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
-      selectedDeviceId = snapshot.data!.deviceId;
-    }else if(snapshot is AsyncSnapshot<BleScannerState>){
-      selectedDeviceId = snapshot.data!.discoveredDevices[index!].id;
-    }
+  Widget _bluetoothDeviceListItemWidget({required DiscoveredDevice device, int? index}) {
+    String selectedDeviceId = device.id;
     BODY_TYPE bodyType = context.watch<BluetoothProvider>().isConnectedDevice(selectedDeviceId);
-    if(device != null){
-      name = _getDeviceName(bodyType, null, index: index, name: device.deviceName);
-    }else{
-      name = _getDeviceName(bodyType, snapshot!, index: index);
-    }
+    String name = _getDeviceName(bodyType, index: index, name: device.name);
+
     return InkWell(
         onTap:() async {
-          await showBodyTypeDialog(context, device: device, snapshot: snapshot, index: index);
+          await showBodyTypeDialog(context, device: device, index: index);
         },
         child: Container(
             height: 70,
@@ -195,6 +184,58 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     );
   }
 
+  // Widget _bluetoothDeviceListItemWidget({BleDevice? device, AsyncSnapshot? snapshot, int? index}) {
+  //   String selectedDeviceId = "";
+  //   String name = "";
+  //   if(device != null){
+  //     selectedDeviceId = device.id;
+  //   }else if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
+  //     selectedDeviceId = snapshot.data!.deviceId;
+  //   }else if(snapshot is AsyncSnapshot<BleScannerState>){
+  //     selectedDeviceId = snapshot.data!.discoveredDevices[index!].id;
+  //   }
+  //   BODY_TYPE bodyType = context.watch<BluetoothProvider>().isConnectedDevice(selectedDeviceId);
+  //   if(device != null){
+  //     name = _getDeviceName(bodyType, null, index: index, name: device.deviceName);
+  //   }else{
+  //     name = _getDeviceName(bodyType, snapshot!, index: index);
+  //   }
+  //   return InkWell(
+  //       onTap:() async {
+  //         await showBodyTypeDialog(context, device: device, snapshot: snapshot, index: index);
+  //       },
+  //       child: Container(
+  //           height: 70,
+  //           decoration: BoxDecoration(
+  //               border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+  //           ),
+  //           padding: const EdgeInsets.only(left: 20, right: 20),
+  //           width: double.maxFinite,
+  //           child: Row(
+  //               children: [
+  //                 Text(
+  //                   name,
+  //                   style: TextStyle(
+  //                     color: Theme.of(context).textSelectionTheme.selectionColor,
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.bold,
+  //                   ),
+  //                 ),
+  //                 const Expanded(child: SizedBox.shrink()),
+  //                 Text(
+  //                   _getDeviceStatusText(bodyType, selectedDeviceId),
+  //                   style: TextStyle(
+  //                     color: Theme.of(context).textSelectionTheme.selectionColor,
+  //                     fontSize: 14,
+  //                     fontWeight: FontWeight.w600,
+  //                   ),
+  //                 ),
+  //               ]
+  //           )
+  //       )
+  //   );
+  // }
+
   void startScanning() {
     context.read<BluetoothProvider>().startDeviceScanning();
   }
@@ -208,13 +249,8 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     super.dispose();
   }
 
-  Future<void> showBodyTypeDialog(BuildContext context, {int? index, AsyncSnapshot? snapshot, BleDevice? device}) async{
-    String name = "";
-    if(snapshot != null){
-      name = snapshot.connectionState.name;
-    }else if(device != null){
-      name = device!.deviceName;
-    }
+  Future<void> showBodyTypeDialog(BuildContext context, {int? index, required DiscoveredDevice device}) async{
+    String name = device.name;
 
     showModalBottomSheet(
       context: context,
@@ -258,7 +294,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                             onTap:() async {
                               Navigator.pop(context);
                               context.read<DataProvider>().setLoading(true);
-                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, snapshot: snapshot, index: index, device: device);
+                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.NECK, index: index, device: device);
                               context.read<DataProvider>().setLoading(false);
                             },
                             child:Container(
@@ -278,7 +314,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                             onTap:() async {
                               Navigator.pop(context);
                               context.read<DataProvider>().setLoading(true);
-                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, snapshot: snapshot, device: device);
+                              context.read<BluetoothProvider>().choiceBodyPosition(BODY_TYPE.FOREHEAD, device: device);
                               context.read<DataProvider>().setLoading(false);
                             },
                             child:Container(
@@ -298,26 +334,27 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
     );
   }
 
-  String _getDeviceName(BODY_TYPE bodyType, AsyncSnapshot? snapshot, {int? index, String? name}) {
-    String name = "";
-    if(bodyType == BODY_TYPE.NECK){
-      name = context.watch<BluetoothProvider>().connectorNeck.connectedDeviceName;
-    }else if(bodyType == BODY_TYPE.FOREHEAD){
-      name = context.watch<BluetoothProvider>().connectorForehead.connectedDeviceName;
-    }else{
-      if(snapshot is AsyncSnapshot<BleScannerState>){
-        name = snapshot.data?.discoveredDevices[index!].name??"";
-      }
-    }
+  String _getDeviceName(BODY_TYPE bodyType, {int? index, required String name}) {
+    String deviceName = name;
+
+    // if(bodyType == BODY_TYPE.NECK){
+    //   deviceName = name??context.watch<BluetoothProvider>().connectorNeck.connectedDeviceName;
+    // }else if(bodyType == BODY_TYPE.FOREHEAD){
+    //   deviceName = name??context.watch<BluetoothProvider>().connectorForehead.connectedDeviceName;
+    // }else{
+    //   if(snapshot is AsyncSnapshot<BleScannerState>){
+    //     deviceName = snapshot.data?.discoveredDevices[index!].name??"";
+    //   }
+    // }
 
     if(bodyType == BODY_TYPE.NONE){
-      return name;
+      return deviceName;
     }else if(bodyType == BODY_TYPE.NECK){
-      return "${name}(목)";
+      return "${deviceName}(목)";
     }else if(bodyType == BODY_TYPE.FOREHEAD){
-      return "${name}(이마)";
+      return "${deviceName}(이마)";
     }else{
-      return name;
+      return deviceName;
     }
   }
 

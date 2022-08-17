@@ -5,7 +5,7 @@ publish_to: 'neurotx'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.12.0 <3.0.0"
+  sdk: ">=2.16.0 <3.0.0"
 
 dependencies:
   flutter:
@@ -38,19 +38,18 @@ dependencies:
 #  syncfusion_flutter_charts: 19.4.52 #차트(그래프) 라이브러리 기존 앱에서 쓰는 차트 ///todo 문의 후 삭제해야 할수도 있음
   flutter_naver_login: 1.6.0
   google_sign_in: ^5.4.0
+  flutter_login_facebook: ^1.5.0+1
+
   #  flutter_naver_login: 1.2.4
   headset_connection_event: ^2.1.1
   app_settings: ^4.1.8
   android_intent_plus: ^3.1.1
 
+  firebase_core: ^1.20.0
   firebase_auth: ^3.6.2
   firebase_messaging: ^12.0.1
-  firebase_core: ^1.20.0
   flutter_local_notifications: ^9.7.0
 
-#  firebase_core: 1.10.0
-#  firebase_messaging: 11.1.0
-#  flutter_local_notifications: ^9.5.2
 
 dev_dependencies:
   flutter_test:

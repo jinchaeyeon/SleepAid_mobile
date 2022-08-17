@@ -12,6 +12,7 @@ import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_interactor.dart';
 import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_logger.dart';
 import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_scanner.dart';
 import 'package:sleepaid/bluetooth/flutter_reactive_ble/ble_status_monitor.dart';
+import 'package:sleepaid/bluetooth/protocol.dart';
 import 'package:sleepaid/data/ble_device.dart';
 import 'package:sleepaid/data/local/device_sensor_data.dart';
 import 'package:sleepaid/util/functions.dart';
@@ -25,7 +26,6 @@ class BluetoothProvider with ChangeNotifier{
   static const List<String> RX_UUID_LIST = ['6e400002-b5a3-f393-e0a9-e50e24dcca9e'];
   static const List<String> TX_UUID_LIST = ['6e400003-b5a3-f393-e0a9-e50e24dcca9e'];
   static const int MTU = 20;
-  static const int SENSOR_LEN = 1000;
 
   static FlutterReactiveBle flutterReactiveBle = FlutterReactiveBle();
 
@@ -146,67 +146,80 @@ class BluetoothProvider with ChangeNotifier{
   /// 3. 연결 실패하면 연결에 실패하였습니다
   /// 4. 연결 성공하면 업데이트
   /// 또는 현재 연결중인 기기중에 현재 선택 기기가 있으면 연결 취소 처리
-  Future<void> choiceBodyPosition(BODY_TYPE type, {int? index, AsyncSnapshot? snapshot, BleDevice? device}) async {
-    String? selectedDeviceId = "";
+  Future<void> choiceBodyPosition(BODY_TYPE type, {int? index, required DiscoveredDevice device}) async {
+    String? selectedDeviceId = device.id;
+    String? selectedDeviceName = device.name;
 
-    if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
-      selectedDeviceId = snapshot.data!.deviceId;
-    }else if(snapshot is AsyncSnapshot<BleScannerState>){
-      selectedDeviceId = snapshot.data!.discoveredDevices[index??0].id;
+    // if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
+    //   selectedDeviceId = snapshot.data!.deviceId;
+    // }else if(snapshot is AsyncSnapshot<BleScannerState>){
+    //   selectedDeviceId = snapshot.data!.discoveredDevices[index??0].id;
+    // }
+
+    /// 기연결 상태면 연결 해제
+    if(deviceNeck?.id == selectedDeviceId){
+      await connectorNeck?.disconnect(connectorNeck.connectedDeviceId);
+    }
+    if(deviceForehead?.id == selectedDeviceId){
+      await connectorForehead?.disconnect(connectorForehead.connectedDeviceId);
     }
 
-    if(connectorNeck.connectedDeviceId == selectedDeviceId){
-      await connectorNeck.disconnect(connectorNeck.connectedDeviceId);
-    }
-    if(connectorForehead.connectedDeviceId == selectedDeviceId){
-      await connectorForehead.disconnect(connectorForehead.connectedDeviceId);
-    }
+    /// 연결 시작
+    print("연결 시작");
+    if(type == BODY_TYPE.NECK){
+      await connectorNeck.connect(selectedDeviceId, selectedDeviceName).then((value){
+        final characteristic = QualifiedCharacteristic(
+            serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
+            characteristicId: Uuid.parse(TX_UUID_LIST[0]),
+            deviceId: selectedDeviceId!);
 
-    if(selectedDeviceId != null){
-      await flutterReactiveBle.requestMtu(deviceId: selectedDeviceId, mtu: MTU);
-
-      if(type == BODY_TYPE.NECK){
-        await connectorNeck.connect(selectedDeviceId).then((value){
-          final characteristic = QualifiedCharacteristic(
-              serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
-              characteristicId: Uuid.parse(TX_UUID_LIST[0]),
-              deviceId: selectedDeviceId!);
-
-          serviceDiscoverer.subScribeToCharacteristicNeck(characteristic).asBroadcastStream().listen((data) {
-            deviceNeck ??= BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceName);
-            print("data neck :${data}");
-          },onDone: (){
-            // showToast("on done");
-            deviceNeck = null;
-            notifyListeners();
-          }, onError: (dynamic error) {
-            deviceNeck = null;
-            notifyListeners();
-          });
-
-        },onError:(err){
-          showToast("error");
+        serviceDiscoverer.subScribeToCharacteristicNeck(characteristic).asBroadcastStream().listen((data) {
+          deviceNeck ??= BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceId, device);
+          if(deviceNeck?.deviceName != connectorNeck.connectedDeviceName){
+            deviceNeck = BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceId, device);
+          }
+          DeviceSensorData sensorData = Protocol.buildSensorData(Uint8List.fromList(data));
+          deviceNeck?.setDeviceResponse(sensorData);
+          notifyListeners();
+        },onDone: (){
+          // showToast("on done");
+          deviceNeck = null;
+          notifyListeners();
+        }, onError: (dynamic error) {
+          deviceNeck = null;
+          notifyListeners();
         });
-      }else if(type == BODY_TYPE.FOREHEAD){
-        await connectorForehead.connect(selectedDeviceId).then((value){
-          final characteristic = QualifiedCharacteristic(
-              serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
-              characteristicId: Uuid.parse(TX_UUID_LIST[0]),
-              deviceId: selectedDeviceId!);
 
-          serviceDiscoverer.subScribeToCharacteristicForehead(characteristic).asBroadcastStream().listen((data) {
-            deviceForehead ??= BleDevice(connectorForehead.connectedDeviceName, connectorForehead.connectedDeviceName);
-            print("data forehead:${data}");
-          },onDone: (){
-            deviceForehead = null;
-          }, onError: (dynamic error) {
-            deviceForehead = null;
-          });
+      },onError:(err){
+        showToast("error");
+      });
+    }else if(type == BODY_TYPE.FOREHEAD){
+      await connectorForehead.connect(selectedDeviceId, selectedDeviceName).then((value){
+        final characteristic = QualifiedCharacteristic(
+            serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
+            characteristicId: Uuid.parse(TX_UUID_LIST[0]),
+            deviceId: selectedDeviceId!);
 
-        },onError:(err){
-          showToast("error");
+        serviceDiscoverer.subScribeToCharacteristicForehead(characteristic).asBroadcastStream().listen((data) {
+          deviceForehead ??= BleDevice(connectorForehead.connectedDeviceName,
+              connectorForehead.connectedDeviceId, device);
+          if(deviceForehead?.deviceName != connectorForehead.connectedDeviceName){
+            deviceForehead = BleDevice(connectorForehead.connectedDeviceName,
+                connectorForehead.connectedDeviceId, device);
+          }
+          // print("data forehead:${data}");
+          DeviceSensorData sensorData = Protocol.buildSensorData(Uint8List.fromList(data));
+          deviceForehead?.setDeviceResponse(sensorData);
+          notifyListeners();
+        },onDone: (){
+          deviceForehead = null;
+        }, onError: (dynamic error) {
+          deviceForehead = null;
         });
-      }
+
+      },onError:(err){
+        showToast("error");
+      });
     }
 
 
@@ -436,7 +449,6 @@ class BluetoothProvider with ChangeNotifier{
     }else if(deviceId == connectorForehead.connectedDeviceId){
       type = BODY_TYPE.FOREHEAD;
     }
-    print("isConnectedDevice: ${deviceId} | ${type}");
     return type;
   }
 
@@ -481,15 +493,6 @@ class BluetoothProvider with ChangeNotifier{
     bleDevice.battery = batteryValue.split(".")[0];
     // dPrint("===setBatteryValue: ${bleDevice.battery}");
     notifyListeners();
-  }
-
-  /// 기기에서 가져온 데이터 저장
-  void setDeviceResponse(BleDevice bleDevice, DeviceSensorData data) {
-    while(bleDevice.sensors.length > SENSOR_LEN) {
-      bleDevice.sensors.removeRange(0, SENSOR_LEN ~/ 10);
-    }
-    bleDevice.sensors.add(data);
-    return;
   }
 
   void setPulseValue(BleDevice bleDevice, List<String> pulseValue) {

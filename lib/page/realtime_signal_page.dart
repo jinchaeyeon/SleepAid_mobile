@@ -9,6 +9,7 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
 import '../app_routes.dart';
+import '../widget/graph/realtime_graph_widget.dart';
 
 class RealtimeSignalPage extends BaseStatefulWidget {
   static const ROUTE = "/RealtimeSignal";
@@ -104,28 +105,10 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               color: AppColors.grey ,
               width: double.maxFinite,
               height: double.maxFinite,
-              // child: SizedBox.shrink()
-              // child: SfCartesianChart(
-              //   onZoomStart: (value){
-              //     print("zoom: value");
-              //   },
-              //   series: <LineSeries<int, int>>[
-              //     LineSeries<int, int>(
-              //       dataSource: isNeckMode?
-              //       context.watch<BluetoothProvider>().connectedDeviceForNeck!.getSensorValues(title):
-              //       context.watch<BluetoothProvider>().connectedDeviceForForehead!.getSensorValues(title),
-              //       color: AppColors.mainBlue,
-              //       xValueMapper: (data, idx) => idx,
-              //       yValueMapper: (data, idx) => data,
-              //     )
-              //   ],
-              //   primaryXAxis: NumericAxis(
-              //     isVisible: false,
-              //   ),
-              //   primaryYAxis: NumericAxis(
-              //     isVisible: false,
-              //   ),
-              // )
+              child: RealtimeGraphWidget(
+                type: title,
+                data: context.watch<BluetoothProvider>().deviceNeck?.sensors
+              )
             )
           )
         ]

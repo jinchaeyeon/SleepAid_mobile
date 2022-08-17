@@ -23,28 +23,28 @@ class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
   // ignore: cancel_subscriptions
   late StreamSubscription<ConnectionStateUpdate> _connection;
 
-  Future<void> connect(String deviceId) async {
+  Future<void> connect(String deviceId, String deviceName) async {
     _logMessage('Start connecting to $deviceId');
     _connection = _ble.connectToDevice(
         id: deviceId,
-        connectionTimeout: const Duration(seconds: 15)
+        connectionTimeout: const Duration(seconds: 25)
     ).listen(
           (update) {
         connectedDeviceId = deviceId;
-        connectedDeviceName = update.connectionState.name;
+        connectedDeviceName = deviceName;
         _logMessage(
-            'ConnectionState for device $deviceId : ${update.connectionState}');
+            '==== ConnectionState for device $deviceId : ${update.connectionState}');
         _deviceConnectionController.add(update);
       },
       onError: (Object e) =>
-          _logMessage('Connecting to device $deviceId resulted in error $e'),
+          _logMessage('==== Connecting to device $deviceId resulted in error $e'),
     );
   }
 
   Future<void> disconnect(String deviceId) async {
     try {
       _logMessage('disconnecting to device: $deviceId');
-      await _connection.cancel();
+      await _connection?.cancel();
       connectedDeviceId = "";
       connectedDeviceName = "";
     } on Exception catch (e, _) {

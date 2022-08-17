@@ -3,4 +3,6 @@
     <string name="client_id">z4nD612bbATdAG6RRGMT</string>
     <string name="client_secret">ABpX7xjoCO</string>
     <string name="client_name">SleepAID</string>
+    <string name="facebook_app_id">1065882220689852</string>
+    <string name="facebook_client_token">9bb5dcbe01bd31706a0200b6c5880554</string>
 </resources>

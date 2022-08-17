@@ -35,7 +35,6 @@ class HomeState extends State<HomePage>
 
   @override
   Future<void> didChangeDependencies() async {
-    log("didChangeDependencies isInit: $isInit");
     // if(isInit){
     //   Future.delayed(Duration(milliseconds:200),() async {
     //     context.read<DataProvider>().setLoading(true);

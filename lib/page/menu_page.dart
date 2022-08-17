@@ -65,6 +65,7 @@ class MenuState extends State<MenuPage>
       Widget subWidget = const SizedBox.shrink();
       if(title == AppStrings.menu_bluetooth_connect){
         subWidget = Text(_getConnectedDeviceText(context),
+            overflow: TextOverflow.ellipsis,
             style:const TextStyle(fontSize: 12, color:AppColors.subTextBlack, fontWeight: FontWeight.bold));
       }else if(title == AppStrings.menu_version_info){
         subWidget = Text(AppDAO.appVersion,
@@ -84,7 +85,7 @@ class MenuState extends State<MenuPage>
             decoration: BoxDecoration(
                 border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
             ),
-            padding: const EdgeInsets.only(left: 20, right: 20),
+            padding: const EdgeInsets.only(left: 18, right: 18),
             width: double.maxFinite,
             child: Row(
                 children: [
@@ -113,7 +114,7 @@ class MenuState extends State<MenuPage>
                 decoration: BoxDecoration(
                     border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
                 ),
-                padding: const EdgeInsets.only(left: 20, right: 20),
+                padding: const EdgeInsets.only(left: 18, right: 18),
                 width: double.maxFinite,
                 child: Row(
                     children: [
@@ -126,6 +127,7 @@ class MenuState extends State<MenuPage>
                         ),
                       ),
                       const Expanded(child: SizedBox.shrink()),
+                      // Expanded(child: subWidget)
                       subWidget
                     ]
                 )
@@ -171,11 +173,13 @@ class MenuState extends State<MenuPage>
 
   String _getConnectedDeviceText(BuildContext context) {
     String text = "";
-    if(context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != ""){
-      text = "${context.watch<BluetoothProvider>().connectorNeck.connectedDeviceName}(목) ";
+    if(context.watch<BluetoothProvider>().deviceNeck!=null
+        && context.watch<BluetoothProvider>().deviceNeck?.id != ""){
+      text = "${context.watch<BluetoothProvider>().deviceNeck?.deviceName}(목) ";
     }
-    if(context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != ""){
-      text = text + "${context.watch<BluetoothProvider>().connectorForehead.connectedDeviceName}(이마) ";
+    if(context.watch<BluetoothProvider>().deviceForehead != null
+        && context.watch<BluetoothProvider>().deviceForehead?.id != ""){
+      text = text + "${context.watch<BluetoothProvider>().deviceForehead?.deviceName}(이마) ";
     }
     return text;
   }
