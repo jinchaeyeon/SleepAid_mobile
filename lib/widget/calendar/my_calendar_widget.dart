@@ -75,7 +75,6 @@ class MyCalendarState extends State<MyCalendarWidget>{
                         child: Image.asset(
                           AppImages.back, color: Theme.of(context).primaryIconTheme.color,
                           fit: BoxFit.contain, width: 12, height: 21,
-
                         ),
                       ),
                     ),

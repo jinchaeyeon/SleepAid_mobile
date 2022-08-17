@@ -12,10 +12,46 @@ class MainProvider with ChangeNotifier{
   // Instantiate it
   HeadsetEvent headsetPlugin = HeadsetEvent();
   HeadsetState headsetEvent = HeadsetState.DISCONNECT;
-  double frequencyLeft = 400;
-  double frequencyRight = 360;
+  double frequencyTone = 400;
+  double frequencyBeat = 40;
   bool isPlayingBeatMode = false;
   bool isRightBeatMode = true;
+
+  double getBeatFrequecyValue(index){
+    if(index == 0){
+      return frequencyTone;
+    }else{
+      return frequencyBeat;
+    }
+  }
+
+  double getBeatFrequecyLeftValue(){
+    if(isRightBeatMode){
+      return frequencyTone;
+    }else{
+      return frequencyTone - frequencyBeat;
+    }
+  }
+
+  double getBeatFrequecyRightValue(){
+    if(isRightBeatMode){
+      return frequencyTone - frequencyBeat;
+    }else{
+      return frequencyTone;
+    }
+  }
+
+  Future<void> setFrequencyValue({int? tone, int? binauralBeat}) async {
+    if(tone != null){
+      frequencyTone = tone.toDouble();
+    }
+    if(binauralBeat != null){
+      frequencyBeat = binauralBeat.toDouble();
+    }
+    await playBeat();
+    await playBeat();
+    notifyListeners();
+  }
 
   SoundController controllerLeft = SoundController();
   SoundController controllerRight = SoundController();
@@ -61,9 +97,9 @@ class MainProvider with ChangeNotifier{
     await Future.delayed(const Duration(milliseconds: 100));
     await controllerRight.setVolume(1);
     await Future.delayed(const Duration(milliseconds: 100));
-    await controllerLeft.setFrequency(frequencyLeft);
+    await controllerLeft.setFrequency(getBeatFrequecyLeftValue());
     await Future.delayed(const Duration(milliseconds: 100));
-    await controllerRight.setFrequency(frequencyRight);
+    await controllerRight.setFrequency(getBeatFrequecyRightValue());
     await Future.delayed(const Duration(milliseconds: 100));
     await controllerLeft.setPosition(0.097, 0.0, 0.0);
     await Future.delayed(const Duration(milliseconds: 100));
@@ -73,15 +109,8 @@ class MainProvider with ChangeNotifier{
 
   Future<void> playBeat() async{
     if(isPlayingBeatMode && checkHeadsetEvent()){
-      if(isRightBeatMode){
-        await controllerLeft.setFrequency(frequencyLeft);
-        await controllerRight.setFrequency(frequencyRight);
-      }else{
-        await controllerLeft.setFrequency(frequencyRight);
-        await controllerRight.setFrequency(frequencyLeft);
-      }
-      print("play left: ${controllerLeft.value.freq} ${controllerLeft.value.volume} ${controllerLeft.value.x} ${controllerLeft.value.y}");
-      print("play right: ${controllerRight.value.freq} ${controllerRight.value.volume} ${controllerRight.value.x} ${controllerRight.value.y}");
+      await controllerLeft.setFrequency(getBeatFrequecyLeftValue());
+      await controllerRight.setFrequency(getBeatFrequecyRightValue());
       controllerRight.play();
       controllerLeft.play();
     }else{
@@ -101,18 +130,40 @@ class MainProvider with ChangeNotifier{
     notifyListeners();
   }
 
-  Future<void> togglePlayingBeatMode(SoundController left, SoundController right) async {
+  Future<void> togglePlayingBeatMode({SoundController? left, SoundController? right}) async {
     isPlayingBeatMode = !isPlayingBeatMode;
-    controllerLeft = left;
-    controllerRight = right;
+    if(left != null){
+      controllerLeft = left;
+    }
+    if(right != null){
+      controllerRight = right;
+    }
     playBeat();
     notifyListeners();
+  }
+
+  Future<void> playingBeatMode({SoundController? left, SoundController? right}) async{
+    isPlayingBeatMode = true;
+    if(left != null){
+      controllerLeft = left;
+    }
+    if(right != null){
+      controllerRight = right;
+    }
+    playBeat();
+    notifyListeners();
+  }
+
+  Future<void> stopBeatMode() async{
+    isPlayingBeatMode = false;
+    playBeat();
   }
 
   Future<void> updateSoundControllers(SoundController _controllerLeft, SoundController _controllerRight) async {
     controllerLeft = _controllerLeft;
     controllerRight = _controllerRight;
-    // await initBeatController();
+    await initBeatController();
+    notifyListeners();
     playBeat();
     notifyListeners();
   }

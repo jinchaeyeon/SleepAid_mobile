@@ -9,7 +9,9 @@ import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:provider/provider.dart';
+import 'package:surround_sound/surround_sound.dart';
 import '../app_routes.dart';
+import '../provider/main_provider.dart';
 
 ///연결중인 장치 있을때와 없을때 구분
 class HomePage extends BaseStatefulWidget {
@@ -26,6 +28,9 @@ class HomeState extends State<HomePage>
   Size? size;
   bool isInit = true;
 
+  SoundController controllerLeft = SoundController();
+  SoundController controllerRight = SoundController();
+
   @override
   void initState() {
     WidgetsBinding.instance!.addObserver(this);
@@ -35,13 +40,6 @@ class HomeState extends State<HomePage>
 
   @override
   Future<void> didChangeDependencies() async {
-    // if(isInit){
-    //   Future.delayed(Duration(milliseconds:200),() async {
-    //     context.read<DataProvider>().setLoading(true);
-    //     await startEveryStateChecker();
-    //     isInit = false;
-    //   });
-    // }
     super.didChangeDependencies();
   }
 
@@ -117,50 +115,66 @@ class HomeState extends State<HomePage>
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         const Expanded(child: SizedBox.shrink(),),
-        Container(
-          height: 70,
-          width: double.maxFinite,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                height: 70,
-                padding: const EdgeInsets.only(left:20, right:20),
-                alignment: Alignment.center,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Sleep Aid',
-                      style: TextStyle(
-                        color: AppColors.mainBlue,
-                        fontSize: 30,
-                        // // fontFamily: Util.roboto,
-                        fontWeight: FontWeight.w700,
+        Stack(
+          children: [
+            Container(
+                child:Column(
+                    children: [
+                      SoundWidget(
+                        soundController: controllerLeft,
                       ),
-                    ),
+                      SoundWidget(
+                        soundController: controllerRight,
+                      ),
+                    ]
+                )
+            ),
+            Container(
+                height: 70,
+                width: double.maxFinite,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
                     Container(
-                      width:80, height: 80,
+                      height: 70,
+                      padding: const EdgeInsets.only(left:20, right:20),
+                      alignment: Alignment.center,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Sleep Aid',
+                            style: TextStyle(
+                              color: AppColors.mainBlue,
+                              fontSize: 30,
+                              // // fontFamily: Util.roboto,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Container(
+                              width:80, height: 80,
 
-                        child: InkWell(
-                          onTap:(){
-                            Navigator.pushNamed(context, Routes.menu);
-                          },
-                          child: Container(
-                              width:double.maxFinite, height: double.maxFinite,
-                              // color: Colors.red,
-                              padding: const EdgeInsets.only(left:40, right:0, top: 25, bottom: 25),
-                              child: Image.asset(AppImages.menu, fit: BoxFit.contain, width: 20, height: 20,)
+                              child: InkWell(
+                                  onTap:(){
+                                    Navigator.pushNamed(context, Routes.menu);
+                                  },
+                                  child: Container(
+                                      width:double.maxFinite, height: double.maxFinite,
+                                      // color: Colors.red,
+                                      padding: const EdgeInsets.only(left:40, right:0, top: 25, bottom: 25),
+                                      child: Image.asset(AppImages.menu, fit: BoxFit.contain, width: 20, height: 20,)
+                                  )
+                              )
                           )
-                        )
+                        ],
+                      ),
                     )
                   ],
-                ),
-              )
-            ],
-          )
+                )
+            )
+          ],
         ),
         const Expanded(child: SizedBox.shrink(),),
         SizedBox(
@@ -194,12 +208,20 @@ class HomeState extends State<HomePage>
             children: [
               ( context.watch<BluetoothProvider>().connectorNeck.connectedDeviceId != "" ||
                   context.watch<BluetoothProvider>().connectorForehead.connectedDeviceId != "" )
-              && context.watch<DataProvider>().isPlayingBeat
+              && context.watch<MainProvider>().isPlayingBeatMode
               ?contentButton(context,AppImages.binauralBeat, 'Binaural Beat', true, 'Binaural Beat 출력중', '',onTap:(context) {
-                Navigator.pushNamed(context, Routes.binauralBeat);
+                stopBeat().then((value){
+                  Navigator.pushNamed(context, Routes.binauralBeat).then((value){
+                    checkPlayBeat();
+                  });
+                });
               })
               :contentButton(context,AppImages.binauralBeat, 'Binaural Beat', false, 'Binaural Beat 출력중지', '',onTap:(context) {
-                Navigator.pushNamed(context, Routes.binauralBeat);
+                stopBeat().then((value){
+                  Navigator.pushNamed(context, Routes.binauralBeat).then((value){
+                    checkPlayBeat();
+                  });
+                });
               }),
               contentButton(context,AppImages.sleepAnalysis, '수면분석', false, '새로운 수면 정보 확인', '', onTap:(context) {
                 Navigator.pushNamed(context, Routes.calendar);
@@ -485,5 +507,19 @@ class HomeState extends State<HomePage>
 
   double getFontSize(BuildContext context, double i) {
     return i;
+  }
+
+  Future<void> checkPlayBeat() async {
+    await context.read<MainProvider>().updateSoundControllers(controllerLeft, controllerRight);
+    if(context.read<MainProvider>().isPlayingBeatMode){
+      setState(() {});
+      Future.delayed(const Duration(milliseconds: 800),() async {
+        await context.read<MainProvider>().playingBeatMode();
+      });
+    }
+  }
+
+  Future<void> stopBeat() async {
+    await context.read<MainProvider>().stopBeatMode();
   }
 }

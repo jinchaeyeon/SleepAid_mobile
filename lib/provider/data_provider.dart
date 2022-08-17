@@ -21,8 +21,6 @@ import 'package:sleepaid/util/statics.dart';
 class DataProvider with ChangeNotifier{
   bool isLoading = false;
   SleepConditionItemListResponse? sleepConditionItemResponse;
-  /// 비트 출력시 true
-  bool isPlayingBeat = false;
 
   var sleepAnalysisMap;
 

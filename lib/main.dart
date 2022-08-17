@@ -58,6 +58,7 @@ Future<void> mainInit() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print("fcm Token : ${fcmToken}");
+  ///todo fcm API 적용
 
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   channel = const AndroidNotificationChannel(
