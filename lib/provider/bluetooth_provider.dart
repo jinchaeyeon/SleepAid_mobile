@@ -51,6 +51,7 @@ class BluetoothProvider with ChangeNotifier{
   );
 
   bool isDeviceScanning = false;
+  bool isDataCollecting = true;
 
   BleDevice? deviceNeck;
   BleDevice? deviceForehead;
@@ -66,12 +67,12 @@ class BluetoothProvider with ChangeNotifier{
 
   ///기기가 연결되어 있으면 데이터 수집/비수집 전환한다
   Future<void> toggleDataCollecting() async{
-    // if(isDataScanning){
-    //   isDataScanning = false;
-    // }else{
-    //   isDataScanning = true;
-    // }
-    // notifyListeners();
+    if(isDataCollecting){
+      isDataCollecting = false;
+    }else{
+      isDataCollecting = true;
+    }
+    notifyListeners();
   }
 
   ///블루투스 장치 스캔(회사목록만)
@@ -158,12 +159,14 @@ class BluetoothProvider with ChangeNotifier{
 
     /// 기연결 상태면 연결 해제
     if(deviceNeck?.id == selectedDeviceId){
-      disconnect(BODY_TYPE.NECK);
+      await disconnect(BODY_TYPE.NECK);
+      await Future.delayed(const Duration(milliseconds: 1000),(){});
     }
     if(deviceForehead?.id == selectedDeviceId){
-      disconnect(BODY_TYPE.FOREHEAD);
+      await disconnect(BODY_TYPE.FOREHEAD);
+      await Future.delayed(const Duration(milliseconds: 1000),(){});
     }
-
+    notifyListeners();
     /// 연결 시작
     print("연결 시작");
     if(type == BODY_TYPE.NECK){
@@ -484,9 +487,9 @@ class BluetoothProvider with ChangeNotifier{
         characteristicId: Uuid.parse(RX_UUID_LIST[0]),
         deviceId: connectedDeviceId);
 
-    await flutterReactiveBle.writeCharacteristicWithResponse(characteristic, value: list)
+    flutterReactiveBle.writeCharacteristicWithResponse(characteristic, value: list)
         .asStream().asBroadcastStream().listen((event) {
-          print("write c w r ");
+          print("write c w r");
     });
   }
 
@@ -541,8 +544,10 @@ class BluetoothProvider with ChangeNotifier{
     if(type == BODY_TYPE.NECK && deviceNeck != null){
       await connectorNeck?.disconnect(deviceNeck!.id);
       deviceNeck = null;
+      connectorNeck.init();
     }else if(type == BODY_TYPE.FOREHEAD && deviceForehead != null){
       await connectorForehead?.disconnect(deviceForehead!.id);
+      connectorForehead.init();
       deviceForehead = null;
     }
     notifyListeners();

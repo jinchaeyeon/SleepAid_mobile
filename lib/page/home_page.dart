@@ -319,7 +319,7 @@ class HomeState extends State<HomePage>
                      width: 52,
                      height: 52,
                      child: AnimatedRotation(
-                         turns: context.watch<BluetoothProvider>().isDataSending?0:0.125,
+                         turns: context.watch<BluetoothProvider>().isDataCollecting?0:0.125,
                          duration: const Duration(milliseconds: 100),
                          child: InkWell(
                            onTap:() async {

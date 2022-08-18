@@ -158,7 +158,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
         child: Container(
             height: 70,
             decoration: BoxDecoration(
-                border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
+              border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
             ),
             padding: const EdgeInsets.only(left: 20, right: 20),
             width: double.maxFinite,

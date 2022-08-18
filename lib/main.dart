@@ -13,6 +13,7 @@ import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/provider/main_provider.dart';
+import 'package:sleepaid/util/functions.dart';
 import 'data/firebase/firebase_option.dart';
 import 'data/firebase/message.dart';
 import 'data/local/app_dao.dart';
@@ -58,6 +59,7 @@ Future<void> mainInit() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print("fcm Token : ${fcmToken}");
+  Clipboard.setData(ClipboardData(text: fcmToken));
   ///todo fcm API 적용
 
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();

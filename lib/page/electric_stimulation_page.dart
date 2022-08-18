@@ -13,6 +13,8 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
 
+import '../provider/main_provider.dart';
+
 
 class ElectricStimulationPage extends BaseStatefulWidget {
   static const ROUTE = "/SettingRecipe";
@@ -541,14 +543,14 @@ class SettingRecipeState extends State<ElectricStimulationPage>
           bottom: 26,
         ),
         decoration: BoxDecoration(
-          color: selectedRecipe == recipe ? Theme
+          color: isSelectedRecipe(recipe) ? Theme
               .of(context)
               .cardColor : Theme
               .of(context)
               .focusColor,
           borderRadius: BorderRadius.circular(14),
           border: Border.all(width: 1.5,
-              color: selectedRecipe == recipe ? AppColors.mainGreen : Colors.transparent),
+              color: isSelectedRecipe(recipe) ? AppColors.mainGreen : Colors.transparent),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -651,7 +653,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
    */
   void updateCurrentRecipe(ElectroStimulationParameterResponse recipe) {
     selectedRecipe = recipe;
-    sendDataToDevice();
+    sendDataToDevice(context);
   }
 
   double getValueFromCurrentRecipe(double index) {
@@ -720,12 +722,35 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     setState(() {});
   }
 
-  void sendDataToDevice() {
+  void sendDataToDevice(BuildContext context) {
     var recipe = selectedRecipe;
+    if(isNeckMode && context.read<BluetoothProvider>().deviceNeck == null){
+      return ;
+    }
+    if(!isNeckMode && context.read<BluetoothProvider>().deviceForehead == null){
+      return ;
+    }
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + ((recipe?.intensity??10 / 10 * 200).round()).toString() + "\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + ((recipe?.height??10 / 10 * 200).round()).toString() + "\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
+  }
+
+  isSelectedRecipe(ElectroStimulationParameterResponse recipe) {
+    if(isNeckMode && context.read<BluetoothProvider>().deviceNeck == null){
+      return false;
+    }
+    if(!isNeckMode && context.read<BluetoothProvider>().deviceForehead == null){
+      return false;
+    }
+    if(
+      selectedRecipe?.height == recipe.height &&
+      selectedRecipe?.interval == recipe.interval &&
+      selectedRecipe?.intensity == recipe.intensity
+    ){
+      return true;
+    }
+    return false;
   }
 }

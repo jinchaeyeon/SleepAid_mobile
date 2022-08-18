@@ -36,21 +36,23 @@ class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
             '==== ConnectionState for device $deviceId : ${update.connectionState}');
         _deviceConnectionController.add(update);
       },
-      onError: (Object e) =>
-          _logMessage('==== Connecting to device $deviceId resulted in error $e'),
+      onError: (Object e){
+        _logMessage('==== Connecting to device $deviceId resulted in error $e');
+        connectedDeviceId = "";
+        connectedDeviceName = "";
+      }
     );
   }
 
   Future<void> disconnect(String deviceId) async {
+    connectedDeviceId = "";
+    connectedDeviceName = "";
     try {
       _logMessage('disconnecting to device: $deviceId');
       await connection?.cancel();
-      connectedDeviceId = "";
-      connectedDeviceName = "";
     } on Exception catch (e, _) {
       _logMessage("Error disconnecting from a device: $e");
     } finally {
-      // Since [_connection] subscription is terminated, the "disconnected" state cannot be received and propagated
       _deviceConnectionController.add(
         ConnectionStateUpdate(
           deviceId: deviceId,
@@ -59,6 +61,7 @@ class BleDeviceConnector extends ReactiveState<ConnectionStateUpdate> {
         ),
       );
     }
+
   }
 
   Future<void> dispose() async {
