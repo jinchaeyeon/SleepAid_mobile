@@ -9,6 +9,7 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
 import '../app_routes.dart';
+import '../data/local/app_dao.dart';
 import '../widget/graph/realtime_graph_widget.dart';
 
 class RealtimeSignalPage extends BaseStatefulWidget {
@@ -236,8 +237,8 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
   Widget infoBottomSheet() {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppDAO.isDarkMode?AppColors.colorDarkSplash:Colors.white,
         borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       child: Column(
@@ -317,8 +318,8 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
   Widget parameterBottomSheet() {
     return Container(
       padding: EdgeInsets.only(top: 20),
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: AppDAO.isDarkMode?AppColors.colorDarkSplash:Colors.white,
         borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       child: Column(
@@ -373,7 +374,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                       child: Container(
                         width: double.maxFinite,
                         height: 80,
-                        color: AppColors.buttonGrey,
+                        color: AppDAO.isDarkMode?AppColors.borderGrey:AppColors.buttonGrey,
                         child: Center(
                           child: Text(
                             '취소',
@@ -433,7 +434,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               await Navigator.pushNamed(context, Routes.bluetoothConnect);
             },
             style: OutlinedButton.styleFrom(
-                backgroundColor: AppColors.subButtonGrey,
+                backgroundColor: AppDAO.isDarkMode?AppColors.colorDarkSplash:AppColors.subButtonGrey,
                 shape: const RoundedRectangleBorder(
                     borderRadius: BorderRadius.all(Radius.circular(10))
                 )

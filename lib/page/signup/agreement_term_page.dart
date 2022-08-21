@@ -251,7 +251,6 @@ class _AgreementTermPage extends State<AgreementTermPage> {
   /// SNS 가입자가 아니라면 email 가입 페이지로 이동
   Future<void> next() async {
     if(await AppDAO.authData.userType() == null){
-      AppDAO.authData.temporarySNSType = AuthData.userTypes["email"]!;
       //이메일 회원가입 시작
       Navigator.pushReplacementNamed(
           context, Routes.signupWithEmail);

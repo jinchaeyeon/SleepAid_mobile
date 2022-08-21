@@ -8,6 +8,8 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
 
+import '../../data/local/app_dao.dart';
+
 class CalendarDetailPage extends BaseStatefulWidget {
   static const ROUTE = "/CalendarDetail";
 
@@ -93,7 +95,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
                           return Container(
                             width:double.maxFinite,
                             height:double.maxFinite,
-                            color:Colors.transparent,
+                            color:AppDAO.isDarkMode? AppColors.colorDarkSplash.withOpacity(0.5):Colors.transparent,
                             padding: const EdgeInsets.all(2),
                             child: WeekCalendarWidget(
                                 onTapCallback: onTapCallback,
@@ -143,6 +145,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
 
   _actionbar() {
     return Container(
+      color:AppDAO.isDarkMode? AppColors.colorDarkSplash:Colors.transparent,
       width: double.maxFinite,
       height: 80,
         child: Stack(

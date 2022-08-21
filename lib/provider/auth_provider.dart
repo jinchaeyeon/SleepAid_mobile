@@ -98,6 +98,7 @@ class AuthProvider with ChangeNotifier{
       print("Naver result: ${res.accessToken}");
       print("Naver result: ${res.account.id}");
       print("Naver result: ${res.account.email}");
+      AppDAO.authData.temporarySNSType = AuthData.userTypes["naver"]!;
     }else if(userType == AuthData.userTypes["facebook"]){
       // Create an instance of FacebookLogin
       final _fb = FacebookLogin();
@@ -111,6 +112,7 @@ class AuthProvider with ChangeNotifier{
           print('Access token: ${accessToken?.token}');
           _fb.getUserProfile().then((FacebookUserProfile? _profile){
             uid = _profile?.userId;
+            AppDAO.authData.temporarySNSType = AuthData.userTypes["facebook"]!;
             print("fb result: ${uid}");
           });
           break;
@@ -131,6 +133,7 @@ class AuthProvider with ChangeNotifier{
       await _googleSignIn.signIn().then((GoogleSignInAccount? account){
         print("google result: ${account?.id}");
         uid = account?.id;
+        AppDAO.authData.temporarySNSType = AuthData.userTypes["google"]!;
       });
 
     }

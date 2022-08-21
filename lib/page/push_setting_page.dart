@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/main.dart';
@@ -13,6 +14,8 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/custom_switch_button.dart';
 import 'package:provider/provider.dart';
 
+import '../provider/main_provider.dart';
+
 
 class PushSettingPage extends BaseStatefulWidget {
   static const ROUTE = "/PushSetting";
@@ -25,18 +28,23 @@ class PushSettingPage extends BaseStatefulWidget {
 
 class PushSettingState extends State<PushSettingPage>
     with SingleTickerProviderStateMixin{
-
+  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  List<AndroidNotificationChannel> channels = [];
   Map<String, Function> listeners  = {};
-  bool isDarkMode = false;
+  bool isLoading = true;
+  bool isOnChannelDefault = false;
+  bool isOnChannelAfternoon = false;
   @override
   void initState() {
-    isDarkMode = AppDAO.isDarkMode;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context){
-
+    if(isLoading){
+      loadData(context);
+      return Container();
+    }
     return Scaffold(
         appBar: appBar(context,"푸시알림설정", isRound: false,),
         extendBody: false,
@@ -70,9 +78,9 @@ class PushSettingState extends State<PushSettingPage>
                               ),
                               const Expanded(child: SizedBox.shrink()),
                               CustomSwitchButton(
-                                value: isDarkMode,
+                                value: isOnChannelDefault,
                                 onChanged: (value) async {
-                                  // await listeners[title]!(context);
+                                  await toggleChannelState("default");
                                 },
                               )
                             ]
@@ -97,19 +105,79 @@ class PushSettingState extends State<PushSettingPage>
                               ),
                               const Expanded(child: SizedBox.shrink()),
                               CustomSwitchButton(
-                                value: isDarkMode,
+                                value: isOnChannelAfternoon,
                                 onChanged: (value) async {
-                                  // await listeners[title]!(context);
+                                  await toggleChannelState("afternoon");
                                 },
                               )
                             ]
                         )
                     )
-
                   ],
                 )
             )
         )
     );
+  }
+
+  Future<void> loadData(BuildContext context) async {
+    print("load data");
+    channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
+
+    if(channels.isNotEmpty){
+      isOnChannelDefault = false;
+      isOnChannelAfternoon = false;
+      channels.forEach((channel) {
+        print("channel: ${channel.name}");
+        if(channel.id == "default"){
+          isOnChannelDefault = true;
+        }
+        if(channel.id == "afternoon"){
+          isOnChannelAfternoon = true;
+        }
+      });
+    }
+    setState(() {isLoading = false;});
+  }
+
+  /// 채널의 상태를 토글처리
+  Future<void> toggleChannelState(String channelId) async{
+    if(channelId == "default"){
+      if(isOnChannelDefault){
+        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()?.deleteNotificationChannel("default");
+        isOnChannelDefault = false;
+      }else {
+        var channelDefault = const AndroidNotificationChannel(
+          'default', // id
+          '수면정보알림', // title
+          description:
+          '전체알림을 수신받습니다', // description
+          importance: Importance.max,
+        );
+        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channelDefault);
+        isOnChannelDefault = true;
+      }
+    }else if(channelId == "afternoon"){
+      if(isOnChannelAfternoon){
+        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()?.deleteNotificationChannel("afternoon");
+        isOnChannelAfternoon = false;
+      }else {
+        var channelAfternoon = const AndroidNotificationChannel(
+          'afternoon', // id
+          '수면 컨디션 작성 알림', // title
+          description:
+          '수면 컨디션 작성 알림을 수신받습니다', // description
+          importance: Importance.max,
+        );
+        await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channelAfternoon);
+        isOnChannelAfternoon = true;
+      }
+    }
+    setState(() {});
   }
 }

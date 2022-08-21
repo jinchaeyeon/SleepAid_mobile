@@ -69,6 +69,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
 
   Widget homeContent(){
     return Container(
+      color: AppDAO.isDarkMode? AppColors.colorDarkSplash:AppColors.white,
       width: double.maxFinite,
       child:Column(
         children: [
@@ -163,7 +164,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 30, vertical: 20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppDAO.isDarkMode?AppColors.colorDarkSplash:Colors.white,
         borderRadius: BorderRadius.only(topLeft: Radius.circular(20), topRight: Radius.circular(20)),
       ),
       child: Column(

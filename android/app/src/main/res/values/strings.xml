@@ -5,4 +5,6 @@
     <string name="client_name">SleepAID</string>
     <string name="facebook_app_id">1065882220689852</string>
     <string name="facebook_client_token">9bb5dcbe01bd31706a0200b6c5880554</string>
+    <string name="default_notification_channel_id">default</string>
+    <string name="afternoon_notification_channel_id">afternoon</string>
 </resources>

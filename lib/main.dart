@@ -1,4 +1,3 @@
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -13,10 +12,11 @@ import 'package:sleepaid/page/splash_page.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/provider/main_provider.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'data/firebase/firebase_option.dart';
 import 'data/firebase/message.dart';
 import 'data/local/app_dao.dart';
+import 'data/network/push_response.dart';
+import 'network/set_fcm_token_service.dart';
 import 'util/app_config.dart';
 import 'provider/auth_provider.dart';
 
@@ -41,7 +41,8 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   print('Handling a background message ${message.messageId}');
 }
 
-late AndroidNotificationChannel channel;
+late AndroidNotificationChannel channelDefault;
+late AndroidNotificationChannel channelAfternoon;
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 
@@ -59,22 +60,39 @@ Future<void> mainInit() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print("fcm Token : ${fcmToken}");
-  Clipboard.setData(ClipboardData(text: fcmToken));
-  ///todo fcm API 적용
+  if(fcmToken != null){
+    PostFCMTokenService(token:fcmToken).start().then((result){
+      if(result is PushResponse){
+        print("fcm updated }");
+      }
+    });
+  }
 
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  channel = const AndroidNotificationChannel(
-    'high_importance_channel', // id
-    'High Importance Notifications', // title
+  channelDefault = const AndroidNotificationChannel(
+    'default', // id
+    '수면정보알림', // title
     description:
-    'This channel is used for important notifications.', // description
-    importance: Importance.high,
+    '전체알림을 수신받습니다', // description
+    importance: Importance.max,
+  );
+  channelAfternoon = const AndroidNotificationChannel(
+    'afternoon', // id
+    '수면 컨디션 작성 알림', // title
+    description:
+    '수면 컨디션 작성 알림을 수신받습니다', // description
+    importance: Importance.max,
   );
 
   await flutterLocalNotificationsPlugin
       .resolvePlatformSpecificImplementation<
       AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channel);
+      ?.createNotificationChannel(channelDefault);
+
+  await flutterLocalNotificationsPlugin
+      .resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()
+      ?.createNotificationChannel(channelAfternoon);
 
   /// Update the iOS foreground notification presentation options to allow
   /// heads up notifications.
@@ -87,9 +105,12 @@ Future<void> mainInit() async {
 
   FirebaseMessaging.instance.onTokenRefresh
       .listen((fcmToken) {
-    /// todo 업데이트 코드 입력 API 추가 처리
-  })
-      .onError((err) {
+    PostFCMTokenService(token:fcmToken).start().then((result){
+        if(result is PushResponse){
+          print("fcm updated }");
+        }
+      });
+    }).onError((err) {
   });
 
   //화면 회전 막는 기능
@@ -153,8 +174,8 @@ class _SleepAIDApp extends State<SleepAIDApp> {
           notification.body,
           NotificationDetails(
             android: AndroidNotificationDetails(
-              channel.id,
-              channel.name,
+              channelDefault.id,
+              channelDefault.name,
               // TODO add a proper drawable resource to android, for now using
               //      one that already exists in example app.
               icon: 'launch_background',

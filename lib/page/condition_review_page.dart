@@ -175,7 +175,7 @@ class ConditionReviewState extends State<ConditionReviewPage>
         margin: EdgeInsets.only(bottom: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
-          color: AppColors.white,
+          color: AppDAO.isDarkMode?AppColors.grey:AppColors.white,
         ),
         width: double.maxFinite,
         height: 110,
@@ -251,7 +251,8 @@ class ConditionReviewState extends State<ConditionReviewPage>
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   OutlinedButton(
-                    style: OutlinedButton.styleFrom(fixedSize: Size(110, 35), backgroundColor: AppColors.buttonGrey),
+                    style: OutlinedButton.styleFrom(fixedSize: Size(110, 35),
+                        backgroundColor: AppDAO.isDarkMode?AppColors.colorDarkSplash:AppColors.white),
                       onPressed: (){
                         item.answerBool = true;
                         updatedIndexes.add(index);
@@ -265,7 +266,8 @@ class ConditionReviewState extends State<ConditionReviewPage>
                       )
                   ),
                   OutlinedButton(
-                      style: OutlinedButton.styleFrom(fixedSize: Size(110, 35), backgroundColor: AppColors.white),
+                      style: OutlinedButton.styleFrom(fixedSize: Size(110, 35),
+                          backgroundColor: AppDAO.isDarkMode?AppColors.colorDarkSplash:AppColors.white),
                       onPressed: (){
                         item.answerBool = false;
                         updatedIndexes.add(index);

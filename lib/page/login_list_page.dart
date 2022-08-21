@@ -248,6 +248,7 @@ class LoginState extends State<LoginListPage>
                         const SizedBox(height: 16),
                         InkWell(
                           onTap: () {
+                            AppDAO.authData.temporarySNSType = AuthData.userTypes["email"]!;
                             Navigator.pushNamed(context, Routes.licenseKey);
                           },
                           child: const Text(

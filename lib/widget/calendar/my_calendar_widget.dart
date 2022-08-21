@@ -9,6 +9,7 @@ import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
+import '../../data/local/app_dao.dart';
 import 'month_calendar_widget.dart.dart';
 
 /// 가입일을 기준으로 데이터 목록을 불러온다
@@ -203,7 +204,7 @@ class MyCalendarState extends State<MyCalendarWidget>{
             Positioned(
                 left: 0,right: 0,top: 81,bottom: 0,
                 child: Container(
-                    color:Colors.white,
+                    color: AppDAO.isDarkMode?AppColors.backgroundGrey:AppColors.white,
                     width:double.maxFinite,
                     height: double.maxFinite,
                     padding: const EdgeInsets.all(15),
