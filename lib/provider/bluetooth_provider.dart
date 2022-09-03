@@ -94,25 +94,12 @@ class BluetoothProvider with ChangeNotifier{
     notifyListeners();
   }
 
-  /// AOS 12대응
-  /// 12 이상에서는
-  /// if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-  // 	requestMultiplePermissions.launch(arrayOf(
-  //     	Manifest.permission.BLUETOOTH_SCAN,
-  //         Manifest.permission.BLUETOOTH_CONNECT))
-  //     }
-  //     else{
-  //     	val enableBtIntent = Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE)
-  //         requestBluetooth.launch(enableBtIntent)
-  // }
-  ///todo 12 이하에서는 LOCATION 도 필요
-  ///todo IOS 는 별도로 체크 한번 더 필요
+
   ///전체적으로 버전별 체크 한번 필요
   Future<void> checkBluetoothPermission({int retryCount = 0}) async {
     print("checkBluetoothPermission $retryCount");
     Map<Permission, PermissionStatus> statuses =
     await [Permission.location, Permission.bluetooth, Permission.bluetoothConnect, Permission.bluetoothScan].request();
-    // await [Permission.location, Permission.bluetoothConnect].request();
     if(
     // statuses[Permission.location] == PermissionStatus.denied ||
         statuses[Permission.bluetoothConnect] == PermissionStatus.denied
@@ -151,12 +138,6 @@ class BluetoothProvider with ChangeNotifier{
     String? selectedDeviceId = device.id;
     String? selectedDeviceName = device.name;
 
-    // if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
-    //   selectedDeviceId = snapshot.data!.deviceId;
-    // }else if(snapshot is AsyncSnapshot<BleScannerState>){
-    //   selectedDeviceId = snapshot.data!.discoveredDevices[index??0].id;
-    // }
-
     /// 기연결 상태면 연결 해제
     if(deviceNeck?.id == selectedDeviceId){
       await disconnect(BODY_TYPE.NECK);
@@ -171,6 +152,7 @@ class BluetoothProvider with ChangeNotifier{
     print("연결 시작");
     if(type == BODY_TYPE.NECK){
       await connectorNeck.connect(selectedDeviceId, selectedDeviceName).then((value){
+        print("넥 연결성공");
         final characteristic = QualifiedCharacteristic(
             serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
             characteristicId: Uuid.parse(TX_UUID_LIST[0]),
@@ -182,7 +164,8 @@ class BluetoothProvider with ChangeNotifier{
             deviceNeck = BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceId, device);
           }
           DeviceSensorData sensorData = Protocol.buildSensorData(Uint8List.fromList(data));
-          deviceNeck?.setDeviceResponse(sensorData);
+          deviceNeck?.
+          setDeviceResponse(sensorData);
           notifyListeners();
         },onDone: (){
           // showToast("on done");
@@ -196,12 +179,14 @@ class BluetoothProvider with ChangeNotifier{
         });
 
       },onError:(err){
+        print("넥 연결실패");
         deviceNeck = null;
         connectorNeck?.init();
         notifyListeners();
       });
     }else if(type == BODY_TYPE.FOREHEAD){
       await connectorForehead.connect(selectedDeviceId, selectedDeviceName).then((value){
+        print("이마 연결성공");
         final characteristic = QualifiedCharacteristic(
             serviceId: Uuid.parse(SERVICE_UUID_LIST[0]),
             characteristicId: Uuid.parse(TX_UUID_LIST[0]),
@@ -227,220 +212,13 @@ class BluetoothProvider with ChangeNotifier{
         });
 
       },onError:(err){
+        print("이마 연결실패");
         deviceForehead = null;
         connectorForehead?.init();
         notifyListeners();
       });
     }
-
-
-    // if(connectedDeviceForNeck?.id == device.id){
-    //   await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
-    //   await notifyNeckStream?.cancel();
-    //   connectedDeviceForNeck = null;
-    // }
-    // if(connectedDeviceForForehead?.peripheral.identifier == peripheral.identifier){
-    //   await connectedDeviceForForehead?.peripheral.disconnectOrCancelConnection();
-    //   await notifyForeheadStream?.cancel();
-    //   connectedDeviceForForehead = null;
-    // }
-    // /// 해당 슬롯에 기 연결 기기가 있음면 연결 취소 처리
-    // if(type == BODY_TYPE.NECK){
-    //   await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
-    //   await notifyNeckStream?.cancel();
-    //   connectedDeviceForNeck = null;
-    // }
-    // if(type == BODY_TYPE.FOREHEAD){
-    //   await connectedDeviceForForehead?.peripheral.disconnectOrCancelConnection();
-    //   await notifyForeheadStream?.cancel();
-    //   connectedDeviceForForehead = null;
-    // }
-    //
-    // /// 2. 신규 기기 연결 시도
-    // if(type == BODY_TYPE.NECK){
-    //   notifyNeckStream = peripheral
-    //       .observeConnectionState(emitCurrentValue: true)
-    //       .listen((PeripheralConnectionState connectionState) {
-    //     device.setState(connectionState);
-    //     switch (connectionState) {
-    //       case PeripheralConnectionState.connected:
-    //         {
-    //           //연결됨
-    //           connectedDeviceForNeck = device;
-    //           peripheral.discoverAllServicesAndCharacteristics().whenComplete(() {
-    //             /// 기존 연결장치 해제
-    //             // await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
-    //             /// 장치 변수에 할당
-    //             connectedDeviceForNeck?.peripheral = peripheral;
-    //
-    //             Stream<Uint8List> characteristic = peripheral.monitorCharacteristic(
-    //                 SERVICE_UUID_LIST[0],
-    //                 TX_UUID_LIST[0],
-    //                 transactionId: "monitor-neck"
-    //             ).map((characteristic) => characteristic.value);
-    //             _monitoringNeckStreamSubscription = characteristic.listen((Uint8List message) {
-    //               // print("monitoring messagex:: $message");
-    //               List<Uint8List> responses = divideResponse(message);
-    //
-    //               responses.forEach((Uint8List response) {
-    //                 String batteryValue = Protocol.getBatteryValue(response);
-    //                 setBatteryValue(connectedDeviceForNeck!, batteryValue);
-    //
-    //                 DeviceSensorData sensorData = Protocol.buildSensorData(response);
-    //                 setDeviceResponse(connectedDeviceForNeck!, sensorData);
-    //
-    //                 // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
-    //                 // setEEGValue(connectedDeviceForNeck!, eegValue);
-    //                 //
-    //                 // List<double> actValue = Protocol.getAccelerometerValue(message, sensorData);
-    //                 // setAccelerometerValue(connectedDeviceForNeck!, actValue);
-    //                 //
-    //                 // List<String> pulseValue = Protocol.getPulseSizes(sensorData);
-    //                 // setPulseValue(connectedDeviceForNeck!, pulseValue);
-    //
-    //                 notifyListeners();
-    //               });
-    //             }, onError: (error){
-    //               dPrint("notifyNeckStream error:: $error");
-    //               // 기기 연결 이슈가 생겼으므로 재연결 다이얼로그 보여준다
-    //               device.setState(PeripheralConnectionState.disconnected);
-    //             } ,cancelOnError: true);
-    //           });
-    //         }
-    //         break;
-    //       case PeripheralConnectionState.connecting:
-    //         {
-    //           //  setBLEState('connecting');
-    //         } //연결중
-    //         break;
-    //       case PeripheralConnectionState.disconnected:
-    //         {
-    //           //해제됨
-    //           dPrint("disconnected!");
-    //           connectedDeviceForNeck?.resetData();
-    //         }
-    //         break;
-    //       case PeripheralConnectionState.disconnecting:
-    //         {
-    //           // setBLEState('disconnecting');
-    //         } //해제중
-    //         break;
-    //       default:{}
-    //       break;
-    //     }
-    //   });
-    //
-    //   notifyNeckStream?.onDone(() {
-    //     showToast("DONE TRY RECONNECT");
-    //   });
-    //   notifyNeckStream?.onError((handleError) {
-    //     dPrint("error:"+handleError.toString());
-    //     showToast("ERRROR TRY RECONNECT");
-    //   });
-    //   _monitoringNeckStreamSubscription?.onDone(() {
-    //     showToast("DONE TRY RECONNECT2");
-    //   });
-    //   _monitoringNeckStreamSubscription?.onError((handleError){
-    //     showToast("ERRROR TRY RECONNECT2");
-    //   });
-    //
-    // }else if(type == BODY_TYPE.FOREHEAD){
-    //   notifyForeheadStream = peripheral
-    //       .observeConnectionState(emitCurrentValue: true)
-    //       .listen((PeripheralConnectionState connectionState) {
-    //     device.setState(connectionState);
-    //     switch (connectionState) {
-    //       case PeripheralConnectionState.connected:
-    //         {
-    //           //연결됨
-    //           connectedDeviceForForehead = device;
-    //           peripheral.discoverAllServicesAndCharacteristics().whenComplete(() {
-    //             /// 기존 연결장치 해제
-    //             // await connectedDeviceForNeck?.peripheral.disconnectOrCancelConnection();
-    //             /// 장치 변수에 할당
-    //             connectedDeviceForForehead?.peripheral = peripheral;
-    //
-    //             Stream<Uint8List> characteristic = peripheral.monitorCharacteristic(
-    //                 SERVICE_UUID_LIST[0],
-    //                 TX_UUID_LIST[0],
-    //                 transactionId: "monitor-forehead"
-    //             ).map((characteristic) => characteristic.value);
-    //             _monitoringForeheadStreamSubscription = characteristic.listen((Uint8List message) {
-    //               // print("monitoring messagex:: $message");
-    //               List<Uint8List> responses = divideResponse(message);
-    //
-    //               responses.forEach((Uint8List response) {
-    //                 String batteryValue = Protocol.getBatteryValue(response);
-    //                 setBatteryValue(connectedDeviceForForehead!, batteryValue);
-    //
-    //                 DeviceSensorData sensorData = Protocol.buildSensorData(response);
-    //                 setDeviceResponse(connectedDeviceForForehead!, sensorData);
-    //
-    //                 // List<double> eegValue = Protocol.getEEGValue(brainSignalList);
-    //                 // setEEGValue(connectedDeviceForNeck!, eegValue);
-    //                 //
-    //                 // List<double> actValue = Protocol.getAccelerometerValue(message, sensorData);
-    //                 // setAccelerometerValue(connectedDeviceForNeck!, actValue);
-    //                 //
-    //                 // List<String> pulseValue = Protocol.getPulseSizes(sensorData);
-    //                 // setPulseValue(connectedDeviceForNeck!, pulseValue);
-    //
-    //                 notifyListeners();
-    //               });
-    //             }, onError: (error){
-    //               dPrint("notifyForeheadStream error:: $error");
-    //               // 기기 연결 이슈가 생겼으므로 재연결 다이얼로그 보여준다
-    //               device.setState(PeripheralConnectionState.disconnected);
-    //             } ,cancelOnError: true);
-    //           });
-    //         }
-    //         break;
-    //       case PeripheralConnectionState.connecting:
-    //         {
-    //           //  setBLEState('connecting');
-    //         } //연결중
-    //         break;
-    //       case PeripheralConnectionState.disconnected:
-    //         {
-    //           //해제됨
-    //           dPrint("disconnected!");
-    //           connectedDeviceForNeck?.resetData();
-    //         }
-    //         break;
-    //       case PeripheralConnectionState.disconnecting:
-    //         {
-    //           // setBLEState('disconnecting');
-    //         } //해제중
-    //         break;
-    //       default:{}
-    //       break;
-    //     }
-    //   });
-    //
-    //   notifyNeckStream?.onDone(() {
-    //     showToast("DONE TRY RECONNECT");
-    //   });
-    //   notifyNeckStream?.onError((handleError) {
-    //     dPrint("error:"+handleError.toString());
-    //     showToast("ERRROR TRY RECONNECT");
-    //   });
-    //   _monitoringNeckStreamSubscription?.onDone(() {
-    //     showToast("DONE TRY RECONNECT2");
-    //   });
-    //   _monitoringNeckStreamSubscription?.onError((handleError){
-    //     showToast("ERRROR TRY RECONNECT2");
-    //   });
-    // }
-    //
-    // bool isConnected = await peripheral.isConnected();
-    // if (isConnected) {
-    //   showToast("Device is Already Connected");
-    //   return;
-    // }
-    //
-    // await peripheral.connect(isAutoConnect: true, refreshGatt: true);
     notifyListeners();
-
     return;
   }
 
@@ -454,10 +232,13 @@ class BluetoothProvider with ChangeNotifier{
   }
 
   BODY_TYPE isConnectedDevice(String? deviceId) {
+    print("isConnectedDevice ${deviceId} | A1:${deviceNeck?.deviceName??""}|A2:${deviceNeck?.id??""}");
+    print("isConnectedDevice ${deviceId} | B1:${deviceForehead?.deviceName??""}|B2:${deviceForehead?.id??""}");
     BODY_TYPE type = BODY_TYPE.NONE;
-    if(deviceId == connectorNeck.connectedDeviceId){
+    // if(deviceId == connectorNeck.connectedDeviceId){
+    if(deviceId == (deviceNeck?.id??"")) {
       type = BODY_TYPE.NECK;
-    }else if(deviceId == connectorForehead.connectedDeviceId){
+    }else if(deviceId == (deviceForehead?.id??"")){
       type = BODY_TYPE.FOREHEAD;
     }
     return type;
@@ -536,20 +317,22 @@ class BluetoothProvider with ChangeNotifier{
     for(int i = 0; i < 5; i++){
       list.add(message.sublist(i * 33,  (i + 1)*33));
     }
-
     return list;
   }
 
   Future<void> disconnect(BODY_TYPE type) async {
-    if(type == BODY_TYPE.NECK && deviceNeck != null){
+    // if(type == BODY_TYPE.NECK && deviceNeck != null){
+    if(type == BODY_TYPE.NECK){
       await connectorNeck?.disconnect(deviceNeck!.id);
       deviceNeck = null;
       connectorNeck.init();
-    }else if(type == BODY_TYPE.FOREHEAD && deviceForehead != null){
+    // }else if(type == BODY_TYPE.FOREHEAD && deviceForehead != null){
+    }else if(type == BODY_TYPE.FOREHEAD){
       await connectorForehead?.disconnect(deviceForehead!.id);
-      connectorForehead.init();
       deviceForehead = null;
+      connectorForehead.init();
     }
+    await Future.delayed(Duration(milliseconds: 100));
     notifyListeners();
   }
 }

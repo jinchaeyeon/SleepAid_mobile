@@ -213,7 +213,28 @@ class AppDAO{
     }catch(e){
       print("err: $e");
     }
+  }
 
+  static Future<bool> get isOnChannelDefault async {
+    bool? isOnChannelDefault = await _get(key: 'is_on_channel_default') as bool?;
+    return isOnChannelDefault??true;
+  }
+
+  static Future<bool> get isOnChannelAfternoon async {
+    bool? isOnChannelAfternoon = await _get(key: 'is_on_channel_afternoon') as bool?;
+    return isOnChannelAfternoon??true;
+  }
+
+  static Future<void> setOnChannelDefault(bool isOnChannelDefault) async{
+    isOnChannelDefault == true
+        ? await _put(key: 'is_on_channel_default', value: isOnChannelDefault)
+        : await _delete(key: 'is_on_channel_default');
+  }
+
+  static Future<void> setOnChannelAfternoon(bool isOnChannelAfternoon) async{
+    isOnChannelAfternoon == true
+        ? await _put(key: 'is_on_channel_afternoon', value: isOnChannelAfternoon)
+        : await _delete(key: 'is_on_channel_afternoon');
   }
 }
 

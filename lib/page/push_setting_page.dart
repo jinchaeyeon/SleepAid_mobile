@@ -121,10 +121,8 @@ class PushSettingState extends State<PushSettingPage>
   }
 
   Future<void> loadData(BuildContext context) async {
-    print("load data");
     channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
         AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
-
     if(channels.isNotEmpty){
       isOnChannelDefault = false;
       isOnChannelAfternoon = false;
@@ -138,6 +136,7 @@ class PushSettingState extends State<PushSettingPage>
         }
       });
     }
+    await updateLocalNotificationChannelState(isOnChannelDefault, isOnChannelAfternoon);
     setState(() {isLoading = false;});
   }
 
@@ -178,6 +177,12 @@ class PushSettingState extends State<PushSettingPage>
         isOnChannelAfternoon = true;
       }
     }
+    setState(() {});
+  }
+
+  updateLocalNotificationChannelState(bool isOnChannelDefault, bool isOnChannelAfternoon) async{
+    await AppDAO.setOnChannelDefault(isOnChannelDefault);
+    await AppDAO.setOnChannelAfternoon(isOnChannelAfternoon);
     setState(() {});
   }
 }

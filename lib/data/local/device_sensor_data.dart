@@ -1,4 +1,5 @@
 import '../ble_device.dart';
+import '../network/post_sensor_response.dart';
 
 /// 장치에서 가져오는 센서 데이터
 class DeviceSensorData{
@@ -20,7 +21,7 @@ class DeviceSensorData{
     required this.actZ
   });
 
-  getDataByType(String type) {
+  int getDataByType(String type) {
     if(type == BleDevice.realtimeSesorTypes[0]){
       return ppg;
     }else if(type == BleDevice.realtimeSesorTypes[1]){
@@ -30,5 +31,17 @@ class DeviceSensorData{
     }else if(type == BleDevice.realtimeSesorTypes[3]){
       return actZ;
     }
+    return 0;
+  }
+
+  BaseSensorResponse toSennsorResponse(){
+    return BaseSensorResponse(
+      datetime: dateTime.toIso8601String(),
+      ppg: ppg,
+      eeg: eeg1,
+      actigraphyX: actX,
+      actigraphyY: actY,
+      actigraphyZ: actZ
+    );
   }
 }

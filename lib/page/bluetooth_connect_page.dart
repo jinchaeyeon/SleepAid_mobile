@@ -50,9 +50,11 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                 child: Column(
                   children: [
                     searchingStatusButton(context),
-                    context.watch<BluetoothProvider>().deviceNeck == null ?Container()
-                    : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceNeck!.discoveredDevice!),
-                    context.watch<BluetoothProvider>().deviceForehead == null ?Container()
+                    context.watch<BluetoothProvider>().deviceNeck == null
+                        ? Container(child:Text("목 null"))
+                        : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceNeck!.discoveredDevice!),
+                    context.watch<BluetoothProvider>().deviceForehead == null
+                        ? Container(child:Text("이마 null"))
                         : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceForehead!.discoveredDevice!),
                     Expanded(
                       child: StreamBuilder<BleScannerState>(
@@ -67,10 +69,14 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                                 itemBuilder: (_context, index){
                                   // 연결된 기기는 숨기기
                                   if(snapshot.data?.discoveredDevices[index].id == context.watch<BluetoothProvider>().deviceNeck?.id){
-                                    return Container();
+                                    return Container(
+                                      child: Text("넥 중복")
+                                    );
                                   }
                                   if(snapshot.data?.discoveredDevices[index].id == context.watch<BluetoothProvider>().deviceForehead?.id){
-                                    return Container();
+                                    return Container(
+                                        child: Text("이마 중복")
+                                    );
                                   }
                                   return _bluetoothDeviceListItemWidget(device: snapshot.data!.discoveredDevices[index], index: index);
                                 },
@@ -158,6 +164,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
         child: Container(
             height: 70,
             decoration: BoxDecoration(
+              color: index == null? Colors.blue.withOpacity(0.3):Colors.red.withOpacity(0.3),
               border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
             ),
             padding: const EdgeInsets.only(left: 20, right: 20),
@@ -186,58 +193,6 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
         )
     );
   }
-
-  // Widget _bluetoothDeviceListItemWidget({BleDevice? device, AsyncSnapshot? snapshot, int? index}) {
-  //   String selectedDeviceId = "";
-  //   String name = "";
-  //   if(device != null){
-  //     selectedDeviceId = device.id;
-  //   }else if(snapshot is AsyncSnapshot<ConnectionStateUpdate>){
-  //     selectedDeviceId = snapshot.data!.deviceId;
-  //   }else if(snapshot is AsyncSnapshot<BleScannerState>){
-  //     selectedDeviceId = snapshot.data!.discoveredDevices[index!].id;
-  //   }
-  //   BODY_TYPE bodyType = context.watch<BluetoothProvider>().isConnectedDevice(selectedDeviceId);
-  //   if(device != null){
-  //     name = _getDeviceName(bodyType, null, index: index, name: device.deviceName);
-  //   }else{
-  //     name = _getDeviceName(bodyType, snapshot!, index: index);
-  //   }
-  //   return InkWell(
-  //       onTap:() async {
-  //         await showBodyTypeDialog(context, device: device, snapshot: snapshot, index: index);
-  //       },
-  //       child: Container(
-  //           height: 70,
-  //           decoration: BoxDecoration(
-  //               border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
-  //           ),
-  //           padding: const EdgeInsets.only(left: 20, right: 20),
-  //           width: double.maxFinite,
-  //           child: Row(
-  //               children: [
-  //                 Text(
-  //                   name,
-  //                   style: TextStyle(
-  //                     color: Theme.of(context).textSelectionTheme.selectionColor,
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.bold,
-  //                   ),
-  //                 ),
-  //                 const Expanded(child: SizedBox.shrink()),
-  //                 Text(
-  //                   _getDeviceStatusText(bodyType, selectedDeviceId),
-  //                   style: TextStyle(
-  //                     color: Theme.of(context).textSelectionTheme.selectionColor,
-  //                     fontSize: 14,
-  //                     fontWeight: FontWeight.w600,
-  //                   ),
-  //                 ),
-  //               ]
-  //           )
-  //       )
-  //   );
-  // }
 
   void startScanning() {
     context.read<BluetoothProvider>().startDeviceScanning();

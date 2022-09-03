@@ -31,20 +31,80 @@ void main() async {
   } else {
     gFlavor = Flavor.DEV;
   }
-  await mainInit();
-}
-
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // If you're going to use other Firebase services in the background, such as Firestore,
-  // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
-  print('Handling a background message ${message.messageId}');
+  mainInit();
 }
 
 late AndroidNotificationChannel channelDefault;
 late AndroidNotificationChannel channelAfternoon;
 late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If you're going to use other Firebase services in the background, such as Firestore,
+  // make sure you call `initializeApp` before using other Firebase services.
+  await Firebase.initializeApp();
+  showFlutterNotification(message);
+  print('Handling a background message ${message.messageId}');
+}
+
+void showFlutterNotification(RemoteMessage message) async{
+  print("showFlutterNotification");
+  RemoteNotification? notification = message.notification;
+  Map<String, dynamic> data = message.data;
+  // AndroidNotification? android = message.notification?.android;
+  String title = "";
+  String body = "";
+  if(notification != null){
+    title = notification.title??"";
+    body = notification.body??"";
+  }else{
+    title = data["title"]??"";
+    body = data["body"]??"";
+  }
+  bool isOnChannelDefault = false;
+  bool isOnChannelAfternoon = false;
+  bool isShowNotification = false;
+  List<AndroidNotificationChannel> channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
+  channels.forEach((channel) {
+    if(channel.id == "default"){
+      isOnChannelDefault = true;
+    }
+    if(channel.id == "afternoon"){
+      isOnChannelAfternoon = true;
+    }
+  });
+
+  if(isOnChannelAfternoon && title.contains("수면컨디션작성알림")){
+    isShowNotification = true;
+  }
+  if(isOnChannelDefault && title.contains("수면정보알림")){
+    isShowNotification = true;
+  }
+  if(!isShowNotification){
+    return;
+  }
+
+  var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
+      "default",
+      "default",
+      importance: Importance.max,
+      priority: Priority.high,
+      color: Colors.white,
+      icon: "launcher_icon");
+  var iOSPlatformChannelSpecifics = const IOSNotificationDetails();
+  var platformChannelSpecifics = NotificationDetails(
+      android: androidPlatformChannelSpecifics,
+      iOS: iOSPlatformChannelSpecifics);
+
+  await flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecond,
+      title,
+      body,
+      platformChannelSpecifics,
+      // payload: json.encode(pushNotification));
+  );
+}
 
 /**
  * 기본 실행 시 호출 되어야하는 기본 값 함수
@@ -54,6 +114,7 @@ Future<void> mainInit() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  await initFCM();
 
   await AppDAO.init();
 
@@ -67,41 +128,6 @@ Future<void> mainInit() async {
       }
     });
   }
-
-  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  channelDefault = const AndroidNotificationChannel(
-    'default', // id
-    '수면정보알림', // title
-    description:
-    '전체알림을 수신받습니다', // description
-    importance: Importance.max,
-  );
-  channelAfternoon = const AndroidNotificationChannel(
-    'afternoon', // id
-    '수면 컨디션 작성 알림', // title
-    description:
-    '수면 컨디션 작성 알림을 수신받습니다', // description
-    importance: Importance.max,
-  );
-
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channelDefault);
-
-  await flutterLocalNotificationsPlugin
-      .resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()
-      ?.createNotificationChannel(channelAfternoon);
-
-  /// Update the iOS foreground notification presentation options to allow
-  /// heads up notifications.
-  await FirebaseMessaging.instance
-      .setForegroundNotificationPresentationOptions(
-    alert: true,
-    badge: true,
-    sound: true,
-  );
 
   FirebaseMessaging.instance.onTokenRefresh
       .listen((fcmToken) {
@@ -133,6 +159,50 @@ Future<void> mainInit() async {
   );
 }
 
+initFCM() async {
+  FirebaseMessaging.instance.subscribeToTopic("all");
+  flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  channelDefault = const AndroidNotificationChannel(
+    'default', // id
+    '수면정보알림', // title
+    description:
+    '전체알림을 수신받습니다', // description
+    importance: Importance.max,
+  );
+  channelAfternoon = const AndroidNotificationChannel(
+    'afternoon', // id
+    '수면 컨디션 작성 알림', // title
+    description:
+    '수면 컨디션 작성 알림을 수신받습니다', // description
+    importance: Importance.max,
+  );
+  if(await AppDAO.isOnChannelDefault){
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channelDefault);
+  }
+  if(await AppDAO.isOnChannelAfternoon){
+    await flutterLocalNotificationsPlugin
+        .resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()
+        ?.createNotificationChannel(channelAfternoon);
+  }
+  /// Update the iOS foreground notification presentation options to allow
+  /// heads up notifications.
+  await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+    alert: true,
+    badge: true,
+    sound: true,
+  );
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    RemoteNotification? notification = message.notification;
+    Map<String, dynamic> data = message.data;
+    showFlutterNotification(message);
+  });
+}
+
 /**
  * 기본 앱
  */
@@ -147,48 +217,9 @@ class _SleepAIDApp extends State<SleepAIDApp> {
   final routeObserver = RouteObserver<PageRoute>();
 
   @override
-  void initState() {
+  initState() {
+    initFCMListener();
     super.initState();
-    FirebaseMessaging.instance
-        .getInitialMessage()
-        .then((RemoteMessage? message) {
-      if (message != null) {
-        Navigator.pushNamed(
-          context,
-          '/message',
-          arguments: MessageArguments(message, true),
-        );
-      }
-    });
-
-    ///todo 로컬 디비에 저장된 값으로 이부분 변경
-    FirebaseMessaging.instance.subscribeToTopic("all");
-
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      RemoteNotification? notification = message.notification;
-      AndroidNotification? android = message.notification?.android;
-      if (notification != null && android != null && !kIsWeb) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          NotificationDetails(
-            android: AndroidNotificationDetails(
-              channelDefault.id,
-              channelDefault.name,
-              // TODO add a proper drawable resource to android, for now using
-              //      one that already exists in example app.
-              icon: 'launch_background',
-            ),
-          ),
-        );
-      }
-    });
-
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      print('A new onMessageOpenedApp event was published!');
-      Navigator.pushNamed(context, Routes.splash);
-    });
   }
 
   void changeTheme() {
@@ -225,5 +256,24 @@ class _SleepAIDApp extends State<SleepAIDApp> {
 
   Future<void> checkMicrophoneStatus(BuildContext context) async {
     await context.read<MainProvider>().startMicrophoneScan();
+  }
+
+  void initFCMListener() {
+    FirebaseMessaging.instance
+        .getInitialMessage()
+        .then((RemoteMessage? message) {
+      if (message != null) {
+        Navigator.pushNamed(
+          context,
+          '/message',
+          arguments: MessageArguments(message, true),
+        );
+      }
+    });
+
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      print('A new onMessageOpenedApp event was published!');
+      Navigator.pushNamed(context, Routes.splash);
+    });
   }
 }
