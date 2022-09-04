@@ -59,8 +59,4 @@ class SleepAnalysisResponse extends BaseResponse{
     }
     return itemList;
   }
-
-  double getSleepAnalisysPercent(int i) {
-    return 0;
-  }
 }

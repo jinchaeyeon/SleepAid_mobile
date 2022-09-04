@@ -209,14 +209,15 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
   }
 
   String getTimeString(String timeString) {
+    // "awake": "00:00:28",
     try{
       String result = "";
       List<String> splits = timeString.split(':');
-      if(splits[0]!="00"){
-        result += splits[0] + "H";
+      if(splits[1]!="00"){
+        result += splits[1] + "H";
       }
-      if(splits [1]!="00"){
-        result += splits[1] + "M";
+      if(splits [2]!="00"){
+        result += splits[2] + "M";
       }
       if(result == ""){
         result = "0M";
@@ -225,7 +226,6 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
     }catch(e){
       return "";
     }
-
   }
 
   List<Widget> homeSleepAnalysisContent() {
@@ -312,10 +312,10 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
         child: SleepAnalysisGraph(),
       ),
       SizedBox(height: 20),
-      buildSliderControlWidget("Awake", data!.awake, data!.getSleepAnalisysPercent(0)),
-      buildSliderControlWidget("REM", data!.rem, data!.getSleepAnalisysPercent(1)),
-      buildSliderControlWidget("Light", data!.light, data!.getSleepAnalisysPercent(2)),
-      buildSliderControlWidget("Deep", data!.deep, data!.getSleepAnalisysPercent(3)),
+      buildSliderControlWidget("Awake", data!.awake, getPercentage(data!.awake)),
+      buildSliderControlWidget("REM", data!.rem, getPercentage(data!.rem)),
+      buildSliderControlWidget("Light", data!.light, getPercentage(data!.light)),
+      buildSliderControlWidget("Deep", data!.deep, getPercentage(data!.deep)),
       SizedBox(height: 20),
       Container(
         alignment: Alignment.centerLeft,
@@ -408,6 +408,15 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
       ),
       SizedBox(height: 20)
     ];
+  }
+
+  double getPercentage(String value) {
+    try{
+      List<String> splits = value.split(':');
+      return int.parse(splits[2]).toDouble();
+    }catch(e){
+      return 0;
+    }
   }
 }
 
