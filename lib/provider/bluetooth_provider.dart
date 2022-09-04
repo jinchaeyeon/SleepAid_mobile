@@ -174,9 +174,10 @@ class BluetoothProvider with ChangeNotifier{
             deviceNeck = BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceId, device);
           }
           DeviceSensorData sensorData = Protocol.buildSensorData(Uint8List.fromList(data));
-          deviceNeck?.
-          setDeviceResponse(sensorData);
-          notifyListeners();
+          if(isDataCollecting){
+            deviceNeck?.setDeviceResponse(sensorData);
+            notifyListeners();
+          }
         },onDone: (){
           // showToast("on done");
           deviceNeck = null;
@@ -211,7 +212,9 @@ class BluetoothProvider with ChangeNotifier{
           }
           // print("data forehead:${data}");
           DeviceSensorData sensorData = Protocol.buildSensorData(Uint8List.fromList(data));
-          deviceForehead?.setDeviceResponse(sensorData);
+          if(isDataCollecting) {
+            deviceForehead?.setDeviceResponse(sensorData);
+          }
           notifyListeners();
         },onDone: (){
           deviceForehead = null;
