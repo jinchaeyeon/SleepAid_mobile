@@ -312,7 +312,7 @@ class ConditionReviewState extends State<ConditionReviewPage>
       if(result is SleepAnalysisResponse){
         AppDAO.baseData.sleepConditionAnalysis = result;
         AppDAO.setLastSleepCondition(result.date, result.id,);
-        await context.read<DataProvider>().getSleepAnalysisList();
+        await context.read<DataProvider>().getSleepAnalysisDateList();
         Navigator.pop(context, result);
       }else{
         showToast("잠시 후 다시 시도해주세요.");

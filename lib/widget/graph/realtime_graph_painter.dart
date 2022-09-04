@@ -13,7 +13,6 @@ class RealtimeGraphPainter extends CustomPainter {
   double zoomLevel;
   DateTime? created;
   String type;
-
   RealtimeGraphPainter({required this.zoomLevel, required this.dataList, required this.type}){
     created=DateTime.now();
   }
@@ -24,7 +23,6 @@ class RealtimeGraphPainter extends CustomPainter {
     List<Offset> maxPoints = [];
     var x1 = size.width / (dataList.length - 1);
     var y1 = size.height / BleDevice.getMaxYFromType(type);
-
     for (var _i = 0, _len = dataList.length ; _i < _len; _i++) {
       i++;
       int sensorValue = dataList[_i].getDataByType(type);

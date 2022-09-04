@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
@@ -10,7 +11,7 @@ class MonthCalendarWidget extends BaseStatefulWidget{
   final List<List<DateTime?>> weeks;
   final String title;
   final CalendarDateBuilder dateBuilder;
-  final Map<String, SleepAnalysisResponse> data;
+  final Map<String, SleepConditionDateResponse> data;
 
   const MonthCalendarWidget({
     Key? key,

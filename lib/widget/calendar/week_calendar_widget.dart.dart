@@ -6,13 +6,15 @@ import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/day_calendar_widget.dart.dart';
 
+import '../../data/network/sleep_condition_parameter_response.dart';
+
 class WeekCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
   final CalendarDateBuilder dateBuilder;
   final List<DateTime?> week;
   final DateTime? selectedDate;
 
-  final Map<String, SleepAnalysisResponse> data;
+  final Map<String, SleepConditionDateResponse> data;
 
   const WeekCalendarWidget({Key? key, this.onTapCallback, required this.dateBuilder,
     required this.week, this.selectedDate, this.data = const {}}) : super(key: key);

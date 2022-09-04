@@ -91,8 +91,8 @@ abstract class BaseService<T> {
     try {
       if (response.bodyBytes.isEmpty) {
       } else {
-        log("response: ${response.body}");
-        log("response: ${response.headers}");
+        // log("response: ${response.body}");
+        // log("response: ${response.headers}");
         body = json.decode(
             const Utf8Decoder(allowMalformed: false).convert(response.bodyBytes));
       }

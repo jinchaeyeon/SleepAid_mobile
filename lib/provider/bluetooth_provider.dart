@@ -232,8 +232,8 @@ class BluetoothProvider with ChangeNotifier{
   }
 
   BODY_TYPE isConnectedDevice(String? deviceId) {
-    print("isConnectedDevice ${deviceId} | A1:${deviceNeck?.deviceName??""}|A2:${deviceNeck?.id??""}");
-    print("isConnectedDevice ${deviceId} | B1:${deviceForehead?.deviceName??""}|B2:${deviceForehead?.id??""}");
+    // print("isConnectedDevice ${deviceId} | A1:${deviceNeck?.deviceName??""}|A2:${deviceNeck?.id??""}");
+    // print("isConnectedDevice ${deviceId} | B1:${deviceForehead?.deviceName??""}|B2:${deviceForehead?.id??""}");
     BODY_TYPE type = BODY_TYPE.NONE;
     // if(deviceId == connectorNeck.connectedDeviceId){
     if(deviceId == (deviceNeck?.id??"")) {

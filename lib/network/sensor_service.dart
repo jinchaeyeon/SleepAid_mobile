@@ -22,7 +22,6 @@ class PostSensorService extends BaseService<PostSensorResponse> {
       "items": _items,
     };
 
-    log("body: ${body}");
     return fetchPost(body: body);
   }
 

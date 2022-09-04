@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/src/provider.dart';
 import 'package:sleepaid/data/network/calendar_response.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
@@ -18,7 +19,7 @@ class MyCalendarWidget extends BaseStatefulWidget{
   final Function? onTapCallback;
   final DateTime startDate;
   final DateTime endDate;
-  final Map<String, SleepAnalysisResponse>? data;
+  final Map<String, SleepConditionDateResponse>? data;
 
   const MyCalendarWidget(
       {Key? key,

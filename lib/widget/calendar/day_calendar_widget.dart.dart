@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/extensions.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
@@ -13,7 +14,7 @@ class DayCalendarWidget extends BaseStatefulWidget{
   final DateTime day;
   final CalendarDateBuilder dateBuilder;
   final bool isSelectedDay;
-  final Map<String, SleepAnalysisResponse> data;
+  final Map<String, SleepConditionDateResponse> data;
 
   const DayCalendarWidget({Key? key, this.onTapCallback,
     required this.day, required this.dateBuilder, this.isSelectedDay = false,

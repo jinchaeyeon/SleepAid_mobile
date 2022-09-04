@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 import 'base_response.dart';
 
 List<String> answerTypes = ["score", "bool"];
@@ -48,6 +50,44 @@ class SleepConditionParameterResponse extends BaseResponse {
     }else{
       data['answer_bool'] = isYes??false;
     }
+    return data;
+  }
+}
+
+
+class SleepConditionDateResponse extends BaseResponse {
+  static DateFormat format = DateFormat('yyyy-MM-dd');
+
+  int state = BaseResponse.STATE_NO_CONNECT;
+  int id;
+  DateTime date;
+  String dateString = "";
+
+  SleepConditionDateResponse({
+    this.state=BaseResponse.STATE_NO_CONNECT,
+    required this.id,
+    required this.date,
+  }){
+    dateString = format.format(date);
+  }
+
+
+
+
+  factory SleepConditionDateResponse.fromJson(Map<String, dynamic> json){
+    return SleepConditionDateResponse(
+      id: json['id'],
+      date: format.parse(json['date'] as String),
+    );
+  }
+
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['state'] = state;
+    data['id'] = id;
+    data['date'] = format.format(date);
+    data['dateString'] = dateString;
     return data;
   }
 }

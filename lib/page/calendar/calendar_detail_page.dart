@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/page/calendar/calendar_detail_sub_page.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
 import 'package:sleepaid/widget/calendar/week_calendar_widget.dart.dart';
-
 import '../../data/local/app_dao.dart';
 
 class CalendarDetailPage extends BaseStatefulWidget {
@@ -28,7 +28,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
   PageController dateViewController = PageController(initialPage: 0);
   PageController weekViewController = PageController(initialPage: 0);
 
-  Map<String, SleepAnalysisResponse> data = const {};
+  Map<String, SleepConditionDateResponse> data = const {};
 
   int pageIndex = 0;
   int weekIndex = 0;
@@ -37,7 +37,7 @@ class CalendarDetailState extends State<CalendarDetailPage>
   bool weekControllerSwipeLeft = false;
 
   onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime,
-      Map<String, SleepAnalysisResponse> data) {
+      Map<String, SleepConditionDateResponse> data) {
     selectedDate = dateTime;
     dateViewController.jumpToPage(dateBuilder.getDayGap(selectedDate:selectedDate));
     setState(() {});
@@ -58,14 +58,13 @@ class CalendarDetailState extends State<CalendarDetailPage>
       print("CalendarDetailPage | ${selectedDate?.toIso8601String()}");
       initPageController();
     }
-
-    onDayCallback(CalendarDateBuilder dateBuilder, DateTime? date){
-      if(date!=null){
-        print("onDayCallback ${date?.toIso8601String()}");
-        selectedDate = date;
-        setState(() {});
-      }
-    }
+    // onDayCallback(CalendarDateBuilder dateBuilder, DateTime? date){
+    //   if(date!=null){
+    //     print("onDayCallback ${date?.toIso8601String()}");
+    //     selectedDate = date;
+    //     setState(() {});
+    //   }
+    // }
 
     return Scaffold(
         extendBody: true,
@@ -128,9 +127,11 @@ class CalendarDetailState extends State<CalendarDetailPage>
                               },
                             itemCount: dateBuilder?.getDayGap()??0,
                             itemBuilder: (context, index){
+                              print("selectedDate:$selectedDate | index: $index | dateBuilder!.startDate: ${dateBuilder!.startDate}");
                               return CalendarDetailSubPage(
                                 data:data,
-                                selectedDate: selectedDate??dateBuilder!.startDate.add(Duration(days:index))
+                                // selectedDate: selectedDate??dateBuilder!.startDate.add(Duration(days:index))
+                                  selectedDate: selectedDate??dateBuilder!.startDate.add(Duration(days:index))
                               );
                             }
                           )

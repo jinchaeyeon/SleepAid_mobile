@@ -3,6 +3,7 @@ import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
+import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/provider/data_provider.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/calendar/calendar_date_builder.dart';
@@ -23,7 +24,7 @@ class CalendarState extends State<CalendarPage>
   bool isLoaded = false;
 
   void onTapCallback(CalendarDateBuilder dateBuilder, DateTime dateTime,
-      Map<String, SleepAnalysisResponse> data) {
+      Map<String, SleepConditionDateResponse> data) {
     Navigator.pushNamed(context, Routes.calendarDetail,
       arguments:{
       "dateBuilder": dateBuilder,
@@ -68,7 +69,7 @@ class CalendarState extends State<CalendarPage>
 
   void loadData() {
     Future.delayed(const Duration(milliseconds:200),() async {
-      await context.read<DataProvider>().getSleepAnalysisList();
+      await context.read<DataProvider>().getSleepAnalysisDateList();
       isLoaded = true;
       setState(() {});
     });

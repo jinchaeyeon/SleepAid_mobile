@@ -2,6 +2,7 @@ import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/util/app_colors.dart';
@@ -10,11 +11,13 @@ import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/graph/sleep_analysis_graph_widget.dart';
 import '../../app_routes.dart';
+import '../../data/network/sleep_condition_parameter_response.dart';
+import '../../provider/data_provider.dart';
 import '../../util/extensions.dart';
 
 class CalendarDetailSubPage extends BaseStatefulWidget {
   final DateTime selectedDate;
-  final Map<String, SleepAnalysisResponse> data;
+  final Map<String, SleepConditionDateResponse> data;
 
   const CalendarDetailSubPage({Key? key, required this.selectedDate,  required this.data}) : super(key: key);
 
@@ -60,10 +63,12 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
 
   static final format = DateFormat('yyyy-MM-dd');
   Future<void> loadDayData() async {
-    await Future.delayed(const Duration(milliseconds: 200), (){
-      data = widget.data[format.format(widget.selectedDate)];
-      isLoading = false;
-      setState(() {});
+    await Future.delayed(const Duration(milliseconds: 400), () async {
+      await context.read<DataProvider>().loadCalendarDetailData(format.format(widget.selectedDate)).then((response){
+        data = response;
+        isLoading = false;
+        setState(() {});
+      });
     });
   }
 
@@ -207,7 +212,7 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
     if(splits[0]!="00"){
       result += splits[0] + "H";
     }
-    if(splits[1]!="00"){
+    if(splits [1]!="00"){
       result += splits[1] + "M";
     }
     if(result == ""){
