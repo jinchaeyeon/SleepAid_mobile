@@ -138,18 +138,28 @@ class BluetoothProvider with ChangeNotifier{
     String? selectedDeviceId = device.id;
     String? selectedDeviceName = device.name;
 
+    /// 기기가 둘 다 연결되어 있는데 다른 연결 기기를 선택하면 전체 해제
+    if(deviceNeck?.id != null && deviceForehead?.id!=null){
+      if(
+      deviceNeck?.id == selectedDeviceId && type == BODY_TYPE.FOREHEAD ||
+          deviceForehead?.id == selectedDeviceId && type == BODY_TYPE.NECK
+      ){
+        showToast("해당 부위에 이미 연결 된 기기가 있습니다.\n연결 해제 후 다시 시도해주세요.");
+        return;
+      }
+    }
+
     /// 기연결 상태면 연결 해제
     if(deviceNeck?.id == selectedDeviceId){
       await disconnect(BODY_TYPE.NECK);
-      await Future.delayed(const Duration(milliseconds: 1000),(){});
     }
     if(deviceForehead?.id == selectedDeviceId){
       await disconnect(BODY_TYPE.FOREHEAD);
-      await Future.delayed(const Duration(milliseconds: 1000),(){});
     }
     notifyListeners();
+
     /// 연결 시작
-    print("연결 시작");
+    // showToast("연결 시작");
     if(type == BODY_TYPE.NECK){
       await connectorNeck.connect(selectedDeviceId, selectedDeviceName).then((value){
         print("넥 연결성공");
@@ -321,18 +331,18 @@ class BluetoothProvider with ChangeNotifier{
   }
 
   Future<void> disconnect(BODY_TYPE type) async {
-    // if(type == BODY_TYPE.NECK && deviceNeck != null){
     if(type == BODY_TYPE.NECK){
+      // showToast("[임시]목 기존 연결 해제");
       await connectorNeck?.disconnect(deviceNeck!.id);
       deviceNeck = null;
       connectorNeck.init();
-    // }else if(type == BODY_TYPE.FOREHEAD && deviceForehead != null){
     }else if(type == BODY_TYPE.FOREHEAD){
+      // showToast("[임시]이마 기존 연결 해제");
       await connectorForehead?.disconnect(deviceForehead!.id);
       deviceForehead = null;
       connectorForehead.init();
     }
-    await Future.delayed(Duration(milliseconds: 100));
+    await Future.delayed(const Duration(milliseconds: 1000));
     notifyListeners();
   }
 }

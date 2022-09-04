@@ -51,6 +51,8 @@ class AppDAO{
 
   static List<ParameterResponse> parameters = [];
 
+  static List<int> selectedParameterIndexes = [];
+
   static _put({required String key, dynamic value}) async {
     var store = StoreRef.main();
     var db = await AppDatabase.instance.database;

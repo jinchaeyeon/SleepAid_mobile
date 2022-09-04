@@ -3,7 +3,6 @@ import 'package:sleepaid/data/local/app_dao.dart';
 import 'package:sleepaid/network/base_service.dart';
 import 'package:http/http.dart' as http;
 import '../data/network/post_sensor_response.dart';
-import 'dart:developer';
 
 ///센서값 서버로 전송
 class PostSensorService extends BaseService<PostSensorResponse> {
@@ -59,7 +58,7 @@ class PostSensorService extends BaseService<PostSensorResponse> {
 }
 
 /// 파라미터를 통해 수정 된 센서값 가져오기
-class PostModifiedSensorService extends BaseService<List<int>> {
+class PostModifiedSensorService extends BaseService<double> {
   ///Enum: "sdnn" "rmssd" "pnn20" "pnn50" "lf_abs" "hf_abs" "vlf_abs"
   String type;
   List<int> values;
@@ -80,10 +79,10 @@ class PostModifiedSensorService extends BaseService<List<int>> {
   }
 
   @override
-  List<int> success(body) {
-    if (body['values'] is List<int>) {
-      return body['values'] ?? [];
+  double success(body) {
+    if (body['result'] is double) {
+      return body['result'] ?? 0;
     }
-    return [];
+    return 0;
   }
 }

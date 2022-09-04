@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:sleepaid/data/local/device_sensor_data.dart';
 import 'package:sleepaid/network/sensor_service.dart';
 
+import 'local/app_dao.dart';
 import 'network/post_sensor_response.dart';
 
 enum BODY_TYPE {
@@ -13,7 +14,7 @@ enum BODY_TYPE {
 
 class BleDevice {
   static const int SENSOR_LEN = 1000;
-  static List<String> realtimeSesorTypes = ["PPG", "Actigraphy X", "Actigraphy Y", "Actigraphy Z",];
+  static List<String> realtimeSesorTypes = ["PPG", "Actigraphy X", "Actigraphy Y", "Actigraphy Z","HRV"];
 
   DiscoveredDevice? discoveredDevice;
   String deviceName;
@@ -26,6 +27,9 @@ class BleDevice {
   String pulseRadius = "";
   String pulsePadding = "";
   List<DeviceSensorData> sensors = [];
+  /// HRV에서 쓰여야하는 데이터, 서버에서 변환해서 와야하기 때문에 그래프 구조가 다름
+  Map<String, List<double>> hrvData = {};
+
 
   setSensors(List<DeviceSensorData> sensors){
     this.sensors = sensors;
@@ -82,12 +86,13 @@ class BleDevice {
       PostSensorService(
         date: PostSensorService.getAnalysisDateString(),
         items: sendingDataQueue
-      ).start().then((response){
+      ).start().then((response) async {
         isSendingToServer = false;
         if(response is PostSensorResponse){
-          print("setDeviceResponse success");
           /// 정상 동작이면 전송하기 위한 대기 데이터 초기화
           sendingDataQueue.clear();
+          /// 데이터 초기화 후, 현재 존재하는 파라미터의 데이터와 관련 된 값을 업로드 후 전달받음
+          await setHRVData(response.items);
         }
       }).onError((error, stackTrace){
         print("setDeviceResponse err");
@@ -103,7 +108,7 @@ class BleDevice {
     return;
   }
 
-  static num getMaxYFromType(String type) {
+  static int getMaxYFromType(String type) {
     if(type == realtimeSesorTypes[0]){
       return 65536;
     }else if(type == realtimeSesorTypes[1]){
@@ -112,7 +117,27 @@ class BleDevice {
       return 2000;
     }else if(type == realtimeSesorTypes[3]){
       return 2000;
+    }else if(type == realtimeSesorTypes[4]){
+      return 10;
     }
     return 2000;
+  }
+
+  Future<void> setHRVData(List<BaseSensorResponse> items) async{
+    List<int> ppgs = List.generate(items.length, (index) => items[index].ppg);
+    AppDAO.selectedParameterIndexes.forEach((index) async {
+      var result = await PostModifiedSensorService(type: AppDAO.parameters[index].name, values: ppgs).start();
+      if(result is double){
+        /// 전달받은 1개의 double값 HRV 데이터 목록에 추가
+        if(hrvData[AppDAO.parameters[index].name] == null) {
+          hrvData[AppDAO.parameters[index].name] = [];
+        }
+        hrvData[AppDAO.parameters[index].name]?.add(result);
+        /// 150개가 넘게 저장되면 250개 삭제(HRV는 최근 n개까지만 보여주고 그 뒤는 이동 관련 예비값)
+        if(hrvData[AppDAO.parameters[index].name]!.length > 150){
+          hrvData[AppDAO.parameters[index].name]!.removeRange(0, 75);
+        }
+      }
+    });
   }
 }

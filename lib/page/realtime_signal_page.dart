@@ -28,8 +28,11 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
 
   @override
   void initState() {
+    // 서버 파라미터가 비어 있으면 기본으로 파라미터 0번 선택됨
+    if(AppDAO.parameters.isNotEmpty){
+      AppDAO.selectedParameterIndexes = [0];
+    }
     super.initState();
-    loadParameters();
   }
 
   @override
@@ -58,10 +61,10 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text("$title", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
-                // Text("  60", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
-                // Text("bpm", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
-                // Text(" | 59", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
-                // Text("ms", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
+                // if(showParameterUI)Text("  60", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
+                // if(showParameterUI)Text("bpm", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
+                // if(showParameterUI)Text(" | 59", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppColors.textBlack)),
+                // if(showParameterUI)Text("ms", style: TextStyle(fontSize: 16, fontWeight: FontWeight.w400, color: AppColors.subTextGrey)),
                 Expanded(child: SizedBox.shrink()),
                 showParameterUI?InkWell(
                     onTap:(){
@@ -112,8 +115,11 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
               child: RealtimeGraphWidget(
                 type: title,
                 data: isNeckMode
-                    ?context.watch<BluetoothProvider>().deviceNeck?.sensors
-                    :context.watch<BluetoothProvider>().deviceForehead?.sensors
+                  ?context.watch<BluetoothProvider>().deviceNeck?.sensors
+                    :context.watch<BluetoothProvider>().deviceForehead?.sensors,
+                hrvData: isNeckMode
+                    ?context.watch<BluetoothProvider>().deviceNeck?.hrvData
+                    :context.watch<BluetoothProvider>().deviceForehead?.hrvData,
               )
             )
           )
@@ -564,10 +570,6 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
     );
   }
 
-  void loadParameters() {
-    context.read<DataProvider>().loadParameters();
-  }
-
   Widget addParameterButtons() {
     List<ParameterResponse> parameters = [];
     for(var parameter in AppDAO.parameters){
@@ -575,38 +577,65 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
         parameters.add(parameter);
       }
     }
+
+    void onTapCallback(int index, bool isSelected) {
+      if(isSelected){
+        AppDAO.selectedParameterIndexes.add(index);
+      }else{
+        AppDAO.selectedParameterIndexes.remove(index);
+      }
+    }
+
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            (parameters.length >= 1 && parameters[0].onDisplay)?YellowButton(buttonText: '${parameters[0].name}'):Container(width: 69,),
+            (parameters.length >= 1 && parameters[0].onDisplay)?YellowButton(
+              onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(0),
+                index: 0, buttonText: '${parameters[0].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            (parameters.length >= 2 && parameters[1].onDisplay)?YellowButton(buttonText: '${parameters[1].name}'):Container(width: 69,),
+            (parameters.length >= 2 && parameters[1].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(1),
+                index: 1, buttonText: '${parameters[1].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            (parameters.length >= 3 && parameters[2].onDisplay)?YellowButton(buttonText: '${parameters[2].name}'):Container(width: 69,),
+            (parameters.length >= 3 && parameters[2].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(2),
+                index: 2, buttonText: '${parameters[2].name}'):Container(width: 69,),
           ],
         ),
         const SizedBox(height: 22),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            (parameters.length >= 4 && parameters[3].onDisplay)?YellowButton(buttonText: '${parameters[3].name}'):Container(width: 69,),
+            (parameters.length >= 4 && parameters[3].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(3),
+                index: 3, buttonText: '${parameters[3].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            (parameters.length >= 5 && parameters[4].onDisplay)?YellowButton(buttonText: '${parameters[4].name}'):Container(width: 69,),
+            (parameters.length >= 5 && parameters[4].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(4),
+                index: 4, buttonText: '${parameters[4].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            (parameters.length >= 6 && parameters[5].onDisplay)?YellowButton(buttonText: '${parameters[5].name}'):Container(width: 69,),
+            (parameters.length >= 6 && parameters[5].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(5),
+                index: 5, buttonText: '${parameters[5].name}'):Container(width: 69,),
           ],
         ),
         if(parameters.length >=7) const SizedBox(height: 22),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            (parameters.length >= 7 && parameters[6].onDisplay)?YellowButton(buttonText: '${parameters[6].name}'):Container(width: 69,),
+            (parameters.length >= 7 && parameters[6].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(6),
+                index: 6, buttonText: '${parameters[6].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            (parameters.length >= 8 && parameters[7].onDisplay)?YellowButton(buttonText: '${parameters[7].name}'):Container(width: 69,),
+            (parameters.length >= 8 && parameters[7].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(7),
+                index: 7, buttonText: '${parameters[7].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            (parameters.length >= 9 && parameters[8].onDisplay)?YellowButton(buttonText: '${parameters[8].name}'):Container(width: 69,),
+            (parameters.length >= 9 && parameters[8].onDisplay)?YellowButton(
+                onTapCallback: onTapCallback, isSelected: AppDAO.selectedParameterIndexes.contains(8),
+                index: 8, buttonText: '${parameters[8].name}'):Container(width: 69,),
           ],
         ),
       ],

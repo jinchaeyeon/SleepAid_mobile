@@ -51,10 +51,14 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                   children: [
                     searchingStatusButton(context),
                     context.watch<BluetoothProvider>().deviceNeck == null
-                        ? Container(child:Text("목 null"))
+                        ? Container(
+                        // child:Text("목 null")
+                        )
                         : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceNeck!.discoveredDevice!),
                     context.watch<BluetoothProvider>().deviceForehead == null
-                        ? Container(child:Text("이마 null"))
+                        ? Container(
+                          // child:Text("이마 null")
+                        )
                         : _bluetoothDeviceListItemWidget(device: context.watch<BluetoothProvider>().deviceForehead!.discoveredDevice!),
                     Expanded(
                       child: StreamBuilder<BleScannerState>(
@@ -70,12 +74,12 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
                                   // 연결된 기기는 숨기기
                                   if(snapshot.data?.discoveredDevices[index].id == context.watch<BluetoothProvider>().deviceNeck?.id){
                                     return Container(
-                                      child: Text("넥 중복")
+                                      // child: Text("넥 중복")
                                     );
                                   }
                                   if(snapshot.data?.discoveredDevices[index].id == context.watch<BluetoothProvider>().deviceForehead?.id){
                                     return Container(
-                                        child: Text("이마 중복")
+                                        // child: Text("이마 중복")
                                     );
                                   }
                                   return _bluetoothDeviceListItemWidget(device: snapshot.data!.discoveredDevices[index], index: index);
@@ -164,7 +168,7 @@ class BluetoothConnectState extends State<BluetoothConnectPage>
         child: Container(
             height: 70,
             decoration: BoxDecoration(
-              color: index == null? Colors.blue.withOpacity(0.3):Colors.red.withOpacity(0.3),
+              // color: index == null? Colors.blue.withOpacity(0.3):Colors.red.withOpacity(0.3),
               border: Border(bottom: BorderSide(color:AppColors.borderGrey.withOpacity(0.4), width:1))
             ),
             padding: const EdgeInsets.only(left: 20, right: 20),

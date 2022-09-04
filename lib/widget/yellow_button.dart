@@ -3,8 +3,16 @@ import 'package:sleepaid/util/app_colors.dart';
 
 class YellowButton extends StatefulWidget {
   String buttonText;
+  final Function onTapCallback;
+  int index;
+  bool isSelected;
 
-  YellowButton({required this.buttonText});
+  YellowButton({
+    required this.buttonText,
+    required this.onTapCallback,
+    required this.index,
+    required this.isSelected,
+  });
 
   @override
   State<StatefulWidget> createState() => _YellowButton();
@@ -14,11 +22,18 @@ class _YellowButton extends State<YellowButton> {
   bool isSelected = false;
 
   @override
+  void initState() {
+    isSelected = widget.isSelected;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
         setState(() {
           isSelected = !isSelected;
+          widget.onTapCallback(widget.index, isSelected);
         });
       },
       child: Container(
