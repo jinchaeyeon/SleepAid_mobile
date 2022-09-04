@@ -8,7 +8,7 @@ import 'graph_painter.dart';
 
 
 class SleepAnalisysGraphWidget extends StatefulWidget {
-  List<Object> data;
+  List<int> data;
 
   SleepAnalisysGraphWidget({Key? key, required this.data}) : super(key: key);
 

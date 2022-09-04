@@ -8,7 +8,7 @@ import 'package:sleepaid/util/app_colors.dart';
 /// 각 시간기준으로 노출
 class SleepAnalysisGraphPainter extends CustomPainter {
   int maxValue = 100;
-  List<Object> dataList;
+  List<int> dataList;
   SleepAnalysisGraphPainter({required this.dataList});
 
   @override
@@ -17,7 +17,7 @@ class SleepAnalysisGraphPainter extends CustomPainter {
     List<Offset> maxPoints = [];
     var t = size.width / (dataList.length - 1);
     for (var _i = 0, _len = dataList.length; _i < _len; _i++) {
-      maxPoints.add(Offset( t * i , Random().nextInt(100) * size.height / 100  ));
+      maxPoints.add(Offset( t * i , dataList[_i] * size.height / 100  ));
           // size.height / 2 +
           //     dataList[_i].value.toDouble() / maxValue * size.height / 2));
       i++;

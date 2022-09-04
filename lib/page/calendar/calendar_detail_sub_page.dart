@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:another_xlider/another_xlider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -415,7 +417,15 @@ class SleepAnalysisGraph extends BaseStatefulWidget{
 }
 
 class SleepAnalysisGraphState extends State<SleepAnalysisGraph>{
-  List<Object> sleepAnalisysData = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  List<int> sleepAnalisysData = [];
+
+  @override
+  void initState() {
+    for(var i=0; i< 15; i ++){
+      sleepAnalisysData.add(Random().nextInt(100));
+    }
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
