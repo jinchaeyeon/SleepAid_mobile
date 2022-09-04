@@ -27,7 +27,7 @@ class RealtimeGraphPainter extends CustomPainter {
     var i = 0;
     if(dataList.isNotEmpty) {
       List<Offset> maxPoints = [];
-      var x1 = size.width / (dataList.length - 1);
+      var x1 = (size.width) / (dataList.length - 1);
       var y1 = size.height / BleDevice.getMaxYFromType(type);
       for (var _i = 0, _len = dataList.length ; _i < _len; _i++) {
         i++;
@@ -66,10 +66,10 @@ class RealtimeGraphPainter extends CustomPainter {
             subList = subList.sublist(50);
           }
           // var x1 = size.width / min((hrvDataList[key]?.length ?? 1 - 1), 50);
-          var x1 = size.width / (subList.length - 1);
+          var x1 = (size.width) / (subList.length - 1);
           var y1 = size.height / BleDevice.getMaxYFromType(type);
           // for (var _i = 0, _len = min((hrvDataList[key]?.length ?? 0), 50) ; _i < _len; _i++) {
-          for (var _i = 0, _len = (subList.length) ; _i < _len; _i++) {
+          for (var _i = 0, _len = (subList.length - 1) ; _i < _len; _i++) {
             i++;
             // int sensorValue = hrvDataList[key]?[_i].toInt() ?? (BleDevice.getMaxYFromType(type)~/ 2);
             int sensorValue = (subList[_i].toInt());
