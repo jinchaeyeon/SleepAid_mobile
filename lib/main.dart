@@ -36,7 +36,7 @@ void main() async {
 
 late AndroidNotificationChannel channelDefault;
 late AndroidNotificationChannel channelAfternoon;
-late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -48,7 +48,6 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 void showFlutterNotification(RemoteMessage message) async{
-  print("showFlutterNotification");
   RemoteNotification? notification = message.notification;
   Map<String, dynamic> data = message.data;
   // AndroidNotification? android = message.notification?.android;
@@ -61,30 +60,21 @@ void showFlutterNotification(RemoteMessage message) async{
     title = data["title"]??"";
     body = data["body"]??"";
   }
-  bool isOnChannelDefault = false;
-  bool isOnChannelAfternoon = false;
-  bool isShowNotification = false;
-  List<AndroidNotificationChannel> channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
-  channels.forEach((channel) {
-    if(channel.id == "default"){
-      isOnChannelDefault = true;
-    }
-    if(channel.id == "afternoon"){
-      isOnChannelAfternoon = true;
-    }
+
+  await flutterLocalNotificationsPlugin.show(
+      DateTime.now().millisecond,
+      title,
+      body,
+      getPlatformSpecifics(),
+      // payload: json.encode(pushNotification));
+  ).then((value){
+    print("showFlutterNotification \ntitle: $title\nbody:$body");
+  }).onError((error, stackTrace){
+    print("showFlutterNotification error");
   });
+}
 
-  if(isOnChannelAfternoon && title.contains("수면컨디션작성알림")){
-    isShowNotification = true;
-  }
-  if(isOnChannelDefault && title.contains("수면정보알림")){
-    isShowNotification = true;
-  }
-  if(!isShowNotification){
-    return;
-  }
-
+getPlatformSpecifics() {
   var androidPlatformChannelSpecifics = const AndroidNotificationDetails(
       "default",
       "default",
@@ -96,14 +86,7 @@ void showFlutterNotification(RemoteMessage message) async{
   var platformChannelSpecifics = NotificationDetails(
       android: androidPlatformChannelSpecifics,
       iOS: iOSPlatformChannelSpecifics);
-
-  await flutterLocalNotificationsPlugin.show(
-      DateTime.now().millisecond,
-      title,
-      body,
-      platformChannelSpecifics,
-      // payload: json.encode(pushNotification));
-  );
+  return platformChannelSpecifics;
 }
 
 /**
@@ -117,7 +100,7 @@ Future<void> mainInit() async {
   await initFCM();
 
   await AppDAO.init();
-
+  await fcmTopicInits();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print("fcm Token : ${fcmToken}");
@@ -157,6 +140,23 @@ Future<void> mainInit() async {
         child: Phoenix(child: SleepAIDApp()),
       )
   );
+}
+
+Future<void> fcmTopicInits() async{
+  List<AndroidNotificationChannel> channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+      AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
+  for(var channel in channels){
+    if(channel.id == "default"){
+      print("default channel exist");
+      await FirebaseMessaging.instance.subscribeToTopic("deafult");
+    }else if(channel.id == "afternoon"){
+      print("afternoon channel exist");
+      await FirebaseMessaging.instance.subscribeToTopic("afternoon");
+    }else{
+      await FirebaseMessaging.instance.unsubscribeFromTopic("default");
+      await FirebaseMessaging.instance.unsubscribeFromTopic("afternoon");
+    }
+  }
 }
 
 initFCM() async {

@@ -1,21 +1,12 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:sleepaid/app_routes.dart';
 import 'package:sleepaid/data/local/app_dao.dart';
-import 'package:sleepaid/main.dart';
-import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
-import 'package:sleepaid/util/app_strings.dart';
-import 'package:sleepaid/util/app_themes.dart';
-import 'package:sleepaid/util/functions.dart';
 import 'package:sleepaid/util/statics.dart';
 import 'package:sleepaid/widget/base_stateful_widget.dart';
 import 'package:sleepaid/widget/custom_switch_button.dart';
-import 'package:provider/provider.dart';
-
-import '../provider/main_provider.dart';
-
 
 class PushSettingPage extends BaseStatefulWidget {
   static const ROUTE = "/PushSetting";
@@ -147,6 +138,7 @@ class PushSettingState extends State<PushSettingPage>
         await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()?.deleteNotificationChannel("default");
         isOnChannelDefault = false;
+        AppDAO.setOnChannelDefault(false);
       }else {
         var channelDefault = const AndroidNotificationChannel(
           'default', // id
@@ -158,12 +150,14 @@ class PushSettingState extends State<PushSettingPage>
         await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channelDefault);
         isOnChannelDefault = true;
+        AppDAO.setOnChannelDefault(true);
       }
     }else if(channelId == "afternoon"){
       if(isOnChannelAfternoon){
         await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()?.deleteNotificationChannel("afternoon");
         isOnChannelAfternoon = false;
+        AppDAO.setOnChannelAfternoon(false);
       }else {
         var channelAfternoon = const AndroidNotificationChannel(
           'afternoon', // id
@@ -175,9 +169,28 @@ class PushSettingState extends State<PushSettingPage>
         await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
             AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channelAfternoon);
         isOnChannelAfternoon = true;
+        AppDAO.setOnChannelAfternoon(true);
       }
     }
+    await fcmTopicInits();
     setState(() {});
+  }
+
+  Future<void> fcmTopicInits() async{
+    List<AndroidNotificationChannel> channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+        AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
+    for(var channel in channels){
+      if(channel.id == "default"){
+        print("default channel exist");
+        await FirebaseMessaging.instance.subscribeToTopic("deafult");
+      }else if(channel.id == "afternoon"){
+        print("afternoon channel exist");
+        await FirebaseMessaging.instance.subscribeToTopic("afternoon");
+      }else{
+        await FirebaseMessaging.instance.unsubscribeFromTopic("default");
+        await FirebaseMessaging.instance.unsubscribeFromTopic("afternoon");
+      }
+    }
   }
 
   updateLocalNotificationChannelState(bool isOnChannelDefault, bool isOnChannelAfternoon) async{

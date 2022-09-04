@@ -569,29 +569,44 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
   }
 
   Widget addParameterButtons() {
-    List<ParameterResponse> parameters = AppDAO.parameters;
-    print("AppDAO.parameters len: ${AppDAO.parameters.length}");
+    List<ParameterResponse> parameters = [];
+    for(var parameter in AppDAO.parameters){
+      if(parameter.onDisplay){
+        parameters.add(parameter);
+      }
+    }
     return Column(
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            parameters.length >= 1?YellowButton(buttonText: '${parameters[0].name}'):Container(),
+            (parameters.length >= 1 && parameters[0].onDisplay)?YellowButton(buttonText: '${parameters[0].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            parameters.length >= 2?YellowButton(buttonText: '${parameters[1].name}'):Container(),
+            (parameters.length >= 2 && parameters[1].onDisplay)?YellowButton(buttonText: '${parameters[1].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            parameters.length >= 3?YellowButton(buttonText: '${parameters[2].name}'):Container(),
+            (parameters.length >= 3 && parameters[2].onDisplay)?YellowButton(buttonText: '${parameters[2].name}'):Container(width: 69,),
           ],
         ),
         const SizedBox(height: 22),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            parameters.length >= 4?YellowButton(buttonText: '${parameters[3].name}'):Container(),
+            (parameters.length >= 4 && parameters[3].onDisplay)?YellowButton(buttonText: '${parameters[3].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            parameters.length >= 5?YellowButton(buttonText: '${parameters[4].name}'):Container(),
+            (parameters.length >= 5 && parameters[4].onDisplay)?YellowButton(buttonText: '${parameters[4].name}'):Container(width: 69,),
             const SizedBox(width: 20),
-            parameters.length >= 6?YellowButton(buttonText: '${parameters[5].name}'):Container(),
+            (parameters.length >= 6 && parameters[5].onDisplay)?YellowButton(buttonText: '${parameters[5].name}'):Container(width: 69,),
+          ],
+        ),
+        if(parameters.length >=7) const SizedBox(height: 22),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            (parameters.length >= 7 && parameters[6].onDisplay)?YellowButton(buttonText: '${parameters[6].name}'):Container(width: 69,),
+            const SizedBox(width: 20),
+            (parameters.length >= 8 && parameters[7].onDisplay)?YellowButton(buttonText: '${parameters[7].name}'):Container(width: 69,),
+            const SizedBox(width: 20),
+            (parameters.length >= 9 && parameters[8].onDisplay)?YellowButton(buttonText: '${parameters[8].name}'):Container(width: 69,),
           ],
         ),
       ],
