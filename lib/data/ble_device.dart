@@ -74,20 +74,23 @@ class BleDevice {
 
   /// 기기에서 가져온 데이터 저장
   void setDeviceResponse(DeviceSensorData data) {
-    /// 매 요청마다 전송 시, 서버 부하가 생기기 때문에 1000개씩 모아서 전송
-    if(!isSendingToServer && waitingDataQueue.length > 100){
+    /// 매 요청마다 전송 시, 서버 부하가 생기고, 파라미터 에서도 쓰여야 하기 때문에 300개씩 모아서 전송
+    if(!isSendingToServer && waitingDataQueue.length > 300){
       isSendingToServer = true;
       sendingDataQueue.addAll(waitingDataQueue);
+      waitingDataQueue.clear();
       PostSensorService(
         date: PostSensorService.getAnalysisDateString(),
         items: sendingDataQueue
       ).start().then((response){
         isSendingToServer = false;
         if(response is PostSensorResponse){
+          print("setDeviceResponse success");
           /// 정상 동작이면 전송하기 위한 대기 데이터 초기화
           sendingDataQueue.clear();
         }
       }).onError((error, stackTrace){
+        print("setDeviceResponse err");
         isSendingToServer = false;
       });
     }

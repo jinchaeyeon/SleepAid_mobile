@@ -207,18 +207,23 @@ class CalendarDetailSubState extends State<CalendarDetailSubPage>
   }
 
   String getTimeString(String timeString) {
-    String result = "";
-    List<String> splits = timeString.split(':');
-    if(splits[0]!="00"){
-      result += splits[0] + "H";
+    try{
+      String result = "";
+      List<String> splits = timeString.split(':');
+      if(splits[0]!="00"){
+        result += splits[0] + "H";
+      }
+      if(splits [1]!="00"){
+        result += splits[1] + "M";
+      }
+      if(result == ""){
+        result = "0M";
+      }
+      return result;
+    }catch(e){
+      return "";
     }
-    if(splits [1]!="00"){
-      result += splits[1] + "M";
-    }
-    if(result == ""){
-      result = "0M";
-    }
-    return result;
+
   }
 
   List<Widget> homeSleepAnalysisContent() {

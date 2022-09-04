@@ -152,7 +152,7 @@ abstract class BaseService<T> {
       body = jsonEncode(body);
     }
     debugPrint('request url : $url');
-    debugPrint('request body : $body');
+    // log('request body : $body');
     debugPrint('request header : $_headers');
     return await http.post(Uri.parse(url!), headers: _headers, body: body);
   }

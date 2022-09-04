@@ -12,11 +12,14 @@ import 'package:sleepaid/data/network/sleep_condition_response.dart';
 import 'package:sleepaid/network/email_login_service.dart';
 import 'package:sleepaid/network/get_binaural_beats_service.dart';
 import 'package:sleepaid/network/get_electro_stimulations_service.dart';
+import 'package:sleepaid/network/parameter_service.dart';
 import 'package:sleepaid/network/sleep_condition_service.dart';
 import 'package:sleepaid/network/reset_password_service.dart';
 import 'package:sleepaid/network/sleeping_analytics_service.dart';
 import 'package:sleepaid/util/logger/service_error.dart';
 import 'package:sleepaid/util/statics.dart';
+
+import '../data/network/parameter_response.dart';
 
 class DataProvider with ChangeNotifier{
   bool isLoading = false;
@@ -95,7 +98,6 @@ class DataProvider with ChangeNotifier{
       });
     }
 
-
     List<dynamic> lastCondition = await (AppDAO.getLastSleepCondition());
     if(lastCondition[1] != null){
       await GetSleepConditionDetailService(id: "${lastCondition[1]!}").start().then((result){
@@ -105,6 +107,15 @@ class DataProvider with ChangeNotifier{
         }
       });
     }
+
+    if(AppDAO.parameters.isEmpty){
+      var result = await GetParameterService().start();
+      if(result is List<ParameterResponse>){
+        AppDAO.parameters = result;
+      }
+      print("resule:: $result");
+    }
+    notifyListeners();
   }
 
   // Future<Map<String, SleepAnalysisResponse>> getSleepAnalysisList() async{

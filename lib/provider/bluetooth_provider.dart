@@ -270,7 +270,7 @@ class BluetoothProvider with ChangeNotifier{
 
     flutterReactiveBle.writeCharacteristicWithResponse(characteristic, value: list)
         .asStream().asBroadcastStream().listen((event) {
-          print("write c w r");
+          // print("write c w r");
     });
   }
 

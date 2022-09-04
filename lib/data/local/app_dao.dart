@@ -13,6 +13,8 @@ import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
 import 'package:sleepaid/util/app_themes.dart';
 
+import '../network/parameter_response.dart';
+
 class AppBaseData {
   List<SleepConditionParameterResponse> sleepConditionParameters = [];
   List<ElectroStimulationParameterResponse> electroStimulationParameters = [];
@@ -46,6 +48,8 @@ class AppDAO{
   static ThemeData lightTheme = AppThemes.lightTheme;
 
   static bool completeInit = false;
+
+  static List<ParameterResponse> parameters = [];
 
   static _put({required String key, dynamic value}) async {
     var store = StoreRef.main();

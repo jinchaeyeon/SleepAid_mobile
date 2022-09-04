@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
 import 'package:sleepaid/data/ble_device.dart';
+import 'package:sleepaid/data/network/parameter_response.dart';
 import 'package:sleepaid/provider/bluetooth_provider.dart';
 import 'package:sleepaid/util/app_colors.dart';
 import 'package:sleepaid/util/app_images.dart';
@@ -10,6 +11,7 @@ import 'package:sleepaid/widget/yellow_button.dart';
 import 'package:provider/provider.dart';
 import '../app_routes.dart';
 import '../data/local/app_dao.dart';
+import '../provider/data_provider.dart';
 import '../widget/graph/realtime_graph_widget.dart';
 
 class RealtimeSignalPage extends BaseStatefulWidget {
@@ -27,6 +29,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
   @override
   void initState() {
     super.initState();
+    loadParameters();
   }
 
   @override
@@ -338,31 +341,7 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
                 ),
               ),
               SizedBox(height: 14),
-              Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      YellowButton(buttonText: 'NNI'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'NN50'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'LF/HF'),
-                    ],
-                  ),
-                  const SizedBox(height: 22),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      YellowButton(buttonText: 'parameter1'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'parameter2'),
-                      const SizedBox(width: 20),
-                      YellowButton(buttonText: 'parameter3'),
-                    ],
-                  ),
-                ],
-              ),
+              addParameterButtons(),
               SizedBox(height: 24),
               Row(
                 children: [
@@ -582,6 +561,40 @@ class RealtimeSignalState extends State<RealtimeSignalPage>
             )
           ],
         )
+    );
+  }
+
+  void loadParameters() {
+    context.read<DataProvider>().loadParameters();
+  }
+
+  Widget addParameterButtons() {
+    List<ParameterResponse> parameters = AppDAO.parameters;
+    print("AppDAO.parameters len: ${AppDAO.parameters.length}");
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            parameters.length >= 1?YellowButton(buttonText: '${parameters[0].name}'):Container(),
+            const SizedBox(width: 20),
+            parameters.length >= 2?YellowButton(buttonText: '${parameters[1].name}'):Container(),
+            const SizedBox(width: 20),
+            parameters.length >= 3?YellowButton(buttonText: '${parameters[2].name}'):Container(),
+          ],
+        ),
+        const SizedBox(height: 22),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            parameters.length >= 4?YellowButton(buttonText: '${parameters[3].name}'):Container(),
+            const SizedBox(width: 20),
+            parameters.length >= 5?YellowButton(buttonText: '${parameters[4].name}'):Container(),
+            const SizedBox(width: 20),
+            parameters.length >= 6?YellowButton(buttonText: '${parameters[5].name}'):Container(),
+          ],
+        ),
+      ],
     );
   }
 }
