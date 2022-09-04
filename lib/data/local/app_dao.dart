@@ -11,7 +11,9 @@ import 'package:sleepaid/data/network/binaural_beat_parameter_response.dart';
 import 'package:sleepaid/data/network/electro_stimulation_parameter_response.dart';
 import 'package:sleepaid/data/network/sleep_analysis_response.dart';
 import 'package:sleepaid/data/network/sleep_condition_parameter_response.dart';
+import 'package:sleepaid/util/app_config.dart';
 import 'package:sleepaid/util/app_themes.dart';
+import 'package:sleepaid/util/functions.dart';
 
 import '../network/parameter_response.dart';
 
@@ -81,7 +83,10 @@ class AppDAO{
 
 
   static String get baseUrl {
-    /// 테스트버전 여기서 분기처리
+    /// 개발모드면 개발서버, 개발 서버가 아니면 배포 서버
+    if(gFlavor == Flavor.DEV){
+      return DEBUG_PRODUCT;
+    }
     return HOST_PRODUCT;
   }
 
