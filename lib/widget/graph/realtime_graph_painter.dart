@@ -16,8 +16,12 @@ class RealtimeGraphPainter extends CustomPainter {
   double zoomLevel;
   DateTime? created;
   String type;
+  double leftMoved; /// 0이면 왼쪽치우침0, 숫자가 있으면 그만큼 왼쪽으로 치우침 0~100
 
-  RealtimeGraphPainter({required this.zoomLevel, required this.dataList, required this.type, required this.hrvDataList}){
+  RealtimeGraphPainter({
+    required this.zoomLevel, required this.dataList,
+    required this.type, required this.hrvDataList,
+    required this.leftMoved}){
     created=DateTime.now();
   }
 
@@ -27,11 +31,18 @@ class RealtimeGraphPainter extends CustomPainter {
     var i = 0;
     if(dataList.isNotEmpty) {
       List<Offset> maxPoints = [];
-      var x1 = (size.width) / (dataList.length - 1);
+      List<DeviceSensorData> subList = dataList;
+      if(subList.length > 300){
+        subList = subList.sublist((50 + (2.5 * leftMoved.toInt()).toInt()));
+      }
+
+      var x1 = (size.width) / (subList.length - 1);
       var y1 = size.height / BleDevice.getMaxYFromType(type);
-      for (var _i = 0, _len = dataList.length ; _i < _len; _i++) {
+      y1 = y1 * zoomLevel;
+
+      for (var _i = 0, _len = subList.length - 1 ; _i < _len; _i++) {
         i++;
-        int sensorValue = dataList[_i].getDataByType(type);
+        int sensorValue = subList[_i].getDataByType(type);
         maxPoints.add(
             Offset(
                 x1 * i,
@@ -63,20 +74,18 @@ class RealtimeGraphPainter extends CustomPainter {
           maxPoints = [];
           List<double> subList = hrvDataList[key]??[];
           if(subList.length > 100){
-            subList = subList.sublist(50);
+            subList = subList.sublist(50 + (0.5 * leftMoved.toInt()).toInt());
           }
-          // var x1 = size.width / min((hrvDataList[key]?.length ?? 1 - 1), 50);
           var x1 = (size.width) / (subList.length - 1);
-          var y1 = size.height / BleDevice.getMaxYFromType(type);
-          // for (var _i = 0, _len = min((hrvDataList[key]?.length ?? 0), 50) ; _i < _len; _i++) {
+          var y1 = size.height / BleDevice.getMaxYFromType(type) * 0.25;
+          y1 = y1 * zoomLevel;
           for (var _i = 0, _len = (subList.length - 1) ; _i < _len; _i++) {
             i++;
-            // int sensorValue = hrvDataList[key]?[_i].toInt() ?? (BleDevice.getMaxYFromType(type)~/ 2);
             int sensorValue = (subList[_i].toInt());
             maxPoints.add(
                 Offset(
                     x1 * i,
-                    (y1 * sensorValue).clamp(0, size.height)
+                    ((y1 * sensorValue) + (BleDevice.getMaxYFromType(type) * 0.5)).clamp(0,size.height)
                 )
             );
           }

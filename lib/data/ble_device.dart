@@ -78,8 +78,8 @@ class BleDevice {
 
   /// 기기에서 가져온 데이터 저장
   void setDeviceResponse(DeviceSensorData data) {
-    /// 매 요청마다 전송 시, 서버 부하가 생기고, 파라미터 에서도 쓰여야 하기 때문에 300개씩 모아서 전송
-    if(!isSendingToServer && waitingDataQueue.length > 300){
+    /// 매 요청마다 전송 시, 서버 부하가 생기고, 파라미터 에서도 쓰여야 하기 때문에 200개씩 모아서 전송
+    if(!isSendingToServer && waitingDataQueue.length > 200){
       isSendingToServer = true;
       sendingDataQueue.addAll(waitingDataQueue);
       waitingDataQueue.clear();
@@ -101,7 +101,7 @@ class BleDevice {
     }
 
     while(sensors.length > SENSOR_LEN) {
-      sensors.removeRange(0, SENSOR_LEN ~/ 100);
+      sensors.removeRange(0, SENSOR_LEN ~/ 100); /// 전체 센서저장값 중 오래된 1% 삭제
     }
     sensors.add(data);
     waitingDataQueue.add(data.toSennsorResponse());

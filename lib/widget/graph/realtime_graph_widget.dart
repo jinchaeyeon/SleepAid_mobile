@@ -23,6 +23,7 @@ class RealtimeGraphWidget extends StatefulWidget {
 class _GraphState extends State<RealtimeGraphWidget> {
   double _baseScale = 1;
   double _scale = 1;
+  double _leftMoved = 0;
 
   List<DeviceSensorData> dataList = [];
   Map<String, List<double>> hrvDataList = {};
@@ -45,12 +46,16 @@ class _GraphState extends State<RealtimeGraphWidget> {
           if (details.scale == 1.0) {
             if(details.focalPointDelta.dx < 0){
               //left
+              print("left, ${_leftMoved}");
+              _leftMoved = (_leftMoved - 1).clamp(0.0, 100.0);
             }else if(details.focalPointDelta.dx > 0){
               //right
+              _leftMoved = (_leftMoved + 1).clamp(0.0, 100.0);
+              print("right, ${_leftMoved}");
             }
           }else{
             setState(() {
-              _scale = (_baseScale * details.scale).clamp(1.0, 2.0);
+              _scale = (_baseScale * details.scale).clamp(1.0, 8.0);
             });
           }
         },
@@ -58,7 +63,9 @@ class _GraphState extends State<RealtimeGraphWidget> {
             width: double.maxFinite,
             height: double.maxFinite,
             child: CustomPaint(
-              painter: RealtimeGraphPainter(zoomLevel: _scale, dataList: dataList, hrvDataList: hrvDataList, type: widget.type),
+              painter: RealtimeGraphPainter(
+                  zoomLevel: _scale, dataList: dataList, hrvDataList: hrvDataList,
+                  type: widget.type, leftMoved: _leftMoved),
             )
         )
     );
