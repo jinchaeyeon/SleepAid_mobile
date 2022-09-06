@@ -308,27 +308,32 @@ class HomeState extends State<HomePage>
                ),
                Positioned(
                  bottom: 0,
-                 left: (getDeviceWidth(context) / 2) - (52/2) -35,
-                 child: GestureDetector(
-                   onTap:() async {
-                     //todo
-                     await toggleCollectingData();
-                     // Navigator.pushNamed(context, routeSleepCondition);
-                   },
-                   child: SizedBox(
-                     width: 52,
-                     height: 52,
-                     child: AnimatedRotation(
-                         turns: context.watch<BluetoothProvider>().isDataCollecting?0:0.125,
-                         duration: const Duration(milliseconds: 100),
-                         child: InkWell(
-                           onTap:() async {
-                             await toggleCollectingData();
-                           },
-                           child: Image.asset(AppImages.add),
-                         )
-                     ),
-                   ),
+                 left: 0,
+                 right: 0,
+                 child: Container(
+                   child:Center(
+                     child: GestureDetector(
+                       onTap:() async {
+                         //todo
+                         await toggleCollectingData();
+                         // Navigator.pushNamed(context, routeSleepCondition);
+                       },
+                       child: SizedBox(
+                         width: 52,
+                         height: 52,
+                         child: AnimatedRotation(
+                             turns: context.watch<BluetoothProvider>().isDataCollecting?0:0.125,
+                             duration: const Duration(milliseconds: 100),
+                             child: InkWell(
+                               onTap:() async {
+                                 await toggleCollectingData();
+                               },
+                               child: Image.asset(AppImages.add),
+                             )
+                         ),
+                       ),
+                     )
+                   )
                  ),
                )
              ],
