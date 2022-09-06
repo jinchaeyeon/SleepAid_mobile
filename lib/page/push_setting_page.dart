@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/src/widgets/framework.dart';
@@ -112,22 +114,14 @@ class PushSettingState extends State<PushSettingPage>
   }
 
   Future<void> loadData(BuildContext context) async {
-    channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
-    if(channels.isNotEmpty){
-      isOnChannelDefault = false;
-      isOnChannelAfternoon = false;
-      channels.forEach((channel) {
-        print("channel: ${channel.name}");
-        if(channel.id == "default"){
-          isOnChannelDefault = true;
-        }
-        if(channel.id == "afternoon"){
-          isOnChannelAfternoon = true;
-        }
-      });
-    }
-    await updateLocalNotificationChannelState(isOnChannelDefault, isOnChannelAfternoon);
+    log("loadData start");
+    // channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+    //     AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
+    isOnChannelDefault = await AppDAO.isOnChannelDefault;
+    isOnChannelAfternoon = await AppDAO.isOnChannelAfternoon;
+
+    log("isOnChannelDefault: ${isOnChannelDefault}");
+    log("isOnChannelAfternoon: ${isOnChannelAfternoon}");
     setState(() {isLoading = false;});
   }
 
@@ -181,14 +175,16 @@ class PushSettingState extends State<PushSettingPage>
         AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
     for(var channel in channels){
       if(channel.id == "default"){
-        print("default channel exist");
-        await FirebaseMessaging.instance.subscribeToTopic("deafult");
+        log("default channel exist");
+        await FirebaseMessaging.instance.subscribeToTopic("default");
       }else if(channel.id == "afternoon"){
-        print("afternoon channel exist");
+        log("afternoon channel exist");
         await FirebaseMessaging.instance.subscribeToTopic("afternoon");
       }else{
         await FirebaseMessaging.instance.unsubscribeFromTopic("default");
         await FirebaseMessaging.instance.unsubscribeFromTopic("afternoon");
+        log("default channel not exist");
+        log("afternoon channel not exist");
       }
     }
   }

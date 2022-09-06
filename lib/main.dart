@@ -1,3 +1,6 @@
+import 'dart:developer';
+import 'dart:io';
+
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
@@ -34,17 +37,15 @@ void main() async {
   mainInit();
 }
 
-late AndroidNotificationChannel channelDefault;
-late AndroidNotificationChannel channelAfternoon;
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
 
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
-  await Firebase.initializeApp();
+  // await Firebase.initializeApp();
   showFlutterNotification(message);
-  print('Handling a background message ${message.messageId}');
+  log('Handling a background message ${message.messageId}');
 }
 
 void showFlutterNotification(RemoteMessage message) async{
@@ -94,20 +95,22 @@ getPlatformSpecifics() {
  */
 Future<void> mainInit() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
+  if(Firebase.apps.isEmpty){
+    await Firebase.initializeApp(
+      // options: DefaultFirebaseOptions.currentPlatform,
+    );
+    }
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   await initFCM();
 
   await AppDAO.init();
   await fcmTopicInits();
-  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   final fcmToken = await FirebaseMessaging.instance.getToken();
   print("fcm Token : ${fcmToken}");
   if(fcmToken != null){
     PostFCMTokenService(token:fcmToken).start().then((result){
       if(result is PushResponse){
-        print("fcm updated }");
+        print("fcm updated ${result.id}");
       }
     });
   }
@@ -116,7 +119,7 @@ Future<void> mainInit() async {
       .listen((fcmToken) {
     PostFCMTokenService(token:fcmToken).start().then((result){
         if(result is PushResponse){
-          print("fcm updated }");
+          print("fcm updated  ${result.id}}");
         }
       });
     }).onError((err) {
@@ -143,51 +146,91 @@ Future<void> mainInit() async {
 }
 
 Future<void> fcmTopicInits() async{
-  List<AndroidNotificationChannel> channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
-      AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
-  for(var channel in channels){
-    if(channel.id == "default"){
-      print("default channel exist");
-      await FirebaseMessaging.instance.subscribeToTopic("deafult");
-    }else if(channel.id == "afternoon"){
-      print("afternoon channel exist");
-      await FirebaseMessaging.instance.subscribeToTopic("afternoon");
-    }else{
-      await FirebaseMessaging.instance.unsubscribeFromTopic("default");
-      await FirebaseMessaging.instance.unsubscribeFromTopic("afternoon");
-    }
+  // List<AndroidNotificationChannel> channels = await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<
+  //     AndroidFlutterLocalNotificationsPlugin>()?.getNotificationChannels()??[];
+  // /// 채널이 있는 경우 채널로 구독 초기 설정
+  // for(var channel in channels){
+  //   if(channel.id == "default"){
+  //     log("default channel exist");
+  //     await FirebaseMessaging.instance.subscribeToTopic("default").then((value){
+  //       log("subscribe topic default");
+  //     });
+  //   }else if(channel.id == "afternoon"){
+  //     log("afternoon channel exist");
+  //     await FirebaseMessaging.instance.subscribeToTopic("afternoon");
+  //   }else{
+  //     await FirebaseMessaging.instance.unsubscribeFromTopic("default");
+  //     await FirebaseMessaging.instance.unsubscribeFromTopic("afternoon");
+  //   }
+  // }
+  /// 채널 이슈가 있는 경우 로컬 데이터로 체크
+  bool isOnChannelDefault = await AppDAO.isOnChannelDefault;
+  bool isOnChannelAfternoon = await AppDAO.isOnChannelAfternoon;
+  if(isOnChannelDefault){
+    await FirebaseMessaging.instance.subscribeToTopic("default").then((value){
+      log("subscribe topic default");
+    });
+  }else{
+    await FirebaseMessaging.instance.unsubscribeFromTopic("default");
+  }
+
+  if(isOnChannelAfternoon){
+    await FirebaseMessaging.instance.subscribeToTopic("afternoon");
+  }else{
+    await FirebaseMessaging.instance.unsubscribeFromTopic("afternoon");
   }
 }
 
 initFCM() async {
   FirebaseMessaging.instance.subscribeToTopic("all");
   flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-  channelDefault = const AndroidNotificationChannel(
-    'default', // id
-    '수면정보알림', // title
-    description:
-    '전체알림을 수신받습니다', // description
-    importance: Importance.max,
-  );
-  channelAfternoon = const AndroidNotificationChannel(
-    'afternoon', // id
-    '수면 컨디션 작성 알림', // title
-    description:
-    '수면 컨디션 작성 알림을 수신받습니다', // description
-    importance: Importance.max,
-  );
-  if(await AppDAO.isOnChannelDefault){
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channelDefault);
+
+  if(Platform.isAndroid){
+    var channelDefault = const AndroidNotificationChannel(
+      'default', // id
+      '수면정보알림', // title
+      description:
+      '전체알림을 수신받습니다', // description
+      importance: Importance.max,
+    );
+    var channelAfternoon = const AndroidNotificationChannel(
+      'afternoon', // id
+      '수면 컨디션 작성 알림', // title
+      description:
+      '수면 컨디션 작성 알림을 수신받습니다', // description
+      importance: Importance.max,
+    );
+
+    if(await AppDAO.isOnChannelDefault){
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channelDefault);
+    }
+    if(await AppDAO.isOnChannelAfternoon){
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin>()
+          ?.createNotificationChannel(channelAfternoon);
+    }
+  }else{
+
+    if(await AppDAO.isOnChannelDefault){
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true,);
+    }
+    if(await AppDAO.isOnChannelAfternoon){
+      await flutterLocalNotificationsPlugin
+          .resolvePlatformSpecificImplementation<
+          IOSFlutterLocalNotificationsPlugin>()
+          ?.requestPermissions(alert: true, badge: true, sound: true,);
+    }
   }
-  if(await AppDAO.isOnChannelAfternoon){
-    await flutterLocalNotificationsPlugin
-        .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
-        ?.createNotificationChannel(channelAfternoon);
-  }
+
+  log("isOnChannelDefault: ${await AppDAO.isOnChannelDefault}");
+  log("isOnChannelAfternoon: ${await AppDAO.isOnChannelAfternoon}");
   /// Update the iOS foreground notification presentation options to allow
   /// heads up notifications.
   await FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(

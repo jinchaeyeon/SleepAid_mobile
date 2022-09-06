@@ -370,10 +370,9 @@ class HomeState extends State<HomePage>
                 style: TextStyle(
                   overflow: TextOverflow.clip,
                   color: Theme.of(context).textSelectionTheme.selectionColor,
-                  fontSize: getFontSize(context, 14),
+                  fontSize: getFontSize(context, 13),
                   // fontFamily: Util.notoSans,
                   fontWeight: FontWeight.w400,
-
                 ),
               ),
               stateContainer(state, isOn),
