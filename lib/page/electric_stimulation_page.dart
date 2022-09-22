@@ -629,8 +629,9 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + ((recipe?.intensity??10 / 10 * 200).round()).toString() + "\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + ((recipe?.height??10 / 10 * 200).round()).toString() + "\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
+    // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
+    // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|2\n");
   }
 
   isSelectedRecipe(ElectroStimulationParameterResponse recipe) {
