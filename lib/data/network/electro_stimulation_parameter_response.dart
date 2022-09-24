@@ -39,4 +39,21 @@ class ElectroStimulationParameterResponse extends BaseResponse {
     data['height'] = height;
     return data;
   }
+
+  static ElectroStimulationParameterResponse? firstRecipe(int index, int value) {
+    int intensity = 0;
+    int interval = 0;
+    int height = 0;
+
+    if(index == 0){
+      intensity = value;
+    }else if(index == 1){
+      interval = value;
+    }else if(index == 2){
+      height = value;
+    }
+
+    var recipe = ElectroStimulationParameterResponse(name:"", interval: interval, intensity: intensity, height: height);
+    return recipe;
+  }
 }

@@ -173,6 +173,9 @@ class BluetoothProvider with ChangeNotifier{
           if(deviceNeck?.deviceName != connectorNeck.connectedDeviceName){
             deviceNeck = BleDevice(connectorNeck.connectedDeviceName, connectorNeck.connectedDeviceId, device);
           }
+          if(Uint8List.fromList(data).lengthInBytes < 30){
+            return;
+          }
           DeviceSensorData sensorData = Protocol.buildSensorData(Uint8List.fromList(data));
           if(isDataCollecting){
             deviceNeck?.setDeviceResponse(sensorData);
@@ -265,6 +268,7 @@ class BluetoothProvider with ChangeNotifier{
   }
 
   Future<void> sendData(BODY_TYPE bodyType, String requestString) async {
+    // print("[sendData] $requestString");
     String connectedDeviceId = "";
     if(bodyType == BODY_TYPE.NECK){
       connectedDeviceId = connectorNeck.connectedDeviceId;

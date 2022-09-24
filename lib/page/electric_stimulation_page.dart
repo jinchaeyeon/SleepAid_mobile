@@ -336,8 +336,9 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     );
   }
 
-  buildSliderControlWidget({double index=0, double max=10, double step=1, String text=""}) {
+  buildSliderControlWidget({int index=0, double max=10, double step=1, String text=""}) {
     return Container(
+      key: ValueKey("slider$index"),
       color: Colors.transparent,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -358,6 +359,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
           ),
           Expanded(flex: 7,
               child: FlutterSlider(
+                key: ValueKey("slider$index"),
                 disabled : !isControllable,
                 values: [getValueFromCurrentRecipe(index)],
                 max: max,
@@ -374,8 +376,8 @@ class SettingRecipeState extends State<ElectricStimulationPage>
                   inactiveTrackBarHeight: 22,
                 ),
                 onDragging: (handlerIndex, lowerValue, upperValue) {
-                  // item.score = lowerValue;
-                  // setState(() {});
+                  print("onDragging $lowerValue");
+                  updateCurrentRecipeBySlider(index, (lowerValue).toInt());
                 },
                 tooltip: FlutterSliderTooltip(
                     format: format,
@@ -544,15 +546,35 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     return list;
   }
 
+  void updateCurrentRecipeBySlider(int index, int value) {
+    if(selectedRecipe != null){
+      if(index == 0){
+        //자극간격
+        selectedRecipe!.interval = value;
+      }else if(index == 1){
+        //자극세기
+        selectedRecipe!.intensity = value;
+      }else if(index == 2){
+        //자극높이
+        selectedRecipe!.height = value;
+      }
+    }else{
+      selectedRecipe = ElectroStimulationParameterResponse.firstRecipe(index, (value).toInt());
+    }
+
+    sendDataToDevice(context, selectedRecipe!);
+    setState(() {});
+  }
+
   /***
    * 현재
    */
   void updateCurrentRecipe(ElectroStimulationParameterResponse recipe) {
     selectedRecipe = recipe;
-    sendDataToDevice(context);
+    sendDataToDevice(context, recipe);
   }
 
-  double getValueFromCurrentRecipe(double index) {
+  double getValueFromCurrentRecipe(int index) {
     if(selectedRecipe == null) return 0;
     if(index == 0){
       return selectedRecipe!.interval.toDouble();
@@ -618,17 +640,22 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     setState(() {});
   }
 
-  void sendDataToDevice(BuildContext context) {
-    var recipe = selectedRecipe;
+  void sendDataToDevice(BuildContext context, ElectroStimulationParameterResponse recipe) {
     if(isNeckMode && context.read<BluetoothProvider>().deviceNeck == null){
       return ;
     }
     if(!isNeckMode && context.read<BluetoothProvider>().deviceForehead == null){
       return ;
     }
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + ((recipe?.intensity??10 / 10 * 200).round()).toString() + "\n");
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + ((recipe?.height??10 / 10 * 200).round()).toString() + "\n");
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + ((recipe?.interval??10 / 10 * 4095).round()).toString() + "\n");
+    // 실행정지
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|0\n");
+    // 펄스폭 설정 10~200 단위는 us
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + (
+        getDataValue(0, recipe?.intensity??0)).toString() + "\n");
+    // 펄스간격 설정 n : 4~200 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + (getDataValue(1, recipe?.interval??0)).toString() + "\n");
+    // n : 명령값, 1~4095 펄스크기 설정
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + (getDataValue(2, recipe?.height??0)).toString().toString() + "\n");
     // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
     // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|2\n");
@@ -649,5 +676,27 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       return true;
     }
     return false;
+  }
+
+  // value는 0~10 사이 대략적인 변환 필요
+  int getDataValue(int type, int value) {
+    int _value = 0;
+    if(type == 0){
+      //자극간격 / 펄스폭 intensity 102
+      // 펄스폭 설정 10~200 단위는 us
+      // 각 단위당 +17정도의 값으로 설정
+      _value = (value + 1) * 17;
+    }else if(type == 1){
+      // 펄스간격 / 자극간격 interval 104
+      // 펄스간격 설정 n : 4~200 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
+      // 역시 각 단이당 +17 정도이 되, 나온 출력값 끝값을 4 단위로 체크
+      _value = (((value + 1) * 17) ~/ 4) * 4;
+    }else if(type == 2){
+      //펄스 크기 / 펄스 높이 height 106
+      // n : 명령값, 1~4095 펄스크기 설정
+      // 각 값을 +372로 설정
+      _value = (value + 1) * 372;
+    }
+    return _value;
   }
 }
