@@ -23,12 +23,16 @@ class DeviceSensorData{
 
   int getDataByType(String type) {
     if(type == BleDevice.realtimeSesorTypes[0]){
-      return ppg;
+      return eeg1;
     }else if(type == BleDevice.realtimeSesorTypes[1]){
-      return actX;
-    }else if(type == BleDevice.realtimeSesorTypes[2]){
-      return actY;
+      return eeg2;
+    } else if(type == BleDevice.realtimeSesorTypes[2]){
+      return ppg;
     }else if(type == BleDevice.realtimeSesorTypes[3]){
+      return actX;
+    }else if(type == BleDevice.realtimeSesorTypes[4]){
+      return actY;
+    }else if(type == BleDevice.realtimeSesorTypes[5]){
       return actZ;
     }
     return 0;
@@ -38,7 +42,8 @@ class DeviceSensorData{
     return BaseSensorResponse(
       datetime: dateTime.toIso8601String(),
       ppg: ppg,
-      eeg: eeg1,
+      eeg1: eeg1,
+      eeg2: eeg2,
       actigraphyX: actX,
       actigraphyY: actY,
       actigraphyZ: actZ

@@ -36,7 +36,8 @@ class PostSensorResponse extends BaseResponse{
 class BaseSensorResponse extends BaseResponse{
   String datetime; //"datetime": "2019-08-24T14:15:22Z",
   int ppg;
-  int eeg;
+  int eeg1;
+  int eeg2;
   int actigraphyX;
   int actigraphyY;
   int actigraphyZ;
@@ -44,7 +45,8 @@ class BaseSensorResponse extends BaseResponse{
   BaseSensorResponse({
     required this.datetime,
     required this.ppg,
-    required this.eeg,
+    required this.eeg1,
+    required this.eeg2,
     required this.actigraphyX,
     required this.actigraphyY,
     required this.actigraphyZ,
@@ -54,7 +56,8 @@ class BaseSensorResponse extends BaseResponse{
       BaseSensorResponse(
         datetime: json['datetime'],
         ppg: json['ppg'],
-        eeg: json['eeg'],
+        eeg1: json['eeg1'],
+          eeg2: json['eeg2'],
         actigraphyX: json['actigraphy_x'],
         actigraphyY: json['actigraphy_y'],
         actigraphyZ: json['actigraphy_z']
@@ -64,7 +67,8 @@ class BaseSensorResponse extends BaseResponse{
     final Map<String, dynamic> data = <String, dynamic>{};
     data['datetime'] = datetime;
     data['ppg'] = ppg;
-    data['eeg'] = eeg;
+    data['eeg1'] = eeg1;
+    data['eeg2'] = eeg2;
     data['actigraphy_x'] = actigraphyX;
     data['actigraphy_y'] = actigraphyY;
     data['actigraphy_z'] = actigraphyZ;

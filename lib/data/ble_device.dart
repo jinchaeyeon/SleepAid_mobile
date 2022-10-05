@@ -14,7 +14,7 @@ enum BODY_TYPE {
 
 class BleDevice {
   static const int SENSOR_LEN = 1000;
-  static List<String> realtimeSesorTypes = ["PPG", "Actigraphy X", "Actigraphy Y", "Actigraphy Z","HRV"];
+  static List<String> realtimeSesorTypes = ["EEG1", "EEG2", "PPG", "Actigraphy X", "Actigraphy Y", "Actigraphy Z","HRV"];
 
   DiscoveredDevice? discoveredDevice;
   String deviceName;
@@ -57,12 +57,16 @@ class BleDevice {
     List<int> values = [];
     sensors.forEach((_sensor) {
       if(types == realtimeSesorTypes[0]){
-        values.add(_sensor.ppg);
+        values.add(_sensor.eeg1);
       }else if(types == realtimeSesorTypes[1]){
-        values.add(_sensor.actX);
+        values.add(_sensor.eeg2);
       }else if(types == realtimeSesorTypes[2]){
-        values.add(_sensor.actY);
+        values.add(_sensor.ppg);
       }else if(types == realtimeSesorTypes[3]){
+        values.add(_sensor.actX);
+      }else if(types == realtimeSesorTypes[4]){
+        values.add(_sensor.actY);
+      }else if(types == realtimeSesorTypes[5]){
         values.add(_sensor.actZ);
       }
     });
@@ -110,14 +114,18 @@ class BleDevice {
 
   static int getMaxYFromType(String type) {
     if(type == realtimeSesorTypes[0]){
-      return 65536;
+      return 900000;
     }else if(type == realtimeSesorTypes[1]){
-      return 2000;
+      return 900000;
     }else if(type == realtimeSesorTypes[2]){
-      return 2000;
+      return 65536;
     }else if(type == realtimeSesorTypes[3]){
       return 2000;
     }else if(type == realtimeSesorTypes[4]){
+      return 2000;
+    }else if(type == realtimeSesorTypes[5]){
+      return 2000;
+    }else if(type == realtimeSesorTypes[6]){
       return 10;
     }
     return 2000;
