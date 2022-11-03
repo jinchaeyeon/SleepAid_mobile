@@ -114,9 +114,9 @@ class BleDevice {
 
   static int getMaxYFromType(String type) {
     if(type == realtimeSesorTypes[0]){
-      return 7600000;
+      return 150000;
     }else if(type == realtimeSesorTypes[1]){
-      return 12000000;
+      return 150000;
     }else if(type == realtimeSesorTypes[2]){
       return 65536;
     }else if(type == realtimeSesorTypes[3]){

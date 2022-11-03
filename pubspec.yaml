@@ -49,6 +49,7 @@ dependencies:
   firebase_auth: ^3.6.2
   firebase_messaging: ^12.0.1
   flutter_local_notifications: ^9.7.0
+  syncfusion_flutter_charts: ^20.3.50
 
 
 dev_dependencies:

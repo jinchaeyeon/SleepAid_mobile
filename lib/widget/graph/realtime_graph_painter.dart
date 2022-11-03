@@ -39,16 +39,58 @@ class RealtimeGraphPainter extends CustomPainter {
       var x1 = (size.width) / (subList.length - 1);
       var y1 = size.height / BleDevice.getMaxYFromType(type);
       y1 = y1 * zoomLevel;
-
       for (var _i = 0, _len = subList.length - 1 ; _i < _len; _i++) {
         i++;
         int sensorValue = subList[_i].getDataByType(type);
-        maxPoints.add(
-            Offset(
-                x1 * i,
-                (y1 * sensorValue).clamp(0, size.height)
-            )
-        );
+
+        if(type == BleDevice.realtimeSesorTypes[0]){
+          print("sensorValue1: $sensorValue");
+          while(sensorValue > 100000 || sensorValue <0){
+            if(sensorValue > 100000) {
+              int l = pow(10,(sensorValue.toString().length-2).toInt()).toInt();
+              sensorValue = (sensorValue / l).toInt();
+            }
+            if(sensorValue < 0) {
+              sensorValue = 100000-sensorValue.abs();
+            }
+          }
+
+          print("type: $type");
+          print("sensorValue: $sensorValue");
+          maxPoints.add(
+              Offset(
+                  x1 * i,
+                  (y1 * sensorValue).clamp(0, size.height)
+              )
+          );
+        } else if(type == BleDevice.realtimeSesorTypes[1]) {
+          print("sensorValue2: $sensorValue");
+          while(sensorValue > 100000 || sensorValue <0){
+            if(sensorValue > 100000) {
+              int l = pow(10,(sensorValue.toString().length-2).toInt()).toInt();
+              sensorValue = (sensorValue / l).toInt();
+            }
+            if(sensorValue < 0) {
+              sensorValue = 100000-sensorValue.abs();
+            }
+          }
+
+          print("type: $type");
+          print("sensorValue: $sensorValue");
+          maxPoints.add(
+              Offset(
+                  x1 * i,
+                  (y1 * sensorValue).clamp(0, size.height)
+              )
+          );
+        } else {
+          maxPoints.add(
+              Offset(
+                  x1 * i,
+                  (y1 * sensorValue).clamp(0, size.height)
+              )
+          );
+        }
       }
 
       var paint = Paint()
