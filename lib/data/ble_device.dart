@@ -118,7 +118,7 @@ class BleDevice {
     }else if(type == realtimeSesorTypes[1]){
       return 150000;
     }else if(type == realtimeSesorTypes[2]){
-      return 65536;
+      return 2000;
     }else if(type == realtimeSesorTypes[3]){
       return 2000;
     }else if(type == realtimeSesorTypes[4]){

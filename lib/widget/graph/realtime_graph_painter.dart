@@ -44,7 +44,6 @@ class RealtimeGraphPainter extends CustomPainter {
         int sensorValue = subList[_i].getDataByType(type);
 
         if(type == BleDevice.realtimeSesorTypes[0]){
-          print("sensorValue1: $sensorValue");
           while(sensorValue > 100000 || sensorValue <0){
             if(sensorValue > 100000) {
               int l = pow(10,(sensorValue.toString().length-2).toInt()).toInt();
@@ -54,9 +53,6 @@ class RealtimeGraphPainter extends CustomPainter {
               sensorValue = 100000-sensorValue.abs();
             }
           }
-
-          print("type: $type");
-          print("sensorValue: $sensorValue");
           maxPoints.add(
               Offset(
                   x1 * i,
@@ -64,7 +60,6 @@ class RealtimeGraphPainter extends CustomPainter {
               )
           );
         } else if(type == BleDevice.realtimeSesorTypes[1]) {
-          print("sensorValue2: $sensorValue");
           while(sensorValue > 100000 || sensorValue <0){
             if(sensorValue > 100000) {
               int l = pow(10,(sensorValue.toString().length-2).toInt()).toInt();
@@ -74,16 +69,24 @@ class RealtimeGraphPainter extends CustomPainter {
               sensorValue = 100000-sensorValue.abs();
             }
           }
-
-          print("type: $type");
-          print("sensorValue: $sensorValue");
           maxPoints.add(
               Offset(
                   x1 * i,
                   (y1 * sensorValue).clamp(0, size.height)
               )
           );
-        } else {
+        } else if(type == BleDevice.realtimeSesorTypes[2]) {
+          print(type);
+          sensorValue = sensorValue -51500;
+          print(sensorValue);
+          maxPoints.add(
+              Offset(
+                  x1 * i,
+                  (y1 * sensorValue).clamp(0, size.height)
+              )
+          );
+        }
+        else {
           maxPoints.add(
               Offset(
                   x1 * i,
