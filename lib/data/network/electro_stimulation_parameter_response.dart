@@ -8,6 +8,7 @@ class ElectroStimulationParameterResponse extends BaseResponse {
   int interval; // _pulseRadius
   int intensity; // _pulseSize
   int height; // _pulsePadding
+  int long;
 
   ElectroStimulationParameterResponse({
     this.id=-1,
@@ -15,7 +16,8 @@ class ElectroStimulationParameterResponse extends BaseResponse {
     required this.name,
     required this.interval,
     required this.intensity,
-    required this.height
+    required this.height,
+    required this.long
   });
 
   factory ElectroStimulationParameterResponse.fromJson(Map<String, dynamic> json) =>
@@ -25,7 +27,8 @@ class ElectroStimulationParameterResponse extends BaseResponse {
         name: json['name'],
         interval: json['interval'],
         intensity: json['intensity'],
-        height: json['height']
+        height: json['height'],
+        long: json['long']
       );
 
   Map<String, dynamic> toJson() {
@@ -37,6 +40,7 @@ class ElectroStimulationParameterResponse extends BaseResponse {
     data['interval'] = interval;
     data['intensity'] = intensity;
     data['height'] = height;
+    data['long'] = long;
     return data;
   }
 
@@ -44,6 +48,7 @@ class ElectroStimulationParameterResponse extends BaseResponse {
     int intensity = 0;
     int interval = 0;
     int height = 0;
+    int long = 0;
 
     if(index == 0){
       intensity = value;
@@ -51,9 +56,11 @@ class ElectroStimulationParameterResponse extends BaseResponse {
       interval = value;
     }else if(index == 2){
       height = value;
+    }else if(index == 3){
+      long = value;
     }
 
-    var recipe = ElectroStimulationParameterResponse(name:"", interval: interval, intensity: intensity, height: height);
+    var recipe = ElectroStimulationParameterResponse(name:"", interval: interval, intensity: intensity, height: height, long: long);
     return recipe;
   }
 }

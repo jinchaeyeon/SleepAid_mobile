@@ -34,7 +34,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
   /// 선택중인 레시피 앱 실행시에는 기본값을 모르기 때문에 null, 앱 사용 중 레시피 선택하면 해당 레시피를 선택 상태로 설정
   ElectroStimulationParameterResponse? selectedRecipe;
   /// todo 처음에 서버에서 가져와야함, 우선은 서버에서 랜덤값으로 가져옴 서버 개발 전에는 임의값으로 선언해둠
-  ElectroStimulationParameterResponse? recommedRecipe = ElectroStimulationParameterResponse(id:0,onDisplay:true,name:"사용자 맞춤설정",interval:9,intensity:8, height:7);
+  ElectroStimulationParameterResponse? recommedRecipe = ElectroStimulationParameterResponse(id:0,onDisplay:true,name:"사용자 맞춤설정",interval:9,intensity:8, height:7, long: 5);
   /// 서버에서 가져와야 함, 레시피 목록
   List<ElectroStimulationParameterResponse> recipes = [];
 
@@ -318,6 +318,8 @@ class SettingRecipeState extends State<ElectricStimulationPage>
           SizedBox(height: 20),
         buildSliderControlWidget(text:"자극\n높이", index: 2),
           SizedBox(height: 20),
+          buildSliderControlWidget(text:"자극\n길이", index: 3),
+          SizedBox(height: 20),
           Expanded(
             child: SingleChildScrollView(
               child: Container(
@@ -408,7 +410,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     if(isControllable){
       ///todo 추후 서버에서 맞춤설정 가져와야함
       recipes.add(ElectroStimulationParameterResponse(
-          name:"사용자 맞춤 설정", interval: 1, intensity: 9, height: 6));
+          name:"사용자 맞춤 설정", interval: 1, intensity: 9, height: 6, long: 5));
     }
 
     for (var parameter in AppDAO.baseData.electroStimulationParameters) {
@@ -416,7 +418,9 @@ class SettingRecipeState extends State<ElectricStimulationPage>
           name:parameter.name,
           interval: parameter.interval,
           intensity: parameter.intensity,
-          height: parameter.height));
+          height: parameter.height,
+          long: parameter.long
+      ));
     }
   }
 
@@ -533,8 +537,31 @@ class SettingRecipeState extends State<ElectricStimulationPage>
                     ],
                   ),
                 ),
+                Expanded(
+                  flex: 1,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        '자극\n길이',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline3,
+                      ),
+                      SizedBox(width: 10),
+                      Text(
+                        '${recipe.long}',
+                        style: Theme
+                            .of(context)
+                            .textTheme
+                            .headline1,
+                      ),
+                    ],
+                  ),
+                )
               ],
-            )
+            ),
           ],
         ),
       ),
@@ -558,10 +585,13 @@ class SettingRecipeState extends State<ElectricStimulationPage>
         //자극높이
         selectedRecipe!.height = value;
       }
+      else if(index == 3){
+        //자극높이
+        selectedRecipe!.long = value;
+      }
     }else{
       selectedRecipe = ElectroStimulationParameterResponse.firstRecipe(index, (value).toInt());
     }
-
     sendDataToDevice(context, selectedRecipe!);
     setState(() {});
   }
@@ -582,6 +612,8 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       return selectedRecipe!.intensity.toDouble();
     }else if(index == 2){
       return selectedRecipe!.height.toDouble();
+    }else if(index == 3){
+      return selectedRecipe!.long.toDouble();
     }
     return 0;
   }
@@ -648,7 +680,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       return ;
     }
     // 실행정지
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|0\n");
+    // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|0\n");
     // 펄스폭 설정 10~200 단위는 us
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + (
         getDataValue(0, recipe?.intensity??0)).toString() + "\n");
@@ -656,6 +688,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + (getDataValue(1, recipe?.interval??0)).toString() + "\n");
     // n : 명령값, 1~4095 펄스크기 설정
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + (getDataValue(2, recipe?.height??0)).toString().toString() + "\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"110|" + (getDataValue(3, recipe?.long??0)).toString().toString() + "\n");
     // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
     // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|2\n");
@@ -671,7 +704,8 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     if(
       selectedRecipe?.height == recipe.height &&
       selectedRecipe?.interval == recipe.interval &&
-      selectedRecipe?.intensity == recipe.intensity
+      selectedRecipe?.intensity == recipe.intensity &&
+    selectedRecipe?.long == recipe.long
     ){
       return true;
     }
@@ -683,20 +717,26 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     int _value = 0;
     if(type == 0){
       //자극간격 / 펄스폭 intensity 102
-      // 펄스폭 설정 10~200 단위는 us
+      // 펄스폭 설정 0~300 단위는 us
       // 각 단위당 +17정도의 값으로 설정
-      _value = (value + 1) * 17;
+      _value = (value) * 30;
     }else if(type == 1){
       // 펄스간격 / 자극간격 interval 104
-      // 펄스간격 설정 n : 4~200 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
-      // 역시 각 단이당 +17 정도이 되, 나온 출력값 끝값을 4 단위로 체크
-      _value = (((value + 1) * 17) ~/ 4) * 4;
+      // 펄스간격 설정 n : 0~200 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
+      // 역시 각 단이당 +20 정도이 되, 나온 출력값 끝값을 4 단위로 체크
+      _value = (value) * 20;
     }else if(type == 2){
       //펄스 크기 / 펄스 높이 height 106
       // n : 명령값, 1~4095 펄스크기 설정
       // 각 값을 +372로 설정
-      _value = (value + 1) * 372;
+      _value = ((value) * 409.5).toInt();
+    } else if(type == 3){
+      //펄스 길이 / 펄스 길이 long 110
+      // 펄스길이 설정 n : 0~300 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
+      _value = (value) * 30;
     }
+    print(type);
+    print(_value);
     return _value;
   }
 }
