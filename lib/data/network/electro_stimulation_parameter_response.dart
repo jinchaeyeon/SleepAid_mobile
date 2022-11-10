@@ -17,7 +17,7 @@ class ElectroStimulationParameterResponse extends BaseResponse {
     required this.interval,
     required this.intensity,
     required this.height,
-    required this.long
+    required this.long,
   });
 
   factory ElectroStimulationParameterResponse.fromJson(Map<String, dynamic> json) =>
@@ -28,7 +28,7 @@ class ElectroStimulationParameterResponse extends BaseResponse {
         interval: json['interval'],
         intensity: json['intensity'],
         height: json['height'],
-        long: json['long']
+        long: json['long'],
       );
 
   Map<String, dynamic> toJson() {

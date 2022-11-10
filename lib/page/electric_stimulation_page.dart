@@ -34,7 +34,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
   /// 선택중인 레시피 앱 실행시에는 기본값을 모르기 때문에 null, 앱 사용 중 레시피 선택하면 해당 레시피를 선택 상태로 설정
   ElectroStimulationParameterResponse? selectedRecipe;
   /// todo 처음에 서버에서 가져와야함, 우선은 서버에서 랜덤값으로 가져옴 서버 개발 전에는 임의값으로 선언해둠
-  ElectroStimulationParameterResponse? recommedRecipe = ElectroStimulationParameterResponse(id:0,onDisplay:true,name:"사용자 맞춤설정",interval:9,intensity:8, height:7, long: 5);
+  ElectroStimulationParameterResponse? recommedRecipe = ElectroStimulationParameterResponse(id:0,onDisplay:true,name:"사용자 맞춤설정",interval:9,intensity:8, height:7, long: 2);
   /// 서버에서 가져와야 함, 레시피 목록
   List<ElectroStimulationParameterResponse> recipes = [];
 
@@ -48,7 +48,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     buildPage();
 
     return Scaffold(
-      appBar: appBar(context, '전기 자극 상태', isRound: false,),
+        appBar: appBar(context, '전기 자극 상태', isRound: false,),
         extendBody: true,
         body: SafeArea(
             child: Container(
@@ -131,7 +131,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
                         )
                     ),
                     Expanded(
-                      child: homeContent()
+                        child: homeContent()
                     )
                   ],
                 )
@@ -162,25 +162,25 @@ class SettingRecipeState extends State<ElectricStimulationPage>
             Positioned(
               left: 0, right: 0, bottom: 0, top: 0,
               child: Container(
-                width: 300,
-                height:double.maxFinite,
-                alignment: Alignment.center,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 24,
-                          height: 1.08,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textBlack
-                      ),
-                    ),
-                  ]
-                )
+                  width: 300,
+                  height:double.maxFinite,
+                  alignment: Alignment.center,
+                  child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          title,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 24,
+                              height: 1.08,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.textBlack
+                          ),
+                        ),
+                      ]
+                  )
               ),
             ),
             Positioned(
@@ -314,24 +314,24 @@ class SettingRecipeState extends State<ElectricStimulationPage>
         children: [
           buildSliderControlWidget(text:"자극\n간격", index: 0),
           SizedBox(height: 20),
-      buildSliderControlWidget(text:"자극\n세기", index: 1),
+          buildSliderControlWidget(text:"자극\n세기", index: 1),
           SizedBox(height: 20),
-        buildSliderControlWidget(text:"자극\n높이", index: 2),
+          buildSliderControlWidget(text:"자극\n높이", index: 2),
           SizedBox(height: 20),
           buildSliderControlWidget(text:"자극\n길이", index: 3),
           SizedBox(height: 20),
           Expanded(
-            child: SingleChildScrollView(
-              child: Container(
-                padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-                child: Column(
-                  children: [
-                    if(!isControllable)getExplaationWidget(),
-                    ...getRecipeWidgets(),
-                  ],
+              child: SingleChildScrollView(
+                child: Container(
+                  padding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+                  child: Column(
+                    children: [
+                      if(!isControllable)getExplaationWidget(),
+                      ...getRecipeWidgets(),
+                    ],
+                  ),
                 ),
-              ),
-            )
+              )
           )
         ],
       ),
@@ -410,7 +410,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     if(isControllable){
       ///todo 추후 서버에서 맞춤설정 가져와야함
       recipes.add(ElectroStimulationParameterResponse(
-          name:"사용자 맞춤 설정", interval: 1, intensity: 9, height: 6, long: 5));
+          name:"사용자 맞춤 설정", interval: 1, intensity: 9, height: 6, long: 2));
     }
 
     for (var parameter in AppDAO.baseData.electroStimulationParameters) {
@@ -419,7 +419,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
           interval: parameter.interval,
           intensity: parameter.intensity,
           height: parameter.height,
-          long: parameter.long
+          long: parameter.long,
       ));
     }
   }
@@ -439,132 +439,132 @@ class SettingRecipeState extends State<ElectricStimulationPage>
           margin:EdgeInsets.only(top:10),
           width: double.maxFinite,
           padding: const EdgeInsets.only(
-          top: 16,
-          left: 16,
-          right: 16,
-          bottom: 26,
+            top: 16,
+            left: 16,
+            right: 16,
+            bottom: 26,
+          ),
+          decoration: BoxDecoration(
+            color: isSelectedRecipe(recipe) ? Theme
+                .of(context)
+                .cardColor : Theme
+                .of(context)
+                .focusColor,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(width: 1.5,
+                color: isSelectedRecipe(recipe) ? AppColors.mainGreen : Colors.transparent),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                recipe.name,
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .headline6,
+              ),
+              SizedBox(height: 22),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '자극\n간격',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline2,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${recipe.interval}',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '자극\n세기',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline2,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${recipe.intensity}',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '자극\n높이',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline2,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${recipe.height}',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline1,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '자극\n길이',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline2,
+                        ),
+                        SizedBox(width: 10),
+                        Text(
+                          '${recipe.long}',
+                          style: Theme
+                              .of(context)
+                              .textTheme
+                              .headline1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
         ),
-        decoration: BoxDecoration(
-          color: isSelectedRecipe(recipe) ? Theme
-              .of(context)
-              .cardColor : Theme
-              .of(context)
-              .focusColor,
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(width: 1.5,
-              color: isSelectedRecipe(recipe) ? AppColors.mainGreen : Colors.transparent),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              recipe.name,
-              style: Theme
-                  .of(context)
-                  .textTheme
-                  .headline6,
-            ),
-            SizedBox(height: 22),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '자극\n간격',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline2,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '${recipe.interval}',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline1,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '자극\n세기',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline2,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '${recipe.intensity}',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline1,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '자극\n높이',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline2,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '${recipe.height}',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline1,
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  flex: 1,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        '자극\n길이',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline3,
-                      ),
-                      SizedBox(width: 10),
-                      Text(
-                        '${recipe.long}',
-                        style: Theme
-                            .of(context)
-                            .textTheme
-                            .headline1,
-                      ),
-                    ],
-                  ),
-                )
-              ],
-            ),
-          ],
-        ),
-      ),
       );
 
       list.add(widget);
@@ -584,14 +584,14 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       }else if(index == 2){
         //자극높이
         selectedRecipe!.height = value;
-      }
-      else if(index == 3){
+      }else if(index == 3){
         //자극높이
         selectedRecipe!.long = value;
       }
     }else{
       selectedRecipe = ElectroStimulationParameterResponse.firstRecipe(index, (value).toInt());
     }
+
     sendDataToDevice(context, selectedRecipe!);
     setState(() {});
   }
@@ -680,7 +680,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       return ;
     }
     // 실행정지
-    // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|0\n");
+    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|0\n");
     // 펄스폭 설정 10~200 단위는 us
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + (
         getDataValue(0, recipe?.intensity??0)).toString() + "\n");
@@ -702,10 +702,10 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       return false;
     }
     if(
-      selectedRecipe?.height == recipe.height &&
-      selectedRecipe?.interval == recipe.interval &&
-      selectedRecipe?.intensity == recipe.intensity &&
-    selectedRecipe?.long == recipe.long
+    selectedRecipe?.height == recipe.height &&
+        selectedRecipe?.interval == recipe.interval &&
+        selectedRecipe?.intensity == recipe.intensity &&
+        selectedRecipe?.long == recipe.long
     ){
       return true;
     }
@@ -735,8 +735,6 @@ class SettingRecipeState extends State<ElectricStimulationPage>
       // 펄스길이 설정 n : 0~300 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
       _value = (value) * 30;
     }
-    print(type);
-    print(_value);
     return _value;
   }
 }

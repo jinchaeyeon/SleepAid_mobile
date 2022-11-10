@@ -87,6 +87,7 @@ class AppDAO{
     if(gFlavor == Flavor.DEV){
       return DEBUG_PRODUCT;
     }
+    print("ggdgdgdgd");
     return HOST_PRODUCT;
   }
 
