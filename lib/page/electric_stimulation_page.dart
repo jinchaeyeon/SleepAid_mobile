@@ -676,11 +676,9 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     if(isNeckMode && context.read<BluetoothProvider>().deviceNeck == null){
       return ;
     }
-    if(!isNeckMode && context.read<BluetoothProvider>().deviceForehead == null){
-      return ;
+    if(!isNeckMode && context.read<BluetoothProvider>().deviceForehead == null) {
+      return;
     }
-    // 실행정지
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|0\n");
     // 펄스폭 설정 10~200 단위는 us
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + (
         getDataValue(0, recipe?.intensity??0)).toString() + "\n");
