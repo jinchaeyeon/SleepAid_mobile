@@ -51,6 +51,8 @@ dependencies:
   flutter_local_notifications: ^9.7.0
   syncfusion_flutter_charts: ^20.3.50
 
+dependency_overrides:
+  firebase_core_platform_interface: 4.5.1
 
 dev_dependencies:
   flutter_test:
