@@ -705,6 +705,8 @@ class SettingRecipeState extends State<ElectricStimulationPage>
         selectedRecipe?.intensity == recipe.intensity &&
         selectedRecipe?.long == recipe.long
     ){
+      sendDataToDevice(context, selectedRecipe!);
+      setState(() {});
       return true;
     }
     return false;
