@@ -681,15 +681,7 @@ class SettingRecipeState extends State<ElectricStimulationPage>
     }
     // 펄스폭 설정 10~200 단위는 us
     context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD, "102|" + (
-        getDataValue(0, recipe?.intensity??0)).toString() + "\n");
-    // 펄스간격 설정 n : 4~200 단위는 ms 해상도 4 (아마도 최소단위 4로 끊어서 보내야 하는 것으로 보임)
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"104|" + (getDataValue(1, recipe?.interval??0)).toString() + "\n");
-    // n : 명령값, 1~4095 펄스크기 설정
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"106|" + (getDataValue(2, recipe?.height??0)).toString().toString() + "\n");
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"110|" + (getDataValue(3, recipe?.long??0)).toString().toString() + "\n");
-    // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"109|1\n");
-    // context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"909|1\n");
-    context.read<BluetoothProvider>().sendData(isNeckMode?BODY_TYPE.NECK:BODY_TYPE.FOREHEAD,"910|2\n");
+        getDataValue(0, recipe?.intensity??0)).toString() + "\r\n104|" + (getDataValue(1, recipe?.interval??0)).toString() + "\r\n106|" + (getDataValue(2, recipe?.height??0)).toString() + "\r\n110|" + (getDataValue(3, recipe?.long??0)).toString() + "\r\n910|2");
   }
 
   isSelectedRecipe(ElectroStimulationParameterResponse recipe) {
